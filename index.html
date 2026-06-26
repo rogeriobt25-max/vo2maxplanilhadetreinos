@@ -1401,6 +1401,22 @@ async function savePlansToCloud(uid,plans){
   }catch(e){console.warn('Firestore save error',e)}
 }
 
+// ── intervals.icu config: mesma estratégia (doc users/{uid}, campo icuConfig) ──
+// Permite que API Key + Athlete ID sigam o usuário entre dispositivos, não só o navegador.
+async function loadIcuConfigFromCloud(uid){
+  try{
+    const snap=await fbDb.collection('users').doc(uid).get();
+    if(snap.exists)return snap.data().icuConfig||null;
+  }catch(e){console.warn('Firestore load error (icuConfig)',e)}
+  return null;
+}
+
+async function saveIcuConfigToCloud(uid,cfg){
+  try{
+    await fbDb.collection('users').doc(uid).set({icuConfig:cfg},{merge:true});
+  }catch(e){console.warn('Firestore save error (icuConfig)',e)}
+}
+
 /* ── Login ── */
 async function doLogin(){
   if(!fbAuth){showAuthErr('login','Serviço indisponível. Recarregue a página.');return;}
@@ -1567,6 +1583,9 @@ function initAuth(){
       if(cloudPlans.length>0){updateSavedBadge();renderSavedList();}
       // Carrega último teste da nuvem (tem prioridade sobre localStorage)
       await loadLastTestFromCloud(user.uid);
+      // Sincroniza a config do intervals.icu (API Key + Athlete ID) com a nuvem,
+      // para que o usuário não precise digitar de novo em outro dispositivo.
+      await icuSyncConfigOnLogin(user.uid);
       showToast('✅ Bem-vindo, '+(user.displayName||user.email)+'!');
     }
     updateAuthUI();
@@ -4830,7 +4849,7 @@ function buildPlanUI(race){
   ${isShort?'':`<div style="font-size:10px;color:var(--t3);background:rgba(0,0,0,0.03);border:1px solid var(--bdr);border-radius:6px;padding:7px 12px;margin-bottom:.75rem;line-height:1.6;display:none" id="dias-ativos-${race}">
   ⚡ <strong style="color:var(--t2)">Dias ativos por fase:</strong> ${is42?'Base 3–4 treinos · Build 4–5 treinos · Específica 4–5 treinos · Pico 5 treinos · Taper 3–4 treinos':race==='21'?'21km 12sem: 4 treinos constantes (Base→Específica→Pico→Taper) · 21km 16sem: inicia 3 treinos, evolui para 4 gradualmente':'Base 3–4 treinos · Build 4–5 treinos · Recuo 3 treinos · Taper 3–4 treinos'}. <strong style="color:var(--t2)">SEG</strong>: descanso (iniciante) ou rec.ativa progressiva (inter/avançado) · <strong style="color:var(--t2)">SEX</strong>: descanso pré-longão (leve opcional p/ avançado/improve) · <strong style="color:var(--t2)">DOM</strong> sempre descanso.
   </div>`}
-  <div class="exp-bar"><span>Exportar</span><button class="btn-exp btn-exp-pr" onclick="printPlan('${race}')">🖨 Salvar PDF</button><button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf" onclick="exportGarminFromRace('${race}')">⌚ Garmin (.fit)</button></div>
+  <div class="exp-bar"><span>Exportar</span><button class="btn-exp btn-exp-pr" onclick="printPlan('${race}')">🖨 Salvar PDF</button><button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf" onclick="exportGarminFromRace('${race}')">⌚ Garmin (.fit)</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromRace('${race}')">📅 intervals.icu</button></div>
   <div id="save-bar-${race}" style="display:flex;justify-content:center;margin-bottom:1rem"><button class="btn-save" onclick="openSaveModal('${race}')">📋 Salvar em Meus Treinos</button></div>
   </div>
   <div id="plan-weeks-${race}"></div>`;
@@ -5185,6 +5204,13 @@ function renderPlanShort(race,planWeeks,profKey){
   const mod=usingCustom&&customPaces.Z3?customPaces.Z3:vVO2G*pf.mod;
   const tempo=usingCustom&&customPaces.Z4?customPaces.Z4:vVO2G*pf.tempo;
   const intv=usingCustom&&customPaces.Z5?customPaces.Z5:vVO2G*pf.intv;
+  // Guarda defensiva: sem VO2max calculado (vVO2G=0), ez/mod/tempo/intv saem 0,
+  // s2p() vira '--:--', e o .fit acaba sem pace nenhum nos steps (exibido como
+  // "(0-0w)" / "Pace (null-null)" no intervals.icu, ou "1-1W" no relógio).
+  // Avisa o usuário em vez de gerar o plano silenciosamente quebrado.
+  if(!ez||ez<=0){
+    showToast('⚠ Calcule seu VO2max/pace antes de gerar o plano — os ritmos ficarão em branco.');
+  }
   const{weeks}=buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed);
   const mt=document.getElementById(`method-tag-${race}`);
   const obj=is10k?planObj10k:planObj5k;
@@ -5287,6 +5313,11 @@ function renderPlan(race){
   const mod=usingCustom&&customPaces.Z3?customPaces.Z3:vVO2G*pf.mod;
   const tempo=usingCustom&&customPaces.Z4?customPaces.Z4:vVO2G*pf.tempo;
   const intv=usingCustom&&customPaces.Z5?customPaces.Z5:vVO2G*pf.intv;
+  // Guarda defensiva: sem VO2max calculado, ez sai 0 e os paces do plano (inclusive
+  // o do Longão) ficam em branco no .fit exportado. Avisa em vez de falhar silenciosamente.
+  if(!ez||ez<=0){
+    showToast('⚠ Calcule seu VO2max/pace antes de gerar o plano — os ritmos ficarão em branco.');
+  }
   const obj=race==='21'?planObj21:planObj42;
   const {weeks,lp}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj);
   // Pico real do longão: máximo entregue pelo engine (considera lpEff, maxDurH, cutback)
@@ -5470,9 +5501,14 @@ function confirmSave(){
   const mod=usingCustom&&customPaces.Z3?customPaces.Z3:vVO2G*pf.mod;
   const tempo=usingCustom&&customPaces.Z4?customPaces.Z4:vVO2G*pf.tempo;
   const intv=usingCustom&&customPaces.Z5?customPaces.Z5:vVO2G*pf.intv;
+  // Guarda defensiva (ver renderPlan/renderPlanShort): evita salvar um plano com paces zerados.
+  if(!ez||ez<=0){
+    showToast('⚠ VO2max/pace não calculado — os ritmos deste plano ficarão em branco.');
+  }
+  const obj=is42?planObj42:race==='21'?planObj21:race==='5k'?planObj5k:planObj10k;
   let weeks,lp;
   if(isShort){({weeks}=buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed));lp={peak:race==='5k'?10:16};}
-  else{({weeks,lp}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed));}
+  else{({weeks,lp}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
   const totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
   const intensityDist=calcIntensityDist(weeks);
   const startTimestamp=Date.now();const plan={id:startTimestamp,name,race,planWeeks,profKey,vo2:Math.round(vo2G*10)/10,raceSpeed,ez,mod,tempo,intv,lp,createdAt:new Date().toLocaleDateString('pt-BR'),startTimestamp,weeks,done:{},totalWorkouts,intensityDist};
@@ -5596,6 +5632,7 @@ function getWeekStartDate(plan,wIdx){
   const daysToMon=dow===0?-6:1-dow;
   const planStart=new Date(start);
   planStart.setDate(planStart.getDate()+daysToMon);
+  planStart.setHours(0,0,0,0);
   planStart.setDate(planStart.getDate()+wIdx*7);
   return planStart;
 }
@@ -5713,6 +5750,7 @@ function renderSavedList(){
           <span>Exportar</span>
           <button class="btn-exp btn-exp-pr" onclick="printSaved(${plan.id})">🖨 Salvar PDF</button>
           <button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf" onclick="exportGarminJSON(${plan.id})">⌚ Garmin (.fit)</button>
+          <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromSaved(${plan.id})">📅 intervals.icu</button>
         </div>
         ${plan.intensityDist?buildIntensityBoxHTML(plan.intensityDist,plan.race==='42'):''}
         ${plan.weeks.map((wk,wIdx)=>{
@@ -5957,20 +5995,23 @@ class FitWriter{
 const MSG_FILE_ID=0, MSG_WORKOUT=26, MSG_WORKOUT_STEP=27, MSG_SCHEDULE=28;
 const FILE_ID_FIELDS=[{num:0,type:'enum'},{num:1,type:'uint16'},{num:2,type:'uint16'},{num:4,type:'uint32'},{num:3,type:'uint32'}];
 const WORKOUT_FIELDS=[{num:8,type:'string',size:32},{num:4,type:'enum'},{num:6,type:'uint16'}];
+// MSG_SCHEDULE (#28): scheduled_at(field 1, uint32), completed(2,enum), type(3,enum), manufacturer(4,uint16),
+// product(5,uint16), serial_number(6,uint32), time_created(7,uint32)
+// Intervals.icu e Garmin Connect usam scheduled_at para posicionar o treino no calendário.
+const SCHEDULE_FIELDS=[{num:7,type:'uint32'},{num:6,type:'uint32'},{num:4,type:'uint16'},{num:5,type:'uint16'},{num:1,type:'uint32'},{num:2,type:'enum'},{num:3,type:'enum'}];
 const WORKOUT_STEP_FIELDS=[
   {num:254,type:'uint16'},{num:0,type:'string',size:32},{num:1,type:'enum'},{num:2,type:'uint32'},
   {num:3,type:'enum'},{num:4,type:'uint32'},{num:5,type:'uint32'},{num:6,type:'uint32'},{num:7,type:'enum'}
 ];
-// Campos da mensagem global "schedule" (#28): manufacturer, product, serial_number, time_created
-// (esses 4 identificam o file_id do workout agendado), completed, type, scheduled_time
-const SCHEDULE_FIELDS=[
-  {num:0,type:'uint16'},{num:1,type:'uint16'},{num:2,type:'uint32'},{num:3,type:'uint32'},
-  {num:4,type:'enum'},{num:5,type:'enum'},{num:6,type:'uint32'}
-];
-const FIT_SCHEDULE_TYPE={workout:0, course:1};
 // Enums oficiais do FIT SDK
 const FIT_DUR_TYPE={time:0, distance:1, repeat_until_steps_cmplt:6};
-const FIT_TARGET_TYPE={speed:0, open:2};
+// FIT SDK wkt_step_target: speed=0, heart_rate=1, cadence=2, power=3, open=0 (sem restrição = speed c/ valores 0)
+const FIT_TARGET_TYPE={speed:0, heart_rate:1, open:0};
+// Valor "inválido" para target_type (0xFF) — usado em steps de repetição, onde o campo 4
+// deixa de ser target_value e passa a significar repeat_steps (contagem de repetições).
+// Setar target_type=speed nesses steps é o que faz o relógio confundir a contagem com
+// um alvo de velocidade/potência (aparecendo como "1-1W" na tela em vez do ritmo real).
+const FIT_TARGET_TYPE_INVALID=0xFF;
 const FIT_INTENSITY={active:0, rest:1, warmup:2, cooldown:3, recovery:4, interval:5};
 function speedToFitCustom(mps){return Math.round(mps*1000);}
 
@@ -5982,13 +6023,15 @@ function flattenStepsForFit(steps){
     const durType=isDist?FIT_DUR_TYPE.distance:FIT_DUR_TYPE.time;
     // distance em centímetros (scale 100) | time em milissegundos (scale 1000) — conforme SDK
     const durValue=isDist?Math.round(s.endCondition.conditionValue*100):Math.round(s.endCondition.conditionValue*1000);
-    let targetLow=null,targetHigh=null;
+    let targetLow=null,targetHigh=null,hrZone=null;
     if(s.targetType&&s.targetType.workoutTargetTypeKey==='pace.zone'){
       targetLow=s.targetValueOne; targetHigh=s.targetValueTwo;
+    } else if(s.targetType&&s.targetType.workoutTargetTypeKey==='heart.rate.zone'){
+      hrZone=s.zoneNumber||1;
     }
     flat.push({name:s.description||'', durType, durValue,
       intensity:FIT_INTENSITY[intensityKey]!=null?FIT_INTENSITY[intensityKey]:FIT_INTENSITY.active,
-      targetLow, targetHigh});
+      targetLow, targetHigh, hrZone});
   }
   steps.forEach(s=>{
     if(s.type==='RepeatGroupDTO'){
@@ -5997,7 +6040,7 @@ function flattenStepsForFit(steps){
         pushSimple(inner, inner.stepType.stepTypeKey==='recovery'?'recovery':'interval');
       });
       flat.push({name:'', durType:FIT_DUR_TYPE.repeat_until_steps_cmplt, durValue:startIdx,
-        intensity:FIT_INTENSITY.active, targetLow:null, targetHigh:null,
+        intensity:FIT_INTENSITY.active, targetLow:null, targetHigh:null, hrZone:null,
         isRepeat:true, repeatCount:s.numberOfIterations});
     } else {
       const key=s.stepType.stepTypeKey;
@@ -6010,10 +6053,18 @@ function flattenStepsForFit(steps){
 
 // Envolve o corpo (mensagens FIT já escritas) com header de 14 bytes + CRC final,
 // produzindo o binário .FIT completo. Compartilhado entre arquivos de workout e schedule.
-function wrapFitBody(bodyBytes){
+//
+// fileNonce: uint16 opcional (0–65535). Gravado nos bytes [2-3] do header (campo "profile version").
+// Quando múltiplos arquivos têm o mesmo tamanho de body, o nonce garante que os 14 bytes do
+// header global sejam distintos entre si — e portanto o CRC do header e o CRC do arquivo também
+// serão únicos. O Garmin usa essa diferença para não tratar os arquivos como duplicatas.
+// O protocolo FIT permite qualquer valor uint16 nesse campo; "100" (1.00) é apenas convenção.
+function wrapFitBody(bodyBytes, fileNonce){
+  const nonce=(fileNonce||0)&0xFFFF;
   const header=new Uint8Array(14);
   header[0]=14; header[1]=0x10;
-  header[2]=100&0xFF; header[3]=(100>>8)&0xFF;
+  // bytes [2-3]: profile version com nonce embutido — garante header único por arquivo no lote
+  header[2]=nonce&0xFF; header[3]=(nonce>>8)&0xFF;
   header[4]=bodyBytes.length&0xFF; header[5]=(bodyBytes.length>>8)&0xFF;
   header[6]=(bodyBytes.length>>16)&0xFF; header[7]=(bodyBytes.length>>24)&0xFF;
   header[8]=0x2E;header[9]=0x46;header[10]=0x49;header[11]=0x54; // ".FIT"
@@ -6031,25 +6082,46 @@ function wrapFitBody(bodyBytes){
 // Gera um par {serialNumber, timeCreated} único para identificar o file_id de um treino.
 // serialNumber precisa ser diferente entre treinos para o schedule referenciar o workout certo
 // (o relógio casa schedule <-> workout pelos campos manufacturer/product/serialNumber/timeCreated).
-let __fitSerialSeq=0;
-function makeFitIdentity(){
-  const fitEpoch=Math.floor(Date.now()/1000)-631065600; // FIT epoch: 31/12/1989 UTC
-  __fitSerialSeq=(__fitSerialSeq+1)&0xFFFFFFFF;
-  let serialNumber=((Date.now()&0xFFFF0000)>>>0 ^ __fitSerialSeq)>>>0;
-  if(serialNumber===0)serialNumber=__fitSerialSeq||1; // serial_number é uint32z: 0 = inválido em alguns parsers
+// indexOffset: índice do treino no lote (0, 1, 2...) — somado ao timeCreated para garantir
+// unicidade mesmo quando vários treinos são gerados no mesmo segundo.
+function makeFitIdentity(indexOffset){
+  const off=indexOffset||0;
+  // FIT epoch: 31/12/1989 UTC. Offset garante timeCreated distinto por treino no lote.
+  const fitEpoch=(Math.floor(Date.now()/1000)-631065600)+off;
+  // Serial único via crypto para evitar colisão entre exportações distintas.
+  // Sem crypto (fallback): combina timestamp em ms com aleatoriedade de Math.random.
+  let serialNumber;
+  try{
+    const arr=new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    serialNumber=arr[0]||1;
+  }catch(e){
+    serialNumber=(((Date.now()&0xFFFFFFFF)^Math.round(Math.random()*0xFFFFFFFF)^(off*0x9E3779B9))>>>0)||1;
+  }
   return{serialNumber, timeCreated:fitEpoch};
 }
 
 // Monta o arquivo .FIT binário completo de um treino (nome + steps no formato intermediário)
-// fileIdentity: {serialNumber, timeCreated} — deve ser o mesmo usado no buildFitScheduleFile correspondente
-function buildFitWorkoutFile(name, steps, fileIdentity){
+// fileIdentity: {serialNumber, timeCreated} — gerado por makeFitIdentity, único por treino no lote
+// fileNonce: uint16 repassado para wrapFitBody — torna o header global único por arquivo no lote
+// scheduledAt: Date opcional com a data real do treino — gravada no campo scheduled_at (MSG #28)
+//   e usada como time_created do file_id, para que Intervals.icu e outros apps leiam a data certa.
+//   Não afeta o comportamento no Garmin via NewFiles (o relógio ignora MSG #28 nesse fluxo).
+function buildFitWorkoutFile(name, steps, fileIdentity, fileNonce, scheduledAt){
   const flat=flattenStepsForFit(steps);
   const body=new FitWriter();
   const ident=fileIdentity||makeFitIdentity();
 
+  // Se há data agendada real, usa ela como time_created (FIT epoch = segundos desde 31/12/1989 UTC)
+  // Isso permite que Intervals.icu e Garmin Connect identifiquem a data do treino nativamente.
+  const FIT_EPOCH_OFFSET=631065600; // segundos entre Unix epoch e FIT epoch
+  const scheduledFitTs=scheduledAt
+    ? Math.floor(scheduledAt.getTime()/1000)-FIT_EPOCH_OFFSET
+    : ident.timeCreated;
+
   body.defineMessage(MSG_FILE_ID, FILE_ID_FIELDS, 0);
   // campos: type(enum=5 workout), manufacturer(255 development), product(0), time_created, serial_number
-  body.writeMessage(0, FILE_ID_FIELDS, [5,255,0,ident.timeCreated,ident.serialNumber]);
+  body.writeMessage(0, FILE_ID_FIELDS, [5,255,0,scheduledFitTs,ident.serialNumber]);
 
   body.defineMessage(MSG_WORKOUT, WORKOUT_FIELDS, 1);
   body.writeMessage(1, WORKOUT_FIELDS, [name||'Treino',1,flat.length]);
@@ -6058,44 +6130,42 @@ function buildFitWorkoutFile(name, steps, fileIdentity){
   flat.forEach((st,idx)=>{
     let targetType,targetValue,custLow,custHigh;
     if(st.isRepeat){
-      targetType=FIT_TARGET_TYPE.open; targetValue=st.repeatCount; custLow=0; custHigh=0;
+      // Repeat step: NÃO deve setar target_type=speed. Quando duration_type=repeat_until_steps_cmplt,
+      // o campo 4 (que normalmente é target_value) é reinterpretado pelo FIT SDK como repeat_steps
+      // (contagem de repetições) — mas só funciona corretamente se target_type ficar inválido/vazio.
+      // Setar speed aqui é o que fazia o relógio exibir "1-1W" em vez do ritmo nos steps internos.
+      targetType=FIT_TARGET_TYPE_INVALID; targetValue=st.repeatCount; custLow=0; custHigh=0;
     } else if(st.targetLow!=null&&st.targetHigh!=null){
+      // Pace target: targetType=speed(0), custLow/custHigh em mm/s
       targetType=FIT_TARGET_TYPE.speed; targetValue=0;
       custLow=speedToFitCustom(st.targetLow); custHigh=speedToFitCustom(st.targetHigh);
+    } else if(st.hrZone!=null){
+      // Heart rate zone target: targetType=heart_rate(1), targetValue=zone number
+      targetType=FIT_TARGET_TYPE.heart_rate; targetValue=st.hrZone; custLow=0; custHigh=0;
     } else {
-      targetType=FIT_TARGET_TYPE.open; targetValue=0; custLow=0; custHigh=0;
+      // Sem target: NÃO existe "open" como valor de target_type no protocolo FIT —
+      // o valor 0 SEMPRE significa speed/pace para o decodificador (Garmin, intervals.icu, etc).
+      // Por isso steps sem alvo definido (ex.: pace null por falha no cálculo) apareciam como
+      // "(0-0w)" e "Pace (null-null)" no intervals.icu, e "1-1W" no relógio.
+      // O valor correto para "sem alvo nenhum" é o enum inválido (0xFF).
+      targetType=FIT_TARGET_TYPE_INVALID; targetValue=0; custLow=0; custHigh=0;
     }
     body.writeMessage(2, WORKOUT_STEP_FIELDS,
       [idx, st.name, st.durType, st.durValue, targetType, targetValue, custLow, custHigh, st.intensity]);
   });
 
-  return wrapFitBody(body.toBytes());
+  // MSG #28 (schedule): grava a data agendada real do treino.
+  // Lida pelo Intervals.icu e Garmin Connect para posicionar o treino no calendário.
+  // O Garmin ignora essa mensagem no fluxo NewFiles — não afeta o uso via cabo USB.
+  if(scheduledAt){
+    body.defineMessage(MSG_SCHEDULE, SCHEDULE_FIELDS, 3);
+    // campos: time_created, serial_number, manufacturer(255), product(0), scheduled_at, completed(0=false), type(0=workout)
+    body.writeMessage(3, SCHEDULE_FIELDS, [scheduledFitTs, ident.serialNumber, 255, 0, scheduledFitTs, 0, 0]);
+  }
+
+  return wrapFitBody(body.toBytes(), fileNonce);
 }
 
-// Monta o arquivo .FIT de agendamento (mensagem global "schedule", #28), que diz ao
-// relógio em qual dia o workout referenciado por fileIdentity deve aparecer no calendário.
-// scheduledAt: objeto Date (hora local) do dia em que o treino deve aparecer.
-function buildFitScheduleFile(fileIdentity, scheduledAt){
-  const body=new FitWriter();
-
-  body.defineMessage(MSG_FILE_ID, FILE_ID_FIELDS, 0);
-  // type(enum=7 schedule) — arquivo em si é do tipo "schedule"
-  const ownFitEpoch=Math.floor(Date.now()/1000)-631065600;
-  body.writeMessage(0, FILE_ID_FIELDS, [7,255,0,ownFitEpoch,fileIdentity.serialNumber]);
-
-  body.defineMessage(MSG_SCHEDULE, SCHEDULE_FIELDS, 1);
-  // local_date_time do FIT: segundos desde 31/12/1989 UTC, mas sem ajuste de timezone (hora "de parede")
-  const local=new Date(scheduledAt);
-  const localEpoch=Math.floor(Date.UTC(
-    local.getFullYear(),local.getMonth(),local.getDate(),
-    local.getHours(),local.getMinutes(),local.getSeconds()
-  )/1000)-631065600;
-  body.writeMessage(1, SCHEDULE_FIELDS,
-    // manufacturer, product, serial_number, time_created -> identificam o workout agendado
-    [255,0,fileIdentity.serialNumber,fileIdentity.timeCreated,0/*completed=false*/,FIT_SCHEDULE_TYPE.workout,localEpoch]);
-
-  return wrapFitBody(body.toBytes());
-}
 
 // Empacota múltiplos workouts .fit em um .zip simples (store, sem compressão) — sem dependências externas
 function buildFitZip(files){
@@ -6249,6 +6319,16 @@ function garminRepeatStep(order, reps, innerSteps){
 function dayToGarminSteps(day, plan){
   if(day.rest)return null;
 
+  // Normaliza: suporta plan.ez direto (savedPlan) e plan.paces.ez ({paces:{ez,...}})
+  const _p = plan.paces || {};
+  const ez    = _p.ez    != null ? _p.ez    : plan.ez;
+  const mod   = _p.mod   != null ? _p.mod   : plan.mod;
+  const intv  = _p.intv  != null ? _p.intv  : plan.intv;
+  const tempo = _p.tempo != null ? _p.tempo : plan.tempo;
+  const raceSpeed = plan.raceSpeed != null ? plan.raceSpeed : _p.raceSpeed;
+  // Alias local para não mudar todas as referências abaixo
+  const planN = {ez, mod, intv, tempo, raceSpeed};
+
   const steps=[];
   let order=1;
 
@@ -6288,13 +6368,13 @@ function dayToGarminSteps(day, plan){
 
   // ── Warmup padrão 10 min fácil (para treinos com intensidade)
   function addWarmup(durationSec=600){
-    const tgt=plan.ez?paceTarget(s2p(plan.ez),15):null;
+    const tgt=planN.ez?paceTarget(s2p(planN.ez),15):null;
     steps.push(garminStep(order++,'warmup',{type:'time',value:durationSec},
       tgt,'Aquecimento leve Z1'));
   }
   // ── Cooldown padrão
   function addCooldown(durationSec=600){
-    const tgt=plan.ez?paceTarget(s2p(plan.ez),15):null;
+    const tgt=planN.ez?paceTarget(s2p(planN.ez),15):null;
     steps.push(garminStep(order++,'cooldown',{type:'time',value:durationSec},
       tgt,'Desaquecimento Z1'));
   }
@@ -6304,20 +6384,18 @@ function dayToGarminSteps(day, plan){
   }
 
   if(type==='Corrida leve'||type==='Rec. ativa'||type==='Corrida base'){
-    // Treino leve: apenas distância em pace Z1-Z2
+    // Treino leve/base: corrida contínua Z1-Z2 — sem aquecimento separado (já é o aquecimento)
     const dist=totalDist||(type==='Rec. ativa'?6000:8000);
     steps.push(garminStep(order++,'active',{type:'distance',value:dist},
-      paceTarget(day.pace||s2p(plan.ez),20),type));
+      paceTarget(day.pace||s2p(planN.ez),20),type));
     return steps;
   }
 
   if(type==='Moderado'){
+    // Treino moderado: corrida contínua Z3 — sem aquecimento/desaquecimento separado (conforme planilha)
     const dist=totalDist||10000;
-    steps.push(garminStep(order++,'warmup',{type:'time',value:300},
-      paceTarget(s2p(plan.ez),15),'Aquecimento 5min'));
-    steps.push(garminStep(order++,'active',{type:'distance',value:Math.max(dist-1000,dist)},
-      paceTarget(day.pace||s2p(plan.mod||plan.ez),15),'Moderado Z3'));
-    addCooldown(300);
+    steps.push(garminStep(order++,'active',{type:'distance',value:dist},
+      paceTarget(day.pace||s2p(planN.mod||planN.ez),15),'Moderado Z3'));
     return steps;
   }
 
@@ -6327,9 +6405,9 @@ function dayToGarminSteps(day, plan){
     // Alternâncias: 2min rápido + 2min leve × n
     const fartlekReps=Math.max(3,Math.round((dist-2000)/4000));
     const fastStep=garminStep(1,'interval',{type:'time',value:120},
-      paceTarget(day.pace||s2p(plan.mod),10),'Fartlek rápido Z3-Z4');
+      paceTarget(day.pace||s2p(planN.mod),10),'Fartlek rápido Z3-Z4');
     const slowStep=garminStep(2,'recovery',{type:'time',value:120},
-      paceTarget(s2p(plan.ez),20),'Fartlek leve Z1-Z2');
+      paceTarget(s2p(planN.ez),20),'Fartlek leve Z1-Z2');
     steps.push(garminRepeatStep(order++,fartlekReps,[fastStep,slowStep]));
     addCooldown(600);
     return steps;
@@ -6341,16 +6419,16 @@ function dayToGarminSteps(day, plan){
     addWarmup(600);
     if(parsed&&parsed.reps>0&&parsed.distM>0){
       const intStep=garminStep(1,'interval',{type:'distance',value:parsed.distM},
-        paceTarget(day.pace||s2p(plan.intv),8),'Intervalo Z5');
+        paceTarget(day.pace||s2p(planN.intv),8),'Intervalo Z5');
       const recStep=garminStep(2,'recovery',{type:'time',value:parsed.pauseSec},
-        {type:'hr_zone',zone:1},'Recuperação trote');
+        paceTarget(s2p(planN.ez),20),'Recuperação trote');
       steps.push(garminRepeatStep(order++,parsed.reps,[intStep,recStep]));
     } else {
       // fallback: 4×1000m
       const intStep=garminStep(1,'interval',{type:'distance',value:1000},
-        paceTarget(day.pace||s2p(plan.intv),8),'Intervalo Z5');
+        paceTarget(day.pace||s2p(planN.intv),8),'Intervalo Z5');
       const recStep=garminStep(2,'recovery',{type:'time',value:90},
-        {type:'hr_zone',zone:1},'Recuperação');
+        paceTarget(s2p(planN.ez),20),'Recuperação');
       steps.push(garminRepeatStep(order++,4,[intStep,recStep]));
     }
     addCooldown(600);
@@ -6363,30 +6441,158 @@ function dayToGarminSteps(day, plan){
     // Segmento principal a tempo pace
     const mainDist=Math.max(3000,dist-2000);
     steps.push(garminStep(order++,'interval',{type:'distance',value:mainDist},
-      paceTarget(day.pace||s2p(plan.tempo||plan.mod),8),'Tempo run Z4 — limiar'));
+      paceTarget(day.pace||s2p(planN.tempo||planN.mod),8),'Tempo run Z4 — limiar'));
     addCooldown(600);
     return steps;
   }
 
   if(type==='Longão'||type==='Long run'){
+    // Longão: corrida contínua Z1-Z2 — sem aquecimento separado (conforme planilha)
     const dist=totalDist||18000;
     steps.push(garminStep(order++,'active',{type:'distance',value:dist},
-      paceTarget(day.pace||s2p(plan.ez),20),'Longão Z1-Z2'));
+      paceTarget(day.pace||s2p(planN.ez),20),'Longão Z1-Z2'));
     return steps;
   }
 
   if(type==='Prova!'||type==='Corrida!'){
+    // Dia de prova: sem aquecimento estruturado no arquivo FIT (conforme planilha)
     const isMarathon=plan.race==='42';
-    const dist=isMarathon?42195:21097;
+    const dist=isMarathon?42195:(plan.race==='21'?21097:(plan.race==='10k'?10000:5000));
     steps.push(garminStep(order++,'active',{type:'distance',value:dist},
-      paceTarget(s2p(plan.raceSpeed),5),'DIA DE PROVA 🏁'));
+      paceTarget(s2p(planN.raceSpeed),5),'DIA DE PROVA 🏁'));
     return steps;
   }
 
-  // Fallback: correr a distância prescrita no pace indicado
+  if(type==='Longo'){
+    // Longão pode ter subtipo Progressivo, Final Forte, Ritmo de Prova, Steady State, MP Progressivo
+    const dist=totalDist||18000;
+    const subtype=day.subtype||'';
+    const hasIntensity=subtype==='Progressivo'||subtype==='Final Forte'||subtype==='MP Progressivo'||subtype==='Ritmo de Prova'||subtype==='Steady State';
+    if(!hasIntensity){
+      // Longo leve sem subtype: corrida contínua Z1-Z2 — sem aquecimento separado (conforme planilha)
+      steps.push(garminStep(order++,'active',{type:'distance',value:dist},
+        paceTarget(day.pace||s2p(planN.ez),20),'Longo Z1-Z2'));
+      return steps;
+    }
+    const mainDist=Math.max(5000,dist-1000);
+    steps.push(garminStep(order++,'warmup',{type:'time',value:300},
+      paceTarget(s2p(planN.ez),20),'Aquecimento 5min'));
+    if(subtype==='Progressivo'||subtype==='Final Forte'||subtype==='MP Progressivo'){
+      // Primeira metade fácil, segunda metade mais forte
+      const half=Math.round(mainDist/2);
+      steps.push(garminStep(order++,'active',{type:'distance',value:half},
+        paceTarget(s2p(planN.ez),20),'Longão parte 1 Z1-Z2'));
+      steps.push(garminStep(order++,'interval',{type:'distance',value:mainDist-half},
+        paceTarget(day.pace||s2p(planN.mod),15),'Longão parte 2 progressivo Z3'));
+    } else {
+      // Ritmo de Prova ou Steady State: corrida contínua no ritmo alvo
+      steps.push(garminStep(order++,'interval',{type:'distance',value:mainDist},
+        paceTarget(day.pace||s2p(planN.mod),10),'Longão ritmo Z3-Z4'));
+    }
+    steps.push(garminStep(order++,'cooldown',{type:'time',value:300},
+      paceTarget(s2p(planN.ez),20),'Desaquecimento 5min'));
+    return steps;
+  }
+
+  if(type==='MP Run'){
+    // MP Run: segmento Z2 → segmento pace de prova
+    const dist=totalDist||16000;
+    const mpSeg=Math.round(dist*0.60);
+    const warmSeg=Math.max(2000,dist-mpSeg);
+    steps.push(garminStep(order++,'warmup',{type:'time',value:300},
+      paceTarget(s2p(planN.ez),20),'Aquecimento 5min'));
+    steps.push(garminStep(order++,'active',{type:'distance',value:warmSeg},
+      paceTarget(s2p(planN.ez),20),'MP Run Z2 — aquecimento específico'));
+    steps.push(garminStep(order++,'interval',{type:'distance',value:mpSeg},
+      paceTarget(day.pace||s2p(planN.raceSpeed),8),'MP Run — pace de prova Z4'));
+    steps.push(garminStep(order++,'cooldown',{type:'time',value:300},
+      paceTarget(s2p(planN.ez),20),'Desaquecimento 5min'));
+    return steps;
+  }
+
+  if(type==='Fartlek Base'){
+    // Fartlek Base: intro à velocidade — 4×2min Z5 com 3min trote
+    const dist=totalDist||8000;
+    addWarmup(600);
+    const fastStep=garminStep(1,'interval',{type:'time',value:120},
+      paceTarget(day.pace||s2p(planN.intv),10),'Fartlek Base Z5 — 2min');
+    const slowStep=garminStep(2,'recovery',{type:'time',value:180},
+      paceTarget(s2p(planN.ez),20),'Trote Z1 — 3min');
+    steps.push(garminRepeatStep(order++,4,[fastStep,slowStep]));
+    addCooldown(600);
+    return steps;
+  }
+
+  if(type==='Fartlek Build'){
+    // Fartlek Build: reps crescentes, acelerações de 90s–3min
+    const dist=totalDist||10000;
+    addWarmup(600);
+    // Extrai reps e duração do detail ("Nx(Xs Z5 + 2min Z2)")
+    let reps=4, acSec=120;
+    if(day.detail){
+      const rm=day.detail.match(/(\d+)×\((\d+)(?:min|s)/i);
+      if(rm){reps=parseInt(rm[1]);const val=parseInt(rm[2]);acSec=day.detail.includes('min')?val*60:val;}
+    }
+    const fastStep=garminStep(1,'interval',{type:'time',value:acSec},
+      paceTarget(day.pace||s2p(planN.intv),10),'Fartlek Build Z5');
+    const slowStep=garminStep(2,'recovery',{type:'time',value:120},
+      paceTarget(s2p(planN.ez),20),'Trote Z1-Z2 — 2min');
+    steps.push(garminRepeatStep(order++,reps,[fastStep,slowStep]));
+    addCooldown(600);
+    return steps;
+  }
+
+  if(type==='Fartlek Avançado'){
+    // Fartlek Avançado: reps crescentes, acelerações de 2–4min
+    const dist=totalDist||12000;
+    addWarmup(600);
+    let reps=5, acMin=3;
+    if(day.detail){
+      const rm=day.detail.match(/(\d+)×\((\d+)min/i);
+      if(rm){reps=parseInt(rm[1]);acMin=parseInt(rm[2]);}
+    }
+    const fastStep=garminStep(1,'interval',{type:'time',value:acMin*60},
+      paceTarget(day.pace||s2p(planN.intv),8),'Fartlek Avançado Z5');
+    const slowStep=garminStep(2,'recovery',{type:'time',value:120},
+      paceTarget(s2p(planN.ez),20),'Trote Z1-Z2 — 2min');
+    steps.push(garminRepeatStep(order++,reps,[fastStep,slowStep]));
+    addCooldown(600);
+    return steps;
+  }
+
+  if(type==='Rec. leve'){
+    // Recuperação leve: só 1 step ativo no pace mais fácil
+    const dist=totalDist||6000;
+    steps.push(garminStep(order++,'active',{type:'distance',value:dist},
+      paceTarget(day.pace||s2p(planN.ez),25),'Rec. leve Z1'));
+    return steps;
+  }
+
+  if(type==='Correr/Caminhar'){
+    // Para iniciantes: alternância correr/caminhar, baseado em timeLabel
+    let runMin=2, walkMin=2, totalMin=20;
+    if(day.detail){
+      const tm=day.detail.match(/(\d+)\s*min\s+contínuo/i);
+      if(tm){totalMin=parseInt(tm[1]);runMin=totalMin;walkMin=0;}
+    }
+    if(walkMin>0){
+      const reps=Math.max(3,Math.round(totalMin/(runMin+walkMin)));
+      const runStep=garminStep(1,'interval',{type:'time',value:runMin*60},
+        null,'Correr');
+      const walkStep=garminStep(2,'recovery',{type:'time',value:walkMin*60},
+        null,'Caminhar');
+      steps.push(garminRepeatStep(order++,reps,[runStep,walkStep]));
+    } else {
+      steps.push(garminStep(order++,'active',{type:'time',value:totalMin*60},
+        null,'Corrida contínua'));
+    }
+    return steps;
+  }
+
+  // Fallback: correr a distância prescrita no pace indicado — sem aquecimento fictício
   if(totalDist){
     steps.push(garminStep(order++,'active',{type:'distance',value:totalDist},
-      paceTarget(day.pace||s2p(plan.ez),20),type));
+      paceTarget(day.pace||s2p(planN.ez),20),type));
     return steps;
   }
 
@@ -6402,20 +6608,78 @@ function sanitizeFitFilename(name){
     .slice(0,60)||'treino';
 }
 
-// Recebe lista de {name, steps, scheduledAt?} e baixa como .fit único (1 treino sem data) ou
-// .zip (vários treinos, ou 1 treino com data — pois nesse caso geram-se 2 arquivos: workout + schedule)
+// Monta o rótulo do treino com a data no formato YYYYMMDD_DiaSemana_Tipo_dist
+// (ex: "20260627_Sab_Longo_10km"), para que a ordenação alfabética no relógio
+// Garmin bata com a ordem cronológica real — DD/MM sozinho ordena errado entre meses.
+// scheduledAt: Date do dia em que o treino acontece. dayName: ex 'Seg','Ter'...
+function buildWorkoutLabel(scheduledAt, dayName, day){
+  // Nome EXIBIDO no relógio: "DD/MM Dia Tipo dist" — legível na tela pequena
+  const dd=String(scheduledAt.getDate()).padStart(2,'0');
+  const mm=String(scheduledAt.getMonth()+1).padStart(2,'0');
+  const distPart=day.dist?` ${day.dist}`:'';
+  return `${dd}/${mm} ${dayName} ${day.type}${distPart}`.slice(0,31);
+}
+
+function buildWorkoutFilename(scheduledAt, dayName, day){
+  // Nome do ARQUIVO: "YYYYMMDD_Dia_Tipo_dist" — ordena cronologicamente no relógio
+  const yyyy=scheduledAt.getFullYear();
+  const mm=String(scheduledAt.getMonth()+1).padStart(2,'0');
+  const dd=String(scheduledAt.getDate()).padStart(2,'0');
+  const distPart=day.dist?`_${day.dist}`:'';
+  return `${yyyy}${mm}${dd}_${dayName}_${day.type}${distPart}`;
+}
+
+// Recebe lista de {name, steps} e baixa como .fit único (1 treino) ou .zip (vários treinos).
+// Gera apenas o arquivo de workout (mensagens #26/#27) — sem arquivo de agendamento.
+// A data de cada treino já vem embutida no nome (ver buildWorkoutLabel), então a organização
+// por data fica visível em "Meus Treinos" no Garmin Connect/relógio, sem depender de schedule.
 function downloadFitWorkouts(workouts, zipBaseName){
   const files=[];
+
+  // Gera um pool de nonces aleatórios — um por arquivo .fit.
+  // Cada nonce é um uint16 único no lote, garantindo que os 14 bytes do header global
+  // FIT sejam distintos entre todos os arquivos, mesmo quando têm o mesmo tamanho de body.
+  const totalFiles=workouts.length;
+  let noncePool;
+  try{
+    const arr=new Uint16Array(totalFiles);
+    crypto.getRandomValues(arr);
+    // Garante unicidade dentro do lote (colisão improvável mas possível em lotes grandes)
+    const seen=new Set();
+    noncePool=Array.from(arr).map(v=>{
+      let n=v;
+      while(seen.has(n))n=(n+1)&0xFFFF;
+      seen.add(n);
+      return n;
+    });
+  }catch(e){
+    // Fallback sem crypto: espaçamento fixo a partir de timestamp
+    const base=(Date.now()&0xFFFF);
+    noncePool=Array.from({length:totalFiles},(_,k)=>(base+k*7919)&0xFFFF);
+  }
+
+  let nonceIdx=0;
   workouts.forEach((w,i)=>{
-    const ident=makeFitIdentity();
-    const idx=String(i+1).padStart(2,'0');
-    const base=sanitizeFitFilename(w.name);
-    const workoutBytes=buildFitWorkoutFile(w.name, w.steps, ident);
-    files.push({name:`${idx}_${base}.fit`, bytes:workoutBytes});
-    if(w.scheduledAt){
-      const scheduleBytes=buildFitScheduleFile(ident, w.scheduledAt);
-      files.push({name:`${idx}_${base}_schedule.fit`, bytes:scheduleBytes});
+    // indexOffset=i garante timeCreated distinto por treino, mesmo gerados no mesmo segundo
+    const ident=makeFitIdentity(i);
+    // Nome do arquivo começa com AAAAMMDD (não DD/MM) para que a ordenação
+    // alfabética/por nome no Garmin Connect e no relógio bata com a ordem cronológica real
+    // — DD_MM sozinho ordena errado entre meses (ex: "01_07" antes de "23_06").
+    let base;
+    if(w.filename){
+      base=sanitizeFitFilename(w.filename);
+    } else if(w.scheduledAt){
+      const d=w.scheduledAt;
+      const yyyy=d.getFullYear();
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      const dd=String(d.getDate()).padStart(2,'0');
+      base=sanitizeFitFilename(`${yyyy}${mm}${dd}_${w.name.replace(/[^a-z0-9]+/gi,'_')}`);
+    } else {
+      base=sanitizeFitFilename(w.name);
     }
+    const workoutNonce=noncePool[nonceIdx++];
+    const workoutBytes=buildFitWorkoutFile(w.name, w.steps, ident, workoutNonce, w.scheduledAt||null);
+    files.push({name:`${base}.fit`, bytes:workoutBytes});
   });
   if(files.length===1){
     const blob=new Blob([files[0].bytes],{type:'application/octet-stream'});
@@ -6489,14 +6753,13 @@ function exportGarminFromRace(race){
       if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return;
       const steps=dayToGarminSteps(day,fakePlan);
       if(!steps||steps.length===0)return;
-      const weekNum=String(wk.w).padStart(2,'0');
       const dayName=DAYS_BR[dIdx];
-      // Nome curto: limite FIT = 31 chars utilizáveis (campo string size:32, último byte = null)
-      const name=`S${weekNum}·${dayName} ${day.type}${day.dist?' '+day.dist:''}`.slice(0,31);
-      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
       const scheduledAt=new Date(planStart);
-      scheduledAt.setDate(scheduledAt.getDate()+wIdx*7+dIdx);
-      workouts.push({name,steps,desc,scheduledAt});
+      scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
+      const name=buildWorkoutLabel(scheduledAt,dayName,day);
+      const filename=buildWorkoutFilename(scheduledAt,dayName,day);
+      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
+      workouts.push({name,filename,steps,desc,scheduledAt});
     });
   });
   if(workouts.length===0){showToast('Nenhum treino encontrado para exportar.');return;}
@@ -6526,12 +6789,8 @@ function exportGarminJSON(id){
       const steps=dayToGarminSteps(day,plan);
       if(!steps||steps.length===0)return;
 
-      const weekNum=String(wk.w).padStart(2,'0');
       const dayName=DAYS_BR[dIdx];
-      // Nome curto: limite FIT = 31 chars utilizáveis (campo string size:32, último byte = null)
-      const name=`S${weekNum}·${dayName} ${day.type}${day.dist?' '+day.dist:''}`.slice(0,31);
-      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
-      // Calcula scheduledAt para arquivo schedule Garmin
+      // Calcula scheduledAt — necessário para montar o nome com a data
       let scheduledAt=null;
       if(plan.startTimestamp){
         const weekStart=getWeekStartDate(plan,wIdx);
@@ -6541,7 +6800,16 @@ function exportGarminJSON(id){
         scheduledAt=new Date(planStart);
         scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
       }
-      workouts.push({name,steps,desc,week:wk.w,day:dIdx,scheduledAt});
+      // Fallback (getWeekStartDate falhou): nome sem data, com número da semana
+      const weekNum=String(wk.w).padStart(2,'0');
+      const name=scheduledAt
+        ? buildWorkoutLabel(scheduledAt,dayName,day)
+        : `S${weekNum}_${dayName}_${day.type}${day.dist?'_'+day.dist:''}`.slice(0,31);
+      const filename=scheduledAt
+        ? buildWorkoutFilename(scheduledAt,dayName,day)
+        : `S${weekNum}_${dayName}_${day.type}${day.dist?'_'+day.dist:''}`;
+      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
+      workouts.push({name,filename,steps,desc,week:wk.w,day:dIdx,scheduledAt});
     });
   });
 
@@ -7526,6 +7794,673 @@ if(document.readyState==='loading'){
 
 
 
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   INTERVALS.ICU INTEGRATION
+   API: POST https://intervals.icu/api/v1/athlete/{id}/events/bulk?upsert=true
+   Auth: Basic, username="API_KEY", password=<api_key>
+   Payload: array de eventos com file_contents_base64 (.fit em base64)
+   Upsert via external_id — reenviando não cria duplicatas
+══════════════════════════════════════════════════════════ */
+
+// ── Storage helpers ─────────────────────────────────────
+// localStorage continua sendo o cache local/rápido (funciona offline e sem login).
+// Quando há usuário logado (currentUser+fbDb), a config também é espelhada no
+// Firestore (users/{uid}.icuConfig), para acompanhar o usuário entre dispositivos.
+function icuGetConfig(){
+  try{ return JSON.parse(localStorage.getItem('icu_config')||'{}'); } catch(e){ return {}; }
+}
+function icuSaveConfig(cfg){
+  localStorage.setItem('icu_config', JSON.stringify(cfg));
+  // Espelha na nuvem em segundo plano (não bloqueia a UI; falha silenciosamente se offline)
+  if(typeof currentUser!=='undefined'&&currentUser&&typeof fbDb!=='undefined'&&fbDb){
+    saveIcuConfigToCloud(currentUser.uid,cfg);
+  }
+}
+function icuGetApiKey(){ return icuGetConfig().apiKey||''; }
+function icuGetAthleteId(){ return icuGetConfig().athleteId||''; }
+
+// Chamado uma vez no login (onAuthStateChanged). Reconcilia local vs nuvem:
+// - Se a nuvem já tem config e o navegador atual não tem (ou está desatualizado
+//   em relação ao que o próprio usuário salvou em outro dispositivo), usa a da nuvem.
+// - Se só o navegador local tem config (ex.: usuário configurou antes dessa
+//   sincronização existir), sobe para a nuvem, para passar a valer em outros dispositivos.
+async function icuSyncConfigOnLogin(uid){
+  try{
+    const local=icuGetConfig();
+    const cloud=await loadIcuConfigFromCloud(uid);
+    const hasLocal=!!(local&&local.apiKey&&local.athleteId);
+    const hasCloud=!!(cloud&&cloud.apiKey&&cloud.athleteId);
+    if(hasCloud){
+      // Nuvem é a fonte de verdade entre dispositivos diferentes
+      localStorage.setItem('icu_config', JSON.stringify(cloud));
+    } else if(hasLocal){
+      // Só existia localmente (ex.: configurado antes do login) — sobe para a nuvem
+      await saveIcuConfigToCloud(uid, local);
+    }
+  }catch(e){ console.warn('icuSyncConfigOnLogin error', e); }
+}
+
+// ── Modal de configuração intervals.icu ─────────────────
+function showIntervalsConfigModal(onOk){
+  const old=document.getElementById('icu-config-modal');
+  if(old)old.remove();
+  const cfg=icuGetConfig();
+
+  const modal=document.createElement('div');
+  modal.id='icu-config-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  modal.innerHTML=`
+  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:440px;overflow:hidden">
+    <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6633cc,#9955ee);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📅</div>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:var(--t1)">Conectar ao intervals.icu</div>
+          <div style="font-size:11px;color:var(--t3)">Seus treinos vão direto para o calendário</div>
+        </div>
+      </div>
+      <button onclick="document.getElementById('icu-config-modal').remove()" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--bdr2);background:var(--s2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t3)">×</button>
+    </div>
+    <div style="padding:1.4rem;font-size:13px;color:var(--t2)">
+      <div style="background:rgba(80,40,180,0.06);border:1px solid rgba(80,40,180,0.18);border-radius:10px;padding:10px 14px;margin-bottom:1.2rem;font-size:11px;line-height:1.7;color:#5522aa">
+        📌 <strong>Como obter sua API Key:</strong><br>
+        1. Acesse <a href="https://intervals.icu/settings" target="_blank" style="color:#6633cc;font-weight:700">intervals.icu/settings</a><br>
+        2. Role até <strong>"Developer Settings"</strong> no final da página<br>
+        3. Copie a API Key gerada e cole abaixo
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em;display:block;margin-bottom:6px">SEU ATHLETE ID</label>
+          <input id="icu-athlete-id" type="text" placeholder="Ex: i12345678" value="${cfg.athleteId||''}"
+            style="width:100%;height:48px;padding:0 14px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;font-size:15px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1)">
+          <div style="font-size:10px;color:var(--t3);margin-top:4px">Aparece na URL: intervals.icu/athlete/<strong>i12345678</strong>/...</div>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em;display:block;margin-bottom:6px">API KEY</label>
+          <input id="icu-api-key" type="password" placeholder="Cole sua API Key aqui" value="${cfg.apiKey||''}"
+            style="width:100%;height:48px;padding:0 14px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;font-size:15px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1)">
+          <div style="font-size:10px;color:var(--t3);margin-top:4px">⚠️ Salvo apenas no seu navegador (localStorage), nunca enviado a terceiros.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.4rem;padding-top:1.2rem;border-top:1px dashed var(--bdr2)">
+        <div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">⏱️ Ritmo de limiar</div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:12px;line-height:1.5">Sem isso, o relógio mostra o pace errado durante o treino. Configuramos isso pra você automaticamente.</div>
+
+        <div style="display:flex;gap:6px;margin-bottom:12px;background:var(--s2);border-radius:10px;padding:3px">
+          <button type="button" id="icu-pace-tab-race" onclick="icuPaceTab('race')" style="flex:1;height:32px;border-radius:8px;border:none;background:var(--s1);color:var(--t1);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Tenho um tempo de prova</button>
+          <button type="button" id="icu-pace-tab-direct" onclick="icuPaceTab('direct')" style="flex:1;height:32px;border-radius:8px;border:none;background:transparent;color:var(--t3);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Já sei meu ritmo</button>
+        </div>
+
+        <div id="icu-pace-panel-race">
+          <div style="font-size:10px;color:var(--t3);margin-bottom:8px">Use seu resultado mais recente de 5km ou 10km. Calculamos seu ritmo de limiar automaticamente a partir dele.</div>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <div style="flex:0 0 90px">
+              <label style="font-size:10px;color:var(--t3);font-weight:700;display:block;margin-bottom:4px">DISTÂNCIA</label>
+              <select id="icu-race-dist" style="width:100%;height:42px;padding:0 8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:13px;outline:none;background:var(--s2);color:var(--t1);font-family:inherit">
+                <option value="5">5 km</option>
+                <option value="10">10 km</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label style="font-size:10px;color:var(--t3);font-weight:700;display:block;margin-bottom:4px">SEU TEMPO NESSA PROVA</label>
+              <div style="display:flex;gap:4px;align-items:center">
+                <input id="icu-race-m" type="number" min="0" max="180" placeholder="min" style="width:100%;height:42px;padding:0 8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:14px;text-align:center;outline:none;background:var(--s2);color:var(--t1);font-family:inherit">
+                <span style="color:var(--t3);font-size:13px">:</span>
+                <input id="icu-race-s" type="number" min="0" max="59" placeholder="seg" style="width:100%;height:42px;padding:0 8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:14px;text-align:center;outline:none;background:var(--s2);color:var(--t1);font-family:inherit">
+              </div>
+            </div>
+          </div>
+          <div id="icu-race-preview" style="margin-top:10px;font-size:11px;color:var(--t3);min-height:16px"></div>
+        </div>
+
+        <div id="icu-pace-panel-direct" style="display:none">
+          <label style="font-size:10px;color:var(--t3);font-weight:700;display:block;margin-bottom:6px">RITMO DE LIMIAR (min:seg por km)</label>
+          <input id="icu-direct-pace" type="text" placeholder="Ex: 4:44" value="${cfg.thresholdPaceLabel||''}"
+            style="width:160px;height:42px;padding:0 12px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:15px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1)">
+          <div style="font-size:10px;color:var(--t3);margin-top:6px">É o ritmo que você sustentaria numa prova de ~10-21km, em esforço forte.</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+      <button onclick="document.getElementById('icu-config-modal').remove()" style="height:38px;padding:0 1.2rem;border-radius:18px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancelar</button>
+      <button id="icu-save-btn" onclick="icuSaveAndContinue()" style="height:38px;padding:0 1.4rem;border-radius:18px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Salvar e continuar →</button>
+    </div>
+  </div>`;
+  // Guarda callback para ser chamado após salvar
+  modal._onOk = onOk;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+
+  // Estado inicial das abas + listeners de preview
+  icuPaceTab(cfg.thresholdPaceLabel && !cfg._fromRace ? 'direct' : 'race');
+  ['icu-race-dist','icu-race-m','icu-race-s'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input', icuUpdateRacePreview);
+  });
+  icuUpdateRacePreview();
+}
+
+// ── Alterna entre as abas "tenho prova" / "já sei meu ritmo" no modal ──
+function icuPaceTab(which){
+  const tabRace=document.getElementById('icu-pace-tab-race');
+  const tabDirect=document.getElementById('icu-pace-tab-direct');
+  const panelRace=document.getElementById('icu-pace-panel-race');
+  const panelDirect=document.getElementById('icu-pace-panel-direct');
+  if(!tabRace||!tabDirect||!panelRace||!panelDirect) return;
+  const active='background:var(--s1);color:var(--t1)';
+  const inactive='background:transparent;color:var(--t3)';
+  if(which==='direct'){
+    tabDirect.style.cssText=tabDirect.style.cssText.replace(/background:[^;]+;color:[^;]+/,active);
+    tabRace.style.cssText=tabRace.style.cssText.replace(/background:[^;]+;color:[^;]+/,inactive);
+    panelRace.style.display='none'; panelDirect.style.display='block';
+  } else {
+    tabRace.style.cssText=tabRace.style.cssText.replace(/background:[^;]+;color:[^;]+/,active);
+    tabDirect.style.cssText=tabDirect.style.cssText.replace(/background:[^;]+;color:[^;]+/,inactive);
+    panelRace.style.display='block'; panelDirect.style.display='none';
+  }
+  document.getElementById('icu-config-modal').dataset.paceMode=which;
+}
+
+// ── Estima o ritmo de limiar a partir do tempo de prova (mesma matemática VDOT do app) ──
+// Limiar anaeróbico (LT) é classicamente ~85-88% da vVO2máx; usamos 85% (meio da Z4 do app).
+function icuEstimateThresholdFromRace(distKm, totalMin){
+  if(!totalMin||totalMin<=0) return null;
+  const distM=distKm*1000, v=distM/totalMin; // m/min
+  const vo2atPace=-4.60+0.182258*v+0.000104*v*v;
+  const pctVO2=0.8+0.1894393*Math.exp(-0.012778*totalMin)+0.2989558*Math.exp(-0.1932605*totalMin);
+  const vo2=vo2atPace/pctVO2;
+  if(vo2<20||vo2>90) return null;
+  const vVO2_kmh=(v/1000)*60; // velocidade na prova, km/h
+  const vVO2_calc=vVO2_kmh; // vVO2máx ~ velocidade da prova nesse modelo (consistente com wzCalcVdot)
+  const thresholdKmh=vVO2_calc*0.85; // 85% da vVO2máx ≈ ritmo de limiar
+  return thresholdKmh;
+}
+
+function icuUpdateRacePreview(){
+  const prev=document.getElementById('icu-race-preview');
+  if(!prev) return;
+  const dist=parseFloat(document.getElementById('icu-race-dist')?.value)||5;
+  const m=parseFloat(document.getElementById('icu-race-m')?.value)||0;
+  const s=parseFloat(document.getElementById('icu-race-s')?.value)||0;
+  const totalMin=m+s/60;
+  if(!totalMin){ prev.textContent=''; return; }
+  const kmh=icuEstimateThresholdFromRace(dist, totalMin);
+  if(!kmh){ prev.innerHTML='<span style="color:#cc4444">Tempo fora do esperado pra essa distância — revise os valores.</span>'; return; }
+  prev.innerHTML=`Seu ritmo de limiar estimado: <strong style="color:var(--t1);font-family:monospace">${s2p(kmh)}/km</strong>`;
+}
+
+function icuSaveAndContinue(){
+  const apiKey=document.getElementById('icu-api-key').value.trim();
+  const athleteId=document.getElementById('icu-athlete-id').value.trim();
+  if(!apiKey||!athleteId){showToast('⚠ Preencha a API Key e o Athlete ID.');return;}
+
+  const modal=document.getElementById('icu-config-modal');
+  const paceMode=modal?.dataset.paceMode||'race';
+  let thresholdKmh=null, thresholdLabel='', fromRace=false;
+
+  if(paceMode==='direct'){
+    const raw=document.getElementById('icu-direct-pace').value.trim();
+    if(raw){
+      const kmh=p2kmh(raw);
+      if(kmh){ thresholdKmh=kmh; thresholdLabel=raw; }
+      else { showToast('⚠ Ritmo inválido. Use o formato m:ss, ex: 4:44.'); return; }
+    }
+  } else {
+    const dist=parseFloat(document.getElementById('icu-race-dist').value)||5;
+    const m=parseFloat(document.getElementById('icu-race-m').value)||0;
+    const s=parseFloat(document.getElementById('icu-race-s').value)||0;
+    const totalMin=m+s/60;
+    if(totalMin>0){
+      const kmh=icuEstimateThresholdFromRace(dist, totalMin);
+      if(!kmh){ showToast('⚠ Tempo de prova fora do esperado. Revise os valores.'); return; }
+      thresholdKmh=kmh; thresholdLabel=s2p(kmh); fromRace=true;
+    }
+  }
+
+  // threshold_pace na API do intervals.icu é em m/s (não em min/km)
+  if(!thresholdKmh){
+    showToast(paceMode==='direct' ? '⚠ Informe seu ritmo de limiar.' : '⚠ Informe a distância e o tempo da sua prova.');
+    return;
+  }
+  const thresholdMs = thresholdKmh*1000/3600;
+
+  icuSaveConfig({apiKey,athleteId,thresholdPaceMs:thresholdMs,thresholdPaceLabel:thresholdLabel,_fromRace:fromRace});
+  if(modal)modal.remove();
+  showToast('✅ intervals.icu configurado!');
+
+  const cb=modal&&modal._onOk;
+  if(cb)cb(apiKey,athleteId);
+}
+
+// ── Converte Uint8Array para base64 (sem bibliotecas externas) ───────
+function uint8ToBase64(bytes){
+  let bin='';
+  for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+// ── Gera filename seguro para o .fit ────────────────────────────────
+function icuFitFilename(workout, index){
+  if(workout.scheduledAt){
+    const d=workout.scheduledAt;
+    const yyyy=d.getFullYear();
+    const mm=String(d.getMonth()+1).padStart(2,'0');
+    const dd=String(d.getDate()).padStart(2,'0');
+    return sanitizeFitFilename(`${yyyy}${mm}${dd}_${workout.name.replace(/[^a-z0-9]+/gi,'_')}`) + '.fit';
+  }
+  return sanitizeFitFilename(workout.name||`treino_${index}`) + '.fit';
+}
+
+// ── Converte os steps Garmin em "description" no Workout Builder Syntax do intervals.icu ─
+// Usa pace absoluto (ex: "5:30/km Pace") para que os paces apareçam corretamente
+// independentemente de o atleta ter ou não um pace de limiar configurado.
+// Referência de formato: https://forum.intervals.icu/t/workout-builder-syntax-quick-guide/123701
+function buildIcuDescription(steps){
+  if(!steps||steps.length===0) return '';
+  const lines=[];
+
+  // Converte m/s para string "M:SS/km"
+  function mpsToStr(mps){
+    if(!mps||mps<=0)return null;
+    const secPerKm=1000/mps;
+    const m=Math.floor(secPerKm/60);
+    const s=Math.round(secPerKm%60);
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+  // Formata duração/distância a partir do endCondition do step Garmin JSON
+  // conditionTypeKey: 'time' (segundos) | 'distance' (metros)
+  function durStr(endCond){
+    const key=endCond&&endCond.conditionTypeKey;
+    const val=endCond&&endCond.conditionValue;
+    if(key==='distance'){
+      const m=Math.round(val);
+      if(m>=1000&&m%1000===0)return`${m/1000}km`;
+      return`${m}mtr`;
+    }else{
+      const sec=Math.round(val);
+      if(sec%60===0)return`${sec/60}m`;
+      return`${Math.floor(sec/60)}m${sec%60}s`;
+    }
+  }
+  // Formata target de pace: "4:10/km-4:30/km Pace"
+  function paceStr(st){
+    if(st.targetType&&st.targetType.workoutTargetTypeKey==='pace.zone'
+      &&st.targetValueOne&&st.targetValueTwo){
+      // targetValueTwo = maxMps (pace mais rápido), targetValueOne = minMps (pace mais lento)
+      const lo=mpsToStr(st.targetValueTwo);
+      const hi=mpsToStr(st.targetValueOne);
+      if(lo&&hi)return`${lo}/km-${hi}/km Pace`;
+    }
+    return '';
+  }
+
+  steps.forEach(st=>{
+    if(st.type==='RepeatGroupDTO'){
+      const reps=st.numberOfIterations||st.endConditionValue||1;
+      lines.push('');
+      lines.push(`${reps}x`);
+      (st.workoutSteps||[]).forEach(inner=>{
+        const dur=durStr(inner.endCondition);
+        const tgt=paceStr(inner);
+        const cue=inner.description||'';
+        lines.push(`- ${cue?cue+' ':''}${dur}${tgt?' '+tgt:''}`);
+      });
+      lines.push('');
+    }else{
+      const dur=durStr(st.endCondition);
+      const tgt=paceStr(st);
+      const cue=st.description||'';
+      lines.push(`- ${cue?cue+' ':''}${dur}${tgt?' '+tgt:''}`);
+    }
+  });
+  return lines.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+// ── Monta um evento de calendário no formato correto do intervals.icu ─
+// Envia description em texto com pace absoluto (min/km).
+// O intervals.icu reprocessa qualquer FIT enviado e converte paces para
+// percentual do limiar — perdendo os valores absolutos no Garmin.
+// Com description em texto, o pace absoluto é preservado na sincronização.
+// Usa external_id para permitir upsert sem duplicatas.
+function icuBuildEventItem(workout, index, nonce){
+  const dateStr = workout.scheduledAt
+    ? workout.scheduledAt.toISOString().slice(0,10) + 'T00:00:00'
+    : new Date().toISOString().slice(0,10) + 'T00:00:00';
+
+  const externalId = 'vo2max_' + dateStr.slice(0,10).replace(/-/g,'') + '_' +
+    workout.name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20);
+
+  const description = buildIcuDescription(workout.steps);
+
+  return {
+    category: 'WORKOUT',
+    type: 'Run',
+    start_date_local: dateStr,
+    name: workout.name,
+    description: description,
+    external_id: externalId
+  };
+}
+
+// ── Sincroniza o ritmo de limiar (threshold_pace) com o perfil do atleta ──
+// Endpoint: PUT /api/v1/athlete/{id}/sport-settings/{type}?recalcHrZones=false
+// threshold_pace é armazenado pela API em m/s (não em min/km — isso é só exibição).
+// Sem isso, o relógio mostra o pace baseado num threshold_pace zerado/desatualizado,
+// mesmo que a descrição do treino tenha o pace absoluto certo.
+async function icuSyncThresholdPace(apiKey, athleteId){
+  const cfg=icuGetConfig();
+  if(!cfg.thresholdPaceMs) return; // usuário não informou — não sobrescreve nada no perfil dele
+  if(cfg._thresholdSynced===cfg.thresholdPaceMs) return; // já está sincronizado, evita chamada repetida
+
+  const authHeader = 'Basic ' + btoa('API_KEY:' + apiKey);
+  const athletePath = athleteId || '0';
+  const endpoint = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(athletePath)}/sport-settings/Run?recalcHrZones=false`;
+
+  try{
+    const r = await fetch(endpoint, {
+      method: 'PUT',
+      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ threshold_pace: cfg.thresholdPaceMs })
+    });
+    if(r.ok){
+      icuSaveConfig({...cfg, _thresholdSynced: cfg.thresholdPaceMs});
+    } else {
+      console.warn('[intervals.icu] falha ao sincronizar threshold_pace', r.status, await r.text().catch(()=>''));
+    }
+  }catch(e){
+    console.warn('[intervals.icu] erro de rede ao sincronizar threshold_pace', e);
+  }
+}
+
+// ── Envio para intervals.icu via bulk endpoint (sem duplicatas) ──────
+// Endpoint: POST /api/v1/athlete/{id}/events/bulk?upsert=true
+// Envia em lotes de 20 para não exceder o limite de payload.
+async function icuSendWorkouts(workouts, apiKey, athleteId){
+  // Remove modal de config se ainda aberto
+  const old=document.getElementById('icu-config-modal');
+  if(old)old.remove();
+
+  // Sincroniza o ritmo de limiar primeiro (silencioso — não bloqueia o envio dos treinos se falhar)
+  await icuSyncThresholdPace(apiKey, athleteId);
+
+  // Modal de progresso
+  const prog=document.createElement('div');
+  prog.id='icu-send-modal';
+  prog.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:800;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  prog.innerHTML=`
+  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:420px;padding:2rem;text-align:center">
+    <div style="font-size:28px;margin-bottom:12px">📅</div>
+    <div style="font-size:15px;font-weight:800;color:var(--t1);margin-bottom:8px">Enviando para intervals.icu</div>
+    <div id="icu-send-info" style="font-size:13px;color:var(--t2);margin-bottom:16px">Preparando ${workouts.length} treinos...</div>
+    <div style="height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:16px">
+      <div id="icu-send-bar" style="height:100%;background:linear-gradient(90deg,#6633cc,#9955ee);border-radius:3px;width:0%;transition:width .3s"></div>
+    </div>
+    <div id="icu-send-count" style="font-size:11px;color:var(--t3)">0 / ${workouts.length}</div>
+  </div>`;
+  document.body.appendChild(prog);
+
+  // Gera nonces únicos para os .fit files
+  const nonceArr = new Uint16Array(workouts.length);
+  try{ crypto.getRandomValues(nonceArr); } catch(e){ nonceArr.forEach((_,i)=>nonceArr[i]=(Date.now()+i*7919)&0xFFFF); }
+  const seen=new Set();
+  const nonces=Array.from(nonceArr).map(v=>{ let n=v; while(seen.has(n))n=(n+1)&0xFFFF; seen.add(n); return n; });
+
+  const authHeader = 'Basic ' + btoa('API_KEY:' + apiKey);
+  // athlete id '0' = usa o atleta dono da API key (mais simples e robusto)
+  const athletePath = athleteId || '0';
+  const endpoint = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(athletePath)}/events/bulk?upsert=true`;
+
+  const BATCH = 20; // lotes para não estourar payload
+  let ok=0, fail=0, failNames=[];
+
+  for(let i=0; i<workouts.length; i+=BATCH){
+    const batch = workouts.slice(i, i+BATCH);
+    const pct = Math.round((i/workouts.length)*100);
+    document.getElementById('icu-send-info').textContent =
+      `Enviando treinos ${i+1}–${Math.min(i+BATCH,workouts.length)} de ${workouts.length}...`;
+    document.getElementById('icu-send-bar').style.width = pct+'%';
+    document.getElementById('icu-send-count').textContent = `${i} / ${workouts.length}`;
+
+    // Monta o payload do lote
+    const items = batch.map((w,j)=>icuBuildEventItem(w, i+j, nonces[i+j]));
+
+    try{
+      const r = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(items)
+      });
+      if(r.ok){
+        ok += batch.length;
+      } else {
+        const errText = await r.text().catch(()=>'');
+        console.warn('[intervals.icu] erro lote', r.status, errText);
+        // Mostra o erro real na tela para facilitar o diagnóstico
+        document.getElementById('icu-send-info').textContent =
+          `⚠ Erro ${r.status}: ${errText.slice(0,120)||'resposta inválida da API'}`;
+        // Tenta individualmente para identificar qual falhou
+        for(let j=0;j<batch.length;j++){
+          const w=batch[j];
+          const item=icuBuildEventItem(w, i+j, nonces[i+j]);
+          try{
+            const r2=await fetch(endpoint, {
+              method:'POST',
+              headers:{'Authorization':authHeader,'Content-Type':'application/json'},
+              body:JSON.stringify([item])
+            });
+            if(r2.ok){ ok++; }
+            else {
+              const e2txt=await r2.text().catch(()=>'');
+              console.warn('[intervals.icu] erro individual', r2.status, e2txt, JSON.stringify(item));
+              fail++;
+              if(fail<=3) failNames.push(w.name.slice(0,30));
+            }
+          } catch(e2){ fail++; if(fail<=3) failNames.push(w.name.slice(0,30)); }
+          await new Promise(r=>setTimeout(r,150));
+        }
+      }
+    } catch(e){
+      fail += batch.length;
+      console.warn('[intervals.icu] fetch error', e);
+      document.getElementById('icu-send-info').textContent =
+        `⚠ Falha de rede: ${e.message||e}. Verifique sua conexão e a API Key.`;
+      batch.slice(0,3).forEach(w=>{ if(fail<=3) failNames.push(w.name.slice(0,30)); });
+    }
+    await new Promise(r=>setTimeout(r,300));
+  }
+
+  document.getElementById('icu-send-bar').style.width='100%';
+  const statusMsg = ok + ' treino' + (ok!==1?'s':'') + ' enviado' + (ok!==1?'s':'') +
+    (fail ? ` · ⚠ ${fail} com erro` : '');
+  document.getElementById('icu-send-info').textContent = '✅ ' + statusMsg;
+  document.getElementById('icu-send-count').textContent = `${ok+fail} / ${workouts.length}`;
+
+  // Mostrar resultado detalhado após 2s
+  setTimeout(()=>{
+    prog.remove();
+    showIntervalsResultModal(ok, fail, failNames, athleteId);
+  }, 2000);
+}
+
+function showIntervalsResultModal(ok, fail, failNames, athleteId){
+  const old=document.getElementById('icu-result-modal');
+  if(old)old.remove();
+  const calUrl = `https://intervals.icu/athlete/${encodeURIComponent(athleteId)}/calendar`;
+
+  const modal=document.createElement('div');
+  modal.id='icu-result-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:800;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  modal.innerHTML=`
+  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:460px;overflow:hidden">
+    <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:15px;font-weight:800;color:var(--t1)">📅 Resultado — intervals.icu</div>
+      <button onclick="document.getElementById('icu-result-modal').remove()" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--bdr2);background:var(--s2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t3)">×</button>
+    </div>
+    <div style="padding:1.4rem;font-size:13px;color:var(--t2);line-height:1.7">
+      ${ok>0?`<div style="background:rgba(0,168,85,0.08);border:1px solid rgba(0,168,85,0.25);border-radius:10px;padding:10px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:10px">
+        <div style="font-size:22px">✅</div>
+        <div><strong style="color:#00a855">${ok} treino${ok!==1?'s':''} adicionado${ok!==1?'s':''}</strong> ao calendário do intervals.icu com as datas corretas.</div>
+      </div>`:''}
+      ${fail>0?`<div style="background:rgba(217,119,0,0.07);border:1px solid rgba(217,119,0,0.25);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--am)">
+        ⚠ <strong>${fail} treino${fail!==1?'s':''} com erro</strong>${failNames.length?' ('+failNames.join(', ')+')':''} — verifique sua API Key e Athlete ID em <a href="https://intervals.icu/settings" target="_blank" style="color:#6633cc">intervals.icu/settings</a>.
+      </div>`:''}
+      <div style="background:rgba(80,40,180,0.06);border:1px solid rgba(80,40,180,0.18);border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#5522aa;line-height:1.7">
+        🔄 <strong>Sincronização automática:</strong><br>
+        O intervals.icu já tem uma integração nativa com o <strong>Garmin Connect</strong>. Quando você completar um treino no relógio, ele sobe automaticamente e é associado ao treino planejado no calendário.
+        <br><br>
+        Para ativar: <a href="https://intervals.icu/settings" target="_blank" style="color:#6633cc;font-weight:700">intervals.icu/settings</a> → <strong>Connections</strong> → Garmin Connect.
+      </div>
+    </div>
+    <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+      <button onclick="document.getElementById('icu-result-modal').remove()" style="height:38px;padding:0 1.2rem;border-radius:18px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Fechar</button>
+      <a href="${calUrl}" target="_blank" style="text-decoration:none">
+        <button style="height:38px;padding:0 1.4rem;border-radius:18px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Ver calendário →</button>
+      </a>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+// ── Entry points ─────────────────────────────────────────
+
+// Da planilha gerada (sem salvar)
+function intervalsExportFromRace(race){
+  if(vo2G===0){showToast('Calcule o VO2 primeiro.');return;}
+  const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
+  if(profKey==='estreante'){showToast('⚠ Treinos por tempo (Estreante) não suportam este export ainda.');return;}
+
+  const is42=race==='42';
+  const prof=PROFILES[profKey];
+  const planWeeks=race==='21'?planWeeks21:race==='42'?planWeeks42:race==='5k'?planWeeks5k:planWeeks10k;
+  const raceSpeed=getRaceSpeed(race);
+  const pf=prof.paces;
+  const ez=usingCustom&&customPaces.Z1?customPaces.Z1:vVO2G*pf.ez;
+  const mod=usingCustom&&customPaces.Z3?customPaces.Z3:vVO2G*pf.mod;
+  const tempo=usingCustom&&customPaces.Z4?customPaces.Z4:vVO2G*pf.tempo;
+  const intv=usingCustom&&customPaces.Z5?customPaces.Z5:vVO2G*pf.intv;
+  const obj=is42?planObj42:race==='21'?planObj21:race==='5k'?planObj5k:planObj10k;
+  const isShort=race==='5k'||race==='10k';
+  let weeks;
+  if(isShort){({weeks}=buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
+  else{({weeks}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
+
+  const DAYS_BR=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+  const planStart=mondayOfCurrentWeek();
+  const workouts=[];
+  weeks.forEach((wk,wIdx)=>{
+    wk.days.forEach((day,dIdx)=>{
+      if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return;
+      const steps=dayToGarminSteps(day,{ez,mod,tempo,intv,raceSpeed});
+      if(!steps||steps.length===0)return;
+      const dayName=DAYS_BR[dIdx];
+      const scheduledAt=new Date(planStart);
+      scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
+      const name=buildWorkoutLabel(scheduledAt,dayName,day);
+      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
+      workouts.push({name,steps,desc,scheduledAt});
+    });
+  });
+
+  if(workouts.length===0){showToast('Nenhum treino para enviar.');return;}
+  icuStartExport(workouts);
+}
+
+// De planilha salva
+function intervalsExportFromSaved(id){
+  const plan=savedPlans.find(p=>p.id===id);
+  if(!plan){showToast('Planilha não encontrada.');return;}
+  if(plan.profKey==='estreante'){showToast('⚠ Treinos por tempo (Estreante) não suportam este export ainda.');return;}
+
+  const DAYS_BR=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+  const workouts=[];
+
+  plan.weeks.forEach((wk,wIdx)=>{
+    wk.days.forEach((day,dIdx)=>{
+      if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return;
+      const steps=dayToGarminSteps(day,plan);
+      if(!steps||steps.length===0)return;
+      const dayName=DAYS_BR[dIdx];
+      let scheduledAt=null;
+      if(plan.startTimestamp){
+        const weekStart=getWeekStartDate(plan,wIdx);
+        if(weekStart){scheduledAt=new Date(weekStart);scheduledAt.setDate(weekStart.getDate()+dIdx);}
+      }
+      if(!scheduledAt){
+        const planStart=mondayOfCurrentWeek();
+        scheduledAt=new Date(planStart);
+        scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
+      }
+      const name=buildWorkoutLabel(scheduledAt,dayName,day);
+      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
+      workouts.push({name,steps,desc,scheduledAt});
+    });
+  });
+
+  if(workouts.length===0){showToast('Nenhum treino para enviar.');return;}
+  icuStartExport(workouts);
+}
+
+function icuStartExport(workouts){
+  const apiKey=icuGetApiKey();
+  const athleteId=icuGetAthleteId();
+  const cfg=icuGetConfig();
+
+  if(!apiKey||!athleteId){
+    // Primeira vez — pede tudo, incluindo o ritmo de limiar
+    showIntervalsConfigModal((key,id)=>icuSendWorkouts(workouts,key,id));
+  } else if(!cfg.thresholdPaceMs){
+    // Config antiga (de antes do ritmo de limiar existir no app) — completa o que falta,
+    // sem pedir de novo a API Key/Athlete ID que o usuário já tinha salvo.
+    showIntervalsConfigModal((key,id)=>icuSendWorkouts(workouts,key,id));
+  } else {
+    icuShowConfirmModal(workouts, apiKey, athleteId, cfg);
+  }
+}
+
+function icuShowConfirmModal(workouts, apiKey, athleteId, cfg){
+  const old=document.getElementById('icu-confirm-modal');
+  if(old)old.remove();
+  const modal=document.createElement('div');
+  modal.id='icu-confirm-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+  const paceRow = cfg.thresholdPaceLabel
+    ? `<div style="margin-top:8px;font-size:11px;color:var(--t3)">⏱️ Ritmo de limiar: <strong style="color:var(--t1);font-family:monospace">${cfg.thresholdPaceLabel}/km</strong></div>`
+    : `<div style="margin-top:8px;font-size:11px;color:#cc7a00;background:rgba(255,170,0,0.08);border:1px solid rgba(255,170,0,0.25);border-radius:8px;padding:8px 10px">⚠️ Sem ritmo de limiar configurado — o relógio pode mostrar o pace errado. <a href="javascript:void(0)" onclick="document.getElementById('icu-confirm-modal').remove();showIntervalsConfigModal((k,id)=>icuSendWorkouts(${JSON.stringify(workouts).replace(/</g,'\\u003c')},k,id))" style="color:#cc7a00;font-weight:700;text-decoration:underline">Configurar agora</a></div>`;
+  modal.innerHTML=`
+  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:400px;overflow:hidden">
+    <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr)">
+      <div style="font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">📅 Enviar para intervals.icu</div>
+      <div style="font-size:12px;color:var(--t3)">${workouts.length} treinos → calendário do atleta <code style="background:var(--s3);padding:1px 6px;border-radius:4px">${athleteId}</code></div>
+      ${paceRow}
+    </div>
+    <div style="padding:1rem 1.4rem;font-size:12px;color:var(--t2);line-height:1.7">
+      Cada treino será adicionado no dia correto do calendário. Se você enviar novamente, os treinos existentes serão <strong>atualizados sem duplicar</strong> (upsert automático pelo external_id).
+    </div>
+    <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap">
+      <button onclick="document.getElementById('icu-confirm-modal').remove();showIntervalsConfigModal((k,id)=>icuSendWorkouts(${JSON.stringify(workouts).replace(/</g,'\\u003c')},k,id))" style="height:36px;padding:0 12px;border-radius:16px;border:1px solid var(--bdr2);background:transparent;color:var(--t3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">⚙ Alterar config</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('icu-confirm-modal').remove()" style="height:36px;padding:0 12px;border-radius:16px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancelar</button>
+        <button onclick="document.getElementById('icu-confirm-modal').remove();icuSendWorkouts(window._icuPendingWorkouts,'${apiKey}','${athleteId}')" style="height:36px;padding:0 16px;border-radius:16px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Enviar ${workouts.length} treinos →</button>
+      </div>
+    </div>
+  </div>`;
+  // Guarda workouts em variável global temporária para o botão do modal acessar
+  window._icuPendingWorkouts = workouts;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+window.intervalsExportFromRace=intervalsExportFromRace;
+window.intervalsExportFromSaved=intervalsExportFromSaved;
+window.icuSaveAndContinue=icuSaveAndContinue;
+</script>
 
 <script>
 /* ── Registro do Service Worker (PWA instalável) ── */
