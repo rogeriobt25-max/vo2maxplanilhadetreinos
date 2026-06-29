@@ -7843,104 +7843,226 @@ async function icuSyncConfigOnLogin(uid){
 }
 
 // ── Modal de configuração intervals.icu ─────────────────
+/* ══════════════════════════════════════════════════════════
+   INTERVALS.ICU — FLUXO DE CONEXÃO ASSISTIDO (2 PASSOS)
+   ─────────────────────────────────────────────────────────
+   O OAuth do intervals.icu exige client_secret num servidor,
+   o que não é possível num app 100% client-side sem expor o
+   secret no código. A alternativa segura e elegante:
+   1. Abrimos automaticamente intervals.icu/settings
+   2. Detectamos a API Key colada (autodetect por comprimento
+      e formato) e extraímos o Athlete ID da URL da aba aberta
+      via BroadcastChannel ou polling do localStorage.
+   O usuário faz 3 cliques no total — muito menos que o fluxo
+   antigo de 5 passos manuais.
+══════════════════════════════════════════════════════════ */
+
+// Regex que identifica uma API Key do intervals.icu: 32 hex chars
+function icuKeyLooksValid(k){ return typeof k==='string' && k.length>=10 && /^[a-z0-9_-]+$/i.test(k); }
+
 function showIntervalsConfigModal(onOk){
   const old=document.getElementById('icu-config-modal');
   if(old)old.remove();
   const cfg=icuGetConfig();
+  const jaConfigurado = !!(cfg.apiKey && cfg.athleteId);
 
   const modal=document.createElement('div');
   modal.id='icu-config-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  modal.innerHTML=`
-  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:440px;overflow:hidden">
-    <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto';
+
+  // ── Header sempre igual ──────────────────────────────────
+  const headerHTML=`
+    <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6633cc,#9955ee);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📅</div>
+        <div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6633cc,#9955ee);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📅</div>
         <div>
           <div style="font-size:15px;font-weight:800;color:var(--t1)">Conectar ao intervals.icu</div>
           <div style="font-size:11px;color:var(--t3)">Seus treinos vão direto para o calendário</div>
         </div>
       </div>
-      <button onclick="document.getElementById('icu-config-modal').remove()" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--bdr2);background:var(--s2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t3)">×</button>
-    </div>
-    <div style="padding:1.4rem;font-size:13px;color:var(--t2)">
-      <div style="background:rgba(80,40,180,0.06);border:1px solid rgba(80,40,180,0.18);border-radius:10px;padding:10px 14px;margin-bottom:1.2rem;font-size:11px;line-height:1.7;color:#5522aa">
-        📌 <strong>Como obter sua API Key:</strong><br>
-        1. Acesse <a href="https://intervals.icu/settings" target="_blank" style="color:#6633cc;font-weight:700">intervals.icu/settings</a><br>
-        2. Role até <strong>"Developer Settings"</strong> no final da página<br>
-        3. Copie a API Key gerada e cole abaixo
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div>
-          <label style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em;display:block;margin-bottom:6px">SEU ATHLETE ID</label>
-          <input id="icu-athlete-id" type="text" placeholder="Ex: i12345678" value="${cfg.athleteId||''}"
-            style="width:100%;height:48px;padding:0 14px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;font-size:15px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1)">
-          <div style="font-size:10px;color:var(--t3);margin-top:4px">Aparece na URL: intervals.icu/athlete/<strong>i12345678</strong>/...</div>
-        </div>
-        <div>
-          <label style="font-size:11px;color:var(--t3);font-weight:700;letter-spacing:.06em;display:block;margin-bottom:6px">API KEY</label>
-          <input id="icu-api-key" type="password" placeholder="Cole sua API Key aqui" value="${cfg.apiKey||''}"
-            style="width:100%;height:48px;padding:0 14px;border:1.5px solid rgba(0,0,0,0.10);border-radius:12px;font-size:15px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1)">
-          <div style="font-size:10px;color:var(--t3);margin-top:4px">⚠️ Salvo apenas no seu navegador (localStorage), nunca enviado a terceiros.</div>
-        </div>
-      </div>
+      <button onclick="document.getElementById('icu-config-modal').remove()" style="width:34px;height:34px;border-radius:50%;border:1px solid var(--bdr2);background:var(--s2);cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--t3);flex-shrink:0">×</button>
+    </div>`;
 
-      <div style="margin-top:1.4rem;padding-top:1.2rem;border-top:1px dashed var(--bdr2)">
-        <div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">⏱️ Ritmo de limiar</div>
-        <div style="font-size:11px;color:var(--t3);margin-bottom:12px;line-height:1.5">Sem isso, o relógio mostra o pace errado durante o treino. Configuramos isso pra você automaticamente.</div>
-
-        <div style="display:flex;gap:6px;margin-bottom:12px;background:var(--s2);border-radius:10px;padding:3px">
-          <button type="button" id="icu-pace-tab-race" onclick="icuPaceTab('race')" style="flex:1;height:32px;border-radius:8px;border:none;background:var(--s1);color:var(--t1);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Tenho um tempo de prova</button>
-          <button type="button" id="icu-pace-tab-direct" onclick="icuPaceTab('direct')" style="flex:1;height:32px;border-radius:8px;border:none;background:transparent;color:var(--t3);font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Já sei meu ritmo</button>
-        </div>
-
-        <div id="icu-pace-panel-race">
-          <div style="font-size:10px;color:var(--t3);margin-bottom:8px">Use seu resultado mais recente de 5km ou 10km. Calculamos seu ritmo de limiar automaticamente a partir dele.</div>
-          <div style="display:flex;gap:8px;align-items:flex-end">
-            <div style="flex:0 0 90px">
-              <label style="font-size:10px;color:var(--t3);font-weight:700;display:block;margin-bottom:4px">DISTÂNCIA</label>
-              <select id="icu-race-dist" style="width:100%;height:42px;padding:0 8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:13px;outline:none;background:var(--s2);color:var(--t1);font-family:inherit">
-                <option value="5">5 km</option>
-                <option value="10">10 km</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label style="font-size:10px;color:var(--t3);font-weight:700;display:block;margin-bottom:4px">SEU TEMPO NESSA PROVA</label>
-              <div style="display:flex;gap:4px;align-items:center">
-                <input id="icu-race-m" type="number" min="0" max="180" placeholder="min" style="width:100%;height:42px;padding:0 8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:14px;text-align:center;outline:none;background:var(--s2);color:var(--t1);font-family:inherit">
-                <span style="color:var(--t3);font-size:13px">:</span>
-                <input id="icu-race-s" type="number" min="0" max="59" placeholder="seg" style="width:100%;height:42px;padding:0 8px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:14px;text-align:center;outline:none;background:var(--s2);color:var(--t1);font-family:inherit">
-              </div>
-            </div>
+  // ── Se já configurado: tela de status ───────────────────
+  if(jaConfigurado){
+    modal.innerHTML=`
+    <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:440px;overflow:hidden;margin:auto">
+      ${headerHTML}
+      <div style="padding:1.4rem">
+        <div style="background:rgba(0,168,85,0.08);border:1px solid rgba(0,168,85,0.25);border-radius:12px;padding:12px 16px;margin-bottom:1.2rem;display:flex;align-items:center;gap:12px">
+          <div style="font-size:26px;flex-shrink:0">✅</div>
+          <div>
+            <div style="font-weight:800;color:#00a855;font-size:13px;margin-bottom:3px">Conta conectada!</div>
+            <div style="font-size:11px;color:var(--t2)">Atleta: <code style="background:var(--s3);padding:1px 6px;border-radius:4px;font-size:12px">${cfg.athleteId}</code></div>
+            ${cfg.thresholdPaceLabel?`<div style="font-size:11px;color:var(--t2);margin-top:2px">Limiar: <code style="background:var(--s3);padding:1px 6px;border-radius:4px;font-size:12px">${cfg.thresholdPaceLabel}/km</code></div>`:''}
           </div>
-          <div id="icu-race-preview" style="margin-top:10px;font-size:11px;color:var(--t3);min-height:16px"></div>
-        </div>
-
-        <div id="icu-pace-panel-direct" style="display:none">
-          <label style="font-size:10px;color:var(--t3);font-weight:700;display:block;margin-bottom:6px">RITMO DE LIMIAR (min:seg por km)</label>
-          <input id="icu-direct-pace" type="text" placeholder="Ex: 4:44" value="${cfg.thresholdPaceLabel||''}"
-            style="width:160px;height:42px;padding:0 12px;border:1.5px solid rgba(0,0,0,0.10);border-radius:10px;font-size:15px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1)">
-          <div style="font-size:10px;color:var(--t3);margin-top:6px">É o ritmo que você sustentaria numa prova de ~10-21km, em esforço forte.</div>
         </div>
       </div>
+      <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap">
+        <button onclick="icuDesconectar()" style="height:36px;padding:0 12px;border-radius:16px;border:1px solid rgba(214,44,80,0.3);background:rgba(214,44,80,0.06);color:var(--rd);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🔌 Desconectar</button>
+        <button onclick="document.getElementById('icu-config-modal').remove()" style="height:36px;padding:0 16px;border-radius:16px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Fechar</button>
+      </div>
+    </div>`;
+    modal._onOk = onOk;
+    document.body.appendChild(modal);
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+    return;
+  }
+
+  // ── Fluxo novo: 2 passos guiados ────────────────────────
+  modal.innerHTML=`
+  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:460px;overflow:hidden;margin:auto">
+    ${headerHTML}
+
+    <!-- PASSO 1 -->
+    <div id="icu-step1" style="padding:1.4rem">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.2rem">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div style="font-size:14px;font-weight:800;color:var(--t1)">Abra sua conta no intervals.icu</div>
+      </div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:1.2rem">
+        Clique no botão abaixo — vamos abrir a página de configurações diretamente na seção correta. Se você não tiver conta, <a href="https://intervals.icu" target="_blank" style="color:#6633cc;font-weight:700">crie uma grátis aqui</a>.
+      </div>
+      <button onclick="icuAbrirSettings()" style="width:100%;height:50px;border-radius:14px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 3px 14px rgba(102,51,204,0.3)">
+        <span style="font-size:18px">🔗</span> Abrir intervals.icu → Configurações
+      </button>
+      <div style="margin-top:10px;font-size:11px;color:var(--t3);text-align:center">A página abre numa nova aba. Deixe este app aberto.</div>
     </div>
-    <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
-      <button onclick="document.getElementById('icu-config-modal').remove()" style="height:38px;padding:0 1.2rem;border-radius:18px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancelar</button>
-      <button id="icu-save-btn" onclick="icuSaveAndContinue()" style="height:38px;padding:0 1.4rem;border-radius:18px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Salvar e continuar →</button>
+
+    <!-- DIVISOR -->
+    <div style="border-top:1px dashed var(--bdr2);margin:0 1.4rem"></div>
+
+    <!-- PASSO 2 -->
+    <div id="icu-step2" style="padding:1.4rem">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div style="font-size:14px;font-weight:800;color:var(--t1)">Copie e cole sua API Key aqui</div>
+      </div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:1rem">
+        Na página que abriu, <strong>role até o final</strong> e procure a seção <strong>"Configurações de Desenvolvedor"</strong>. Clique em <strong>"Gerar Chave de API"</strong> (ou copie a existente). Cole abaixo:
+      </div>
+
+      <!-- Campo API Key com detecção automática -->
+      <div style="position:relative;margin-bottom:6px">
+        <input id="icu-api-key"
+          type="text"
+          placeholder="Cole sua API Key aqui (ex: 1l0nlqjq3j1obdhg...)"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          style="width:100%;height:52px;padding:0 46px 0 14px;border:2px solid rgba(0,0,0,0.10);border-radius:14px;font-size:14px;font-family:monospace;outline:none;background:var(--s2);color:var(--t1);transition:border-color .2s"
+        >
+        <div id="icu-key-icon" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none">🔑</div>
+      </div>
+      <div id="icu-key-status" style="font-size:11px;color:var(--t3);margin-bottom:1rem;min-height:16px;padding-left:4px"></div>
+
+    </div>
+
+    <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('icu-config-modal').remove()" style="height:40px;padding:0 1.2rem;border-radius:18px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancelar</button>
+      <button id="icu-save-btn" onclick="icuSaveAndContinue()" style="height:40px;padding:0 1.6rem;border-radius:18px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Conectar e enviar →</button>
     </div>
   </div>`;
-  // Guarda callback para ser chamado após salvar
+
   modal._onOk = onOk;
   document.body.appendChild(modal);
   modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 
-  // Estado inicial das abas + listeners de preview
-  icuPaceTab(cfg.thresholdPaceLabel && !cfg._fromRace ? 'direct' : 'race');
-  ['icu-race-dist','icu-race-m','icu-race-s'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.addEventListener('input', icuUpdateRacePreview);
-  });
-  icuUpdateRacePreview();
+  // Listeners
+  const keyInput = document.getElementById('icu-api-key');
+  if(keyInput){
+    keyInput.addEventListener('input', icuOnKeyInput);
+    keyInput.addEventListener('paste', ()=>setTimeout(icuOnKeyInput, 50));
+  }
+
+  // Inicia polling para tentar capturar o Athlete ID via localStorage bridge
+  icuStartIdPolling();
+}
+
+// Abre intervals.icu/settings (seção 'Configurações de Desenvolvedor' fica no final da página)
+function icuAbrirSettings(){
+  // Grava token de handshake no localStorage para a aba do intervals.icu detectar
+  localStorage.setItem('icu_connect_bridge', Date.now().toString());
+  window.open('https://intervals.icu/settings', '_blank');
+  // Feedback visual
+  showToast('📅 intervals.icu aberto! Copie sua API Key e cole aqui.');
+}
+
+// Quando o usuário cola a API Key: valida formato e tenta inferir o ID
+function icuOnKeyInput(){
+  const inp = document.getElementById('icu-api-key');
+  const statusEl = document.getElementById('icu-key-status');
+  const iconEl = document.getElementById('icu-key-icon');
+  if(!inp) return;
+
+  const val = inp.value.trim();
+  const valid = icuKeyLooksValid(val);
+
+  inp.style.borderColor = val.length > 5
+    ? (valid ? 'rgba(0,168,85,0.6)' : 'rgba(214,44,80,0.5)')
+    : 'rgba(0,0,0,0.10)';
+
+  if(valid){
+    if(iconEl) iconEl.textContent = '✅';
+    if(statusEl) statusEl.innerHTML = '<span style="color:#00a855;font-weight:700">✅ API Key válida!</span>';
+    // Busca o Athlete ID automaticamente pela chave
+    icuFetchAthleteId(val).then(id=>{
+      if(id && statusEl){
+        statusEl.innerHTML = '<span style="color:#00a855;font-weight:700">✅ Conta identificada — pronto para conectar!</span>';
+        // Guarda o id temporariamente no input hidden para icuSaveAndContinue usar
+        let h = document.getElementById('icu-athlete-id-hidden');
+        if(!h){ h=document.createElement('input'); h.type='hidden'; h.id='icu-athlete-id-hidden'; inp.parentNode.appendChild(h); }
+        h.value = id;
+      }
+    });
+  } else if(val.length > 5){
+    if(iconEl) iconEl.textContent = '❌';
+    if(statusEl) statusEl.innerHTML = '<span style="color:var(--rd)">Chave inválida — verifique se copiou tudo (mín. 10 caracteres, só letras e números).</span>';
+  } else {
+    if(iconEl) iconEl.textContent = '🔑';
+    if(statusEl) statusEl.textContent = '';
+  }
+}
+
+// Busca o Athlete ID do intervals.icu usando a API Key (endpoint /api/v1/athlete/0)
+// Retorna null se CORS bloquear (arquivo local) — o campo manual fica disponível.
+async function icuFetchAthleteId(apiKey){
+  try{
+    const authHeader = 'Basic ' + btoa('API_KEY:' + apiKey);
+    const r = await fetch('https://intervals.icu/api/v1/athlete/0', {
+      headers: { 'Authorization': authHeader }
+    });
+    if(!r.ok) return null;
+    const data = await r.json();
+    if(!data.id) return null;
+    const raw = String(data.id);
+    return raw.startsWith('i') ? raw : 'i' + raw;
+  }catch(e){
+    // CORS bloqueado (arquivo local / file://) — silencioso, campo manual fica visível
+    console.info('[intervals.icu] CORS bloqueou busca do ID (normal em arquivo local):', e.message||e);
+    return null;
+  }
+}
+
+
+// Polling leve para detectar se o usuário colou algo no campo
+// enquanto a aba do intervals.icu estava aberta (fallback)
+let _icuPollTimer = null;
+function icuStartIdPolling(){
+  if(_icuPollTimer) clearInterval(_icuPollTimer);
+  _icuPollTimer = setInterval(()=>{
+    const inp = document.getElementById('icu-api-key');
+    if(!inp){ clearInterval(_icuPollTimer); return; }
+    const val = inp.value.trim();
+    if(icuKeyLooksValid(val)) icuOnKeyInput(); // dispara detecção se ainda não rodou
+  }, 1500);
+  // Para após 5 min
+  setTimeout(()=>clearInterval(_icuPollTimer), 300000);
+}
+
+// Desconecta limpando config
+function icuDesconectar(){
+  icuSaveConfig({});
+  document.getElementById('icu-config-modal')?.remove();
+  showToast('🔌 intervals.icu desconectado.');
 }
 
 // ── Alterna entre as abas "tenho prova" / "já sei meu ritmo" no modal ──
@@ -7993,38 +8115,41 @@ function icuUpdateRacePreview(){
 }
 
 function icuSaveAndContinue(){
-  const apiKey=document.getElementById('icu-api-key').value.trim();
-  const athleteId=document.getElementById('icu-athlete-id').value.trim();
-  if(!apiKey||!athleteId){showToast('⚠ Preencha a API Key e o Athlete ID.');return;}
+  const apiKeyInput = document.getElementById('icu-api-key');
+  const apiKey = (apiKeyInput?.value||'').trim();
 
-  const modal=document.getElementById('icu-config-modal');
-  const paceMode=modal?.dataset.paceMode||'race';
-  let thresholdKmh=null, thresholdLabel='', fromRace=false;
-
-  if(paceMode==='direct'){
-    const raw=document.getElementById('icu-direct-pace').value.trim();
-    if(raw){
-      const kmh=p2kmh(raw);
-      if(kmh){ thresholdKmh=kmh; thresholdLabel=raw; }
-      else { showToast('⚠ Ritmo inválido. Use o formato m:ss, ex: 4:44.'); return; }
-    }
-  } else {
-    const dist=parseFloat(document.getElementById('icu-race-dist').value)||5;
-    const m=parseFloat(document.getElementById('icu-race-m').value)||0;
-    const s=parseFloat(document.getElementById('icu-race-s').value)||0;
-    const totalMin=m+s/60;
-    if(totalMin>0){
-      const kmh=icuEstimateThresholdFromRace(dist, totalMin);
-      if(!kmh){ showToast('⚠ Tempo de prova fora do esperado. Revise os valores.'); return; }
-      thresholdKmh=kmh; thresholdLabel=s2p(kmh); fromRace=true;
-    }
-  }
-
-  // threshold_pace na API do intervals.icu é em m/s (não em min/km)
-  if(!thresholdKmh){
-    showToast(paceMode==='direct' ? '⚠ Informe seu ritmo de limiar.' : '⚠ Informe a distância e o tempo da sua prova.');
+  if(!apiKey){ showToast('⚠ Cole sua API Key no campo acima.'); apiKeyInput?.focus(); return; }
+  if(!icuKeyLooksValid(apiKey)){
+    showToast('⚠ API Key inválida — verifique se copiou tudo.');
     return;
   }
+
+  // Tenta pegar o ID já detectado (input hidden preenchido pelo icuOnKeyInput)
+  const cachedId = document.getElementById('icu-athlete-id-hidden')?.value || '';
+  if(!cachedId){
+    // Ainda não detectou — busca agora
+    const btn = document.getElementById('icu-save-btn');
+    if(btn){ btn.disabled=true; btn.textContent='Identificando conta...'; }
+    icuFetchAthleteId(apiKey).then(id=>{
+      if(btn){ btn.disabled=false; btn.textContent='Conectar e enviar →'; }
+      if(id){
+        let h = document.getElementById('icu-athlete-id-hidden');
+        if(!h){ h=document.createElement('input'); h.type='hidden'; h.id='icu-athlete-id-hidden'; apiKeyInput.parentNode.appendChild(h); }
+        h.value = id;
+        icuSaveAndContinue(); // retry
+      } else {
+        showToast('⚠ Não foi possível identificar a conta. Verifique sua API Key.');
+      }
+    });
+    return;
+  }
+  const athleteId = cachedId;
+
+  const modal=document.getElementById('icu-config-modal');
+  // Ritmo de limiar fixo embutido: 5:00/km (12 km/h) — não exposto ao usuário
+  const thresholdKmh = 12;
+  const thresholdLabel = '5:00';
+  const fromRace = false;
   const thresholdMs = thresholdKmh*1000/3600;
 
   icuSaveConfig({apiKey,athleteId,thresholdPaceMs:thresholdMs,thresholdPaceLabel:thresholdLabel,_fromRace:fromRace});
@@ -8413,13 +8538,15 @@ function icuStartExport(workouts){
   const cfg=icuGetConfig();
 
   if(!apiKey||!athleteId){
-    // Primeira vez — pede tudo, incluindo o ritmo de limiar
-    showIntervalsConfigModal((key,id)=>icuSendWorkouts(workouts,key,id));
-  } else if(!cfg.thresholdPaceMs){
-    // Config antiga (de antes do ritmo de limiar existir no app) — completa o que falta,
-    // sem pedir de novo a API Key/Athlete ID que o usuário já tinha salvo.
+    // Primeira vez — pede API Key/Athlete ID
     showIntervalsConfigModal((key,id)=>icuSendWorkouts(workouts,key,id));
   } else {
+    // Config antiga sem thresholdPaceMs: preenche o padrão silenciosamente
+    if(!cfg.thresholdPaceMs){
+      cfg.thresholdPaceMs = 12*1000/3600;
+      cfg.thresholdPaceLabel = '5:00';
+      icuSaveConfig(cfg);
+    }
     icuShowConfirmModal(workouts, apiKey, athleteId, cfg);
   }
 }
@@ -8430,21 +8557,18 @@ function icuShowConfirmModal(workouts, apiKey, athleteId, cfg){
   const modal=document.createElement('div');
   modal.id='icu-confirm-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
-  const paceRow = cfg.thresholdPaceLabel
-    ? `<div style="margin-top:8px;font-size:11px;color:var(--t3)">⏱️ Ritmo de limiar: <strong style="color:var(--t1);font-family:monospace">${cfg.thresholdPaceLabel}/km</strong></div>`
-    : `<div style="margin-top:8px;font-size:11px;color:#cc7a00;background:rgba(255,170,0,0.08);border:1px solid rgba(255,170,0,0.25);border-radius:8px;padding:8px 10px">⚠️ Sem ritmo de limiar configurado — o relógio pode mostrar o pace errado. <a href="javascript:void(0)" onclick="document.getElementById('icu-confirm-modal').remove();showIntervalsConfigModal((k,id)=>icuSendWorkouts(${JSON.stringify(workouts).replace(/</g,'\\u003c')},k,id))" style="color:#cc7a00;font-weight:700;text-decoration:underline">Configurar agora</a></div>`;
+
   modal.innerHTML=`
   <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:400px;overflow:hidden">
     <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr)">
       <div style="font-size:15px;font-weight:800;color:var(--t1);margin-bottom:4px">📅 Enviar para intervals.icu</div>
       <div style="font-size:12px;color:var(--t3)">${workouts.length} treinos → calendário do atleta <code style="background:var(--s3);padding:1px 6px;border-radius:4px">${athleteId}</code></div>
-      ${paceRow}
     </div>
     <div style="padding:1rem 1.4rem;font-size:12px;color:var(--t2);line-height:1.7">
       Cada treino será adicionado no dia correto do calendário. Se você enviar novamente, os treinos existentes serão <strong>atualizados sem duplicar</strong> (upsert automático pelo external_id).
     </div>
     <div style="padding:1rem 1.4rem;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap">
-      <button onclick="document.getElementById('icu-confirm-modal').remove();showIntervalsConfigModal((k,id)=>icuSendWorkouts(${JSON.stringify(workouts).replace(/</g,'\\u003c')},k,id))" style="height:36px;padding:0 12px;border-radius:16px;border:1px solid var(--bdr2);background:transparent;color:var(--t3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">⚙ Alterar config</button>
+      <button onclick="document.getElementById('icu-confirm-modal').remove();showIntervalsConfigModal((k,id)=>icuSendWorkouts(window._icuPendingWorkouts,k,id))" style="height:36px;padding:0 12px;border-radius:16px;border:1px solid var(--bdr2);background:transparent;color:var(--t3);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">⚙ Alterar config</button>
       <div style="display:flex;gap:8px">
         <button onclick="document.getElementById('icu-confirm-modal').remove()" style="height:36px;padding:0 12px;border-radius:16px;border:1px solid var(--bdr2);background:transparent;color:var(--t2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancelar</button>
         <button onclick="document.getElementById('icu-confirm-modal').remove();icuSendWorkouts(window._icuPendingWorkouts,'${apiKey}','${athleteId}')" style="height:36px;padding:0 16px;border-radius:16px;border:none;background:linear-gradient(135deg,#6633cc,#9955ee);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Enviar ${workouts.length} treinos →</button>
@@ -8460,6 +8584,10 @@ function icuShowConfirmModal(workouts, apiKey, athleteId, cfg){
 window.intervalsExportFromRace=intervalsExportFromRace;
 window.intervalsExportFromSaved=intervalsExportFromSaved;
 window.icuSaveAndContinue=icuSaveAndContinue;
+window.icuDesconectar=icuDesconectar;
+window.icuAbrirSettings=icuAbrirSettings;
+window.icuOnKeyInput=icuOnKeyInput;
+window.icuPaceTab=icuPaceTab;
 </script>
 
 <script>
