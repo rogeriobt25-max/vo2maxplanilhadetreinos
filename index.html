@@ -4849,7 +4849,7 @@ function buildPlanUI(race){
   ${isShort?'':`<div style="font-size:10px;color:var(--t3);background:rgba(0,0,0,0.03);border:1px solid var(--bdr);border-radius:6px;padding:7px 12px;margin-bottom:.75rem;line-height:1.6;display:none" id="dias-ativos-${race}">
   ⚡ <strong style="color:var(--t2)">Dias ativos por fase:</strong> ${is42?'Base 3–4 treinos · Build 4–5 treinos · Específica 4–5 treinos · Pico 5 treinos · Taper 3–4 treinos':race==='21'?'21km 12sem: 4 treinos constantes (Base→Específica→Pico→Taper) · 21km 16sem: inicia 3 treinos, evolui para 4 gradualmente':'Base 3–4 treinos · Build 4–5 treinos · Recuo 3 treinos · Taper 3–4 treinos'}. <strong style="color:var(--t2)">SEG</strong>: descanso (iniciante) ou rec.ativa progressiva (inter/avançado) · <strong style="color:var(--t2)">SEX</strong>: descanso pré-longão (leve opcional p/ avançado/improve) · <strong style="color:var(--t2)">DOM</strong> sempre descanso.
   </div>`}
-  <div class="exp-bar"><span>Exportar</span><button class="btn-exp btn-exp-pr" onclick="printPlan('${race}')">🖨 Salvar PDF</button><button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminFromRace('${race}')">⌚ Garmin (.fit)</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromRace('${race}')">📅 intervals.icu</button></div>
+  <div class="exp-bar"><span>Exportar</span><button class="btn-exp btn-exp-pr" onclick="printPlan('${race}')">🖨 Salvar PDF</button><button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminFromRace('${race}')">⌚ Garmin (.fit)</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromRace('${race}')">📅 intervals.icu</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsWeeklyExportFromRace('${race}')">🗓 Semanal (intervals.icu)</button></div>
   <div id="save-bar-${race}" style="display:flex;justify-content:center;margin-bottom:1rem"><button class="btn-save" onclick="openSaveModal('${race}')">📋 Salvar em Meus Treinos</button></div>
   </div>
   <div id="plan-weeks-${race}"></div>`;
@@ -5751,6 +5751,7 @@ function renderSavedList(){
           <button class="btn-exp btn-exp-pr" onclick="printSaved(${plan.id})">🖨 Salvar PDF</button>
           <button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminJSON(${plan.id})">⌚ Garmin (.fit)</button>
           <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromSaved(${plan.id})">📅 intervals.icu</button>
+          <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsWeeklyExportFromSaved(${plan.id})">🗓 Semanal (intervals.icu)</button>
         </div>
         ${plan.intensityDist?buildIntensityBoxHTML(plan.intensityDist,plan.race==='42'):''}
         ${plan.weeks.map((wk,wIdx)=>{
@@ -8489,7 +8490,7 @@ function intervalsExportFromRace(race){
       scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
       const name=buildWorkoutLabel(scheduledAt,dayName,day);
       const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
-      workouts.push({name,steps,desc,scheduledAt});
+      workouts.push({name,steps,desc,scheduledAt,wIdx});
     });
   });
 
@@ -8524,12 +8525,259 @@ function intervalsExportFromSaved(id){
       }
       const name=buildWorkoutLabel(scheduledAt,dayName,day);
       const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
-      workouts.push({name,steps,desc,scheduledAt});
+      workouts.push({name,steps,desc,scheduledAt,wIdx});
     });
   });
 
   if(workouts.length===0){showToast('Nenhum treino para enviar.');return;}
   icuStartExport(workouts);
+}
+
+// ══════════════════════════════════════════════════════════
+// EXPORTAÇÃO SEMANAL — intervals.icu
+// Em vez de mandar o plano inteiro de uma vez, mostra um bloco por semana
+// (com o intervalo de datas) para o usuário enviar aos poucos. Cada semana
+// já enviada fica marcada em verde, mas continua clicável para reenvio
+// (upsert — não duplica no calendário).
+//
+// Para planilhas SALVAS (planKey = "saved_<id>"), o status "enviado" é
+// gravado no próprio objeto do plano (plan.icuSentWeeks), do mesmo jeito
+// que o campo `done` (treino concluído) — assim ele entra automaticamente
+// na sincronização com a nuvem (persistAccountPlans/Firebase) quando o
+// usuário está logado, e fica disponível em qualquer aparelho.
+// Para planilhas geradas mas NÃO salvas (planKey = "race_..."), não existe
+// um objeto persistente para gravar, então usamos localStorage como cache
+// simples (vale só para este navegador).
+// ══════════════════════════════════════════════════════════
+
+function icuSentWeeksKey(planKey){ return 'icu_sent_weeks_'+planKey; }
+
+function icuSavedPlanFromKey(planKey){
+  if(!planKey||!planKey.startsWith('saved_'))return null;
+  const id=Number(planKey.slice('saved_'.length));
+  return savedPlans.find(p=>p.id===id)||null;
+}
+
+function icuGetSentWeeks(planKey){
+  const plan=icuSavedPlanFromKey(planKey);
+  if(plan){
+    // Fonte da verdade é o próprio plano (sincronizado com a nuvem).
+    // Mescla com o cache local só para não perder marcações antigas
+    // salvas antes desta atualização.
+    if(!plan.icuSentWeeks)plan.icuSentWeeks={};
+    let cached={};
+    try{ cached=JSON.parse(localStorage.getItem(icuSentWeeksKey(planKey))||'{}'); }catch(e){}
+    let changed=false;
+    Object.keys(cached).forEach(k=>{ if(!plan.icuSentWeeks[k]){ plan.icuSentWeeks[k]=cached[k]; changed=true; } });
+    if(changed)persistAccountPlans();
+    return plan.icuSentWeeks;
+  }
+  try{ return JSON.parse(localStorage.getItem(icuSentWeeksKey(planKey))||'{}'); }
+  catch(e){ return {}; }
+}
+
+function icuMarkWeekSent(planKey, wIdx){
+  const plan=icuSavedPlanFromKey(planKey);
+  if(plan){
+    if(!plan.icuSentWeeks)plan.icuSentWeeks={};
+    plan.icuSentWeeks[wIdx]=new Date().toISOString();
+    persistAccountPlans(); // sincroniza com a conta (se logado); em modo offline fica só na memória, igual ao restante do plano
+    return;
+  }
+  // Planilha não salva — cache local simples
+  const map=icuGetSentWeeks(planKey);
+  map[wIdx]=new Date().toISOString();
+  try{ localStorage.setItem(icuSentWeeksKey(planKey), JSON.stringify(map)); }catch(e){}
+}
+
+// Agrupa a lista plana de workouts (cada um com .wIdx e .scheduledAt) em semanas
+function icuGroupWeeks(workouts){
+  const map=new Map();
+  workouts.forEach(w=>{
+    if(!map.has(w.wIdx))map.set(w.wIdx,[]);
+    map.get(w.wIdx).push(w);
+  });
+  return Array.from(map.keys()).sort((a,b)=>a-b).map(wIdx=>{
+    const ws=map.get(wIdx).slice().sort((a,b)=>a.scheduledAt-b.scheduledAt);
+    return {wIdx, workouts:ws, start:ws[0].scheduledAt, end:ws[ws.length-1].scheduledAt};
+  });
+}
+
+function icuShowWeeklyModal(workouts, planKey, label){
+  const old=document.getElementById('icu-weekly-modal');
+  if(old)old.remove();
+  const weeks=icuGroupWeeks(workouts);
+  if(weeks.length===0){showToast('Nenhum treino para enviar.');return;}
+  const sent=icuGetSentWeeks(planKey);
+
+  const modal=document.createElement('div');
+  modal.id='icu-weekly-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)';
+
+  const rowsHtml=weeks.map(wk=>{
+    const isSent=!!sent[wk.wIdx];
+    const range=`${fmtDate(wk.start)} – ${fmtDate(wk.end)}`;
+    return `<div class="icu-week-block" id="icu-week-${wk.wIdx}" onclick="icuClickWeekBlock('${planKey}',${wk.wIdx})" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:12px;border:1px solid ${isSent?'rgba(0,168,85,0.35)':'var(--bdr2)'};background:${isSent?'rgba(0,168,85,0.08)':'var(--s2)'};cursor:pointer;margin-bottom:8px;transition:background .2s,border-color .2s">
+      <div>
+        <div style="font-size:12.5px;font-weight:800;color:var(--t1)">Semana ${wk.wIdx+1}</div>
+        <div style="font-size:11px;color:var(--t3)">${range} · ${wk.workouts.length} treino${wk.workouts.length!==1?'s':''}</div>
+      </div>
+      <div id="icu-week-status-${wk.wIdx}" style="font-size:11px;font-weight:800;color:${isSent?'#00a855':'#6633cc'};white-space:nowrap">${isSent?'✓ Enviado':'Enviar →'}</div>
+    </div>`;
+  }).join('');
+
+  modal.innerHTML=`
+  <div style="background:var(--s1);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:420px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:1.2rem 1.4rem;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+      <div>
+        <div style="font-size:15px;font-weight:800;color:var(--t1)">🗓 Exportar semanalmente</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px">${label||''}</div>
+      </div>
+      <button onclick="document.getElementById('icu-weekly-modal').remove()" style="flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--bdr2);background:var(--s2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--t3)">×</button>
+    </div>
+    <div style="padding:.9rem 1.4rem;font-size:11.5px;color:var(--t3);border-bottom:1px solid var(--bdr);line-height:1.6">
+      Toque numa semana para enviar só aquela semana ao intervals.icu. Semanas já enviadas ficam verdes — pode tocar de novo para reenviar.
+    </div>
+    <div style="padding:1rem 1.4rem;overflow-y:auto">${rowsHtml}</div>
+  </div>`;
+  window._icuWeeklyWorkouts = window._icuWeeklyWorkouts||{};
+  window._icuWeeklyWorkouts[planKey] = weeks;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+}
+
+function icuClickWeekBlock(planKey, wIdx){
+  const weeks=(window._icuWeeklyWorkouts&&window._icuWeeklyWorkouts[planKey])||[];
+  const wk=weeks.find(w=>w.wIdx===wIdx);
+  if(!wk)return;
+  const apiKey=icuGetApiKey();
+  const athleteId=icuGetAthleteId();
+  if(!apiKey||!athleteId){
+    showIntervalsConfigModal((key,id)=>icuSendWeekBlock(wk.workouts, planKey, wIdx, key, id));
+    return;
+  }
+  icuSendWeekBlock(wk.workouts, planKey, wIdx, apiKey, athleteId);
+}
+
+async function icuSendWeekBlock(weekWorkouts, planKey, wIdx, apiKey, athleteId){
+  const statusEl=document.getElementById('icu-week-status-'+wIdx);
+  const blockEl=document.getElementById('icu-week-'+wIdx);
+  const prevStatusTxt=statusEl?statusEl.textContent:'';
+  const prevStatusColor=statusEl?statusEl.style.color:'';
+  if(statusEl)statusEl.textContent='Enviando…';
+  if(blockEl)blockEl.style.opacity='0.6';
+
+  await icuSyncThresholdPace(apiKey, athleteId);
+
+  const authHeader='Basic '+btoa('API_KEY:'+apiKey);
+  const athletePath=athleteId||'0';
+  const endpoint=`https://intervals.icu/api/v1/athlete/${encodeURIComponent(athletePath)}/events/bulk?upsert=true`;
+  const items=weekWorkouts.map((w,i)=>icuBuildEventItem(w,i,0));
+
+  let ok=0, fail=0;
+  try{
+    const r=await fetch(endpoint,{method:'POST',headers:{'Authorization':authHeader,'Content-Type':'application/json'},body:JSON.stringify(items)});
+    if(r.ok){ ok=items.length; }
+    else{ fail=items.length; console.warn('[intervals.icu] erro envio semanal', r.status, await r.text().catch(()=>'')); }
+  }catch(e){
+    fail=items.length;
+    console.warn('[intervals.icu] erro de rede envio semanal', e);
+  }
+
+  if(blockEl)blockEl.style.opacity='1';
+
+  if(ok>0){
+    icuMarkWeekSent(planKey, wIdx);
+    if(blockEl){
+      blockEl.style.background='rgba(0,168,85,0.08)';
+      blockEl.style.borderColor='rgba(0,168,85,0.35)';
+    }
+    if(statusEl){statusEl.textContent='✓ Enviado';statusEl.style.color='#00a855';}
+    showToast(`✅ Semana ${wIdx+1} enviada (${ok} treino${ok!==1?'s':''})`);
+  } else {
+    if(statusEl){statusEl.textContent=prevStatusTxt||'Enviar →';statusEl.style.color=prevStatusColor||'#6633cc';}
+    showToast('⚠ Falha ao enviar essa semana. Verifique sua API Key.');
+  }
+}
+
+// Da planilha gerada (sem salvar) — versão semanal
+function intervalsWeeklyExportFromRace(race){
+  if(vo2G===0){showToast('Calcule o VO2 primeiro.');return;}
+  const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
+  if(profKey==='estreante'){showToast('⚠ Treinos por tempo (Estreante) não suportam este export ainda.');return;}
+
+  const is42=race==='42';
+  const prof=PROFILES[profKey];
+  const planWeeks=race==='21'?planWeeks21:race==='42'?planWeeks42:race==='5k'?planWeeks5k:planWeeks10k;
+  const raceSpeed=getRaceSpeed(race);
+  const pf=prof.paces;
+  const ez=usingCustom&&customPaces.Z1?customPaces.Z1:vVO2G*pf.ez;
+  const mod=usingCustom&&customPaces.Z3?customPaces.Z3:vVO2G*pf.mod;
+  const tempo=usingCustom&&customPaces.Z4?customPaces.Z4:vVO2G*pf.tempo;
+  const intv=usingCustom&&customPaces.Z5?customPaces.Z5:vVO2G*pf.intv;
+  const obj=is42?planObj42:race==='21'?planObj21:race==='5k'?planObj5k:planObj10k;
+  const isShort=race==='5k'||race==='10k';
+  let weeks;
+  if(isShort){({weeks}=buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
+  else{({weeks}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
+
+  const DAYS_BR=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+  const planStart=mondayOfCurrentWeek();
+  const workouts=[];
+  weeks.forEach((wk,wIdx)=>{
+    wk.days.forEach((day,dIdx)=>{
+      if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return;
+      const steps=dayToGarminSteps(day,{ez,mod,tempo,intv,raceSpeed});
+      if(!steps||steps.length===0)return;
+      const dayName=DAYS_BR[dIdx];
+      const scheduledAt=new Date(planStart);
+      scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
+      const name=buildWorkoutLabel(scheduledAt,dayName,day);
+      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
+      workouts.push({name,steps,desc,scheduledAt,wIdx});
+    });
+  });
+
+  if(workouts.length===0){showToast('Nenhum treino para enviar.');return;}
+  const raceLabel=race==='5k'?'5km':race==='10k'?'10km':race+'km';
+  const planKey=`race_${race}_${profKey}_${planStart.toISOString().slice(0,10)}`;
+  icuShowWeeklyModal(workouts, planKey, `Planilha ${raceLabel} · início ${fmtDate(planStart)}`);
+}
+
+// De planilha salva — versão semanal
+function intervalsWeeklyExportFromSaved(id){
+  const plan=savedPlans.find(p=>p.id===id);
+  if(!plan){showToast('Planilha não encontrada.');return;}
+  if(plan.profKey==='estreante'){showToast('⚠ Treinos por tempo (Estreante) não suportam este export ainda.');return;}
+
+  const DAYS_BR=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+  const workouts=[];
+
+  plan.weeks.forEach((wk,wIdx)=>{
+    wk.days.forEach((day,dIdx)=>{
+      if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return;
+      const steps=dayToGarminSteps(day,plan);
+      if(!steps||steps.length===0)return;
+      const dayName=DAYS_BR[dIdx];
+      let scheduledAt=null;
+      if(plan.startTimestamp){
+        const weekStart=getWeekStartDate(plan,wIdx);
+        if(weekStart){scheduledAt=new Date(weekStart);scheduledAt.setDate(weekStart.getDate()+dIdx);}
+      }
+      if(!scheduledAt){
+        const planStart=mondayOfCurrentWeek();
+        scheduledAt=new Date(planStart);
+        scheduledAt.setDate(planStart.getDate()+wIdx*7+dIdx);
+      }
+      const name=buildWorkoutLabel(scheduledAt,dayName,day);
+      const desc=day.detail||`${day.type}${day.dist?' · '+day.dist:''}${day.pace?' · '+day.pace+'/km':''}`;
+      workouts.push({name,steps,desc,scheduledAt,wIdx});
+    });
+  });
+
+  if(workouts.length===0){showToast('Nenhum treino para enviar.');return;}
+  const planKey=`saved_${plan.id}`;
+  icuShowWeeklyModal(workouts, planKey, `${plan.name} · ${plan.createdAt}`);
 }
 
 function icuStartExport(workouts){
@@ -8583,6 +8831,9 @@ function icuShowConfirmModal(workouts, apiKey, athleteId, cfg){
 
 window.intervalsExportFromRace=intervalsExportFromRace;
 window.intervalsExportFromSaved=intervalsExportFromSaved;
+window.intervalsWeeklyExportFromRace=intervalsWeeklyExportFromRace;
+window.intervalsWeeklyExportFromSaved=intervalsWeeklyExportFromSaved;
+window.icuClickWeekBlock=icuClickWeekBlock;
 window.icuSaveAndContinue=icuSaveAndContinue;
 window.icuDesconectar=icuDesconectar;
 window.icuAbrirSettings=icuAbrirSettings;
