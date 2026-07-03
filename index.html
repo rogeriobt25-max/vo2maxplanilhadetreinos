@@ -14,6 +14,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png"/>
 <meta name="description" content="Calcule seu VO2 Máx e gere planilhas de treino para meia-maratona e maratona."/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -948,6 +949,73 @@ details[open] summary::after{transform:rotate(90deg)}
 .wz-vo2-option-btn:hover{border-color:rgba(0,180,200,0.5)!important;background:linear-gradient(135deg,rgba(0,180,200,0.10),rgba(0,210,120,0.07))!important}
 #wz-wrap{padding-bottom:.5rem}
 </style>
+<style>
+/* ═══════════════════════════════
+   MONTADOR DE PLANILHA (Calendário + Banco de Treinos + Drag&Drop)
+═══════════════════════════════ */
+.btn-montar{width:100%;height:50px;cursor:pointer;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--s1);border:2px solid var(--pu);border-radius:var(--r2);color:var(--pu);transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.6rem;-webkit-appearance:none}
+.btn-montar:active{background:var(--pu2);transform:scale(0.98)}
+
+.mt-overlay{position:fixed;inset:0;background:var(--bg);z-index:950;display:flex;flex-direction:column;animation:mtFadeIn .18s ease}
+@keyframes mtFadeIn{from{opacity:0}to{opacity:1}}
+.mt-head{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;border-bottom:1px solid var(--bdr);background:var(--s1)}
+.mt-head h2{font-size:15px;font-weight:900;color:var(--t1);flex:1;min-width:0}
+.mt-head .mt-sub{font-size:10.5px;color:var(--t3);font-weight:600}
+.mt-close{width:34px;height:34px;flex-shrink:0;border-radius:50%;border:1px solid var(--bdr2);background:var(--s2);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+.mt-toolbar{flex-shrink:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid var(--bdr);background:var(--s1);font-size:11px;color:var(--t2)}
+.mt-toolbar label{display:flex;align-items:center;gap:5px;font-weight:700}
+.mt-toolbar input[type=date]{height:30px;border-radius:8px;border:1px solid var(--bdr2);background:var(--s2);color:var(--t1);font-family:inherit;font-size:11px;padding:0 8px}
+.mt-wkstep{display:flex;align-items:center;gap:4px}
+.mt-wkstep button{width:26px;height:26px;border-radius:8px;border:1px solid var(--bdr2);background:var(--s2);color:var(--t2);font-weight:900;cursor:pointer}
+.mt-tabs{display:none;gap:6px}
+.mt-tab-btn{height:30px;padding:0 12px;border-radius:14px;border:1px solid var(--bdr2);background:var(--s2);color:var(--t2);font-size:11px;font-weight:800;cursor:pointer}
+.mt-tab-btn.on{background:var(--pu);border-color:var(--pu);color:#fff}
+
+.mt-body{flex:1;display:flex;min-height:0;overflow:hidden}
+.mt-bank{width:260px;flex-shrink:0;overflow-y:auto;border-right:1px solid var(--bdr);background:var(--s1);padding:10px}
+.mt-bank-week{margin-bottom:10px}
+.mt-bank-week-lbl{font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);padding:4px 2px 6px}
+.mt-card{display:flex;align-items:flex-start;gap:8px;background:var(--s2);border:1px solid var(--bdr);border-left:4px solid var(--acc);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:grab;user-select:none;touch-action:none}
+.mt-card:active{cursor:grabbing}
+.mt-card-body{min-width:0;flex:1}
+.mt-card-day{font-size:9px;font-weight:800;color:var(--t3);text-transform:uppercase}
+.mt-card-type{font-size:11.5px;font-weight:800;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt-card-meta{font-size:10px;color:var(--t2);margin-top:1px}
+.mt-card-detail{font-size:9.5px;color:var(--t3);margin-top:2px;line-height:1.4}
+.mt-card.sortable-ghost{opacity:.35}
+.mt-card.sortable-drag{opacity:.9;box-shadow:0 6px 18px rgba(0,0,0,0.2)}
+
+.mt-cal{flex:1;overflow-y:auto;padding:10px}
+.mt-cal-dow{display:grid;grid-template-columns:52px repeat(7,1fr);gap:6px;padding:0 0 6px;position:sticky;top:0;background:var(--bg);z-index:2}
+.mt-cal-dow span{font-size:9.5px;font-weight:900;color:var(--t3);text-align:center;letter-spacing:.04em}
+.mt-cal-week{display:grid;grid-template-columns:52px repeat(7,1fr);gap:6px;margin-bottom:6px;align-items:stretch}
+.mt-cal-wlbl{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--t2);background:var(--s2);border-radius:8px}
+.mt-day-cell{min-height:78px;background:var(--s1);border:1.5px dashed var(--bdr2);border-radius:10px;padding:4px;display:flex;flex-direction:column;gap:2px;position:relative}
+.mt-day-cell.mt-cell-over{border-color:var(--pu);background:var(--pu2)}
+.mt-day-date{font-size:8.5px;color:var(--t3);font-weight:700;padding:1px 2px}
+.mt-chip{flex:1;border-radius:7px;border-left:4px solid var(--acc);background:var(--s2);padding:4px 16px 4px 6px;position:relative;font-size:9.5px;line-height:1.35;cursor:grab}
+.mt-chip-type{font-weight:800;color:var(--t1);font-size:10px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt-chip-meta{color:var(--t2)}
+.mt-chip-x{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;border:none;background:rgba(0,0,0,0.08);color:var(--t2);font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mt-day-cell.sortable-ghost{background:var(--pu2);border-color:var(--pu)}
+
+.mt-foot{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 10px);border-top:1px solid var(--bdr);background:var(--s1);flex-wrap:wrap}
+.mt-foot-count{font-size:11px;color:var(--t2);font-weight:700;flex:1;min-width:120px}
+.btn-mt-save{height:44px;padding:0 20px;border-radius:22px;border:none;background:linear-gradient(135deg,var(--pu),#9955ee);color:#fff;font-size:12.5px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.btn-mt-save:disabled{opacity:.4;cursor:not-allowed}
+
+@media (max-width:760px){
+  .mt-tabs{display:flex}
+  .mt-body{flex-direction:column}
+  .mt-bank{width:100%;border-right:none;border-bottom:1px solid var(--bdr);display:none}
+  .mt-bank.mt-active{display:block}
+  .mt-cal{display:none}
+  .mt-cal.mt-active{display:block}
+  .mt-cal-dow,.mt-cal-week{grid-template-columns:38px repeat(7,minmax(0,1fr))}
+  .mt-day-cell{min-height:64px}
+}
+</style>
 </head>
 <body>
 
@@ -1300,6 +1368,51 @@ details[open] summary::after{transform:rotate(90deg)}
       <button class="btn-modal-cancel" onclick="closeModal()">Cancelar</button>
       <button class="btn-modal-ok" onclick="confirmSave()">Salvar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL NOME — planilha montada -->
+<div class="modal-bg" id="modal-mt-save" style="display:none;z-index:960">
+  <div class="modal-box">
+    <div class="modal-title">💾 Salvar Planilha Montada</div>
+    <div class="modal-sub">Dê um nome para identificar essa planilha em Meus Treinos. Depois de salva, os botões de exportar para o intervals.icu aparecem lá.</div>
+    <input type="text" class="modal-input" id="mt-name-input" placeholder="ex: Meia de Outubro 2025" maxlength="60"/>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="document.getElementById('modal-mt-save').style.display='none'">Cancelar</button>
+      <button class="btn-modal-ok" onclick="montadorConfirmSave()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MONTADOR DE PLANILHA: Calendário + Banco de Treinos (drag & drop) -->
+<div class="mt-overlay" id="montador-overlay" style="display:none">
+  <div class="mt-head">
+    <div style="min-width:0">
+      <h2 id="mt-title">🗓️ Montar Planilha</h2>
+      <div class="mt-sub" id="mt-subtitle"></div>
+    </div>
+    <div class="mt-tabs">
+      <button class="mt-tab-btn on" id="mt-tab-bank" onclick="montadorSwitchTab('bank')">📦 Banco</button>
+      <button class="mt-tab-btn" id="mt-tab-cal" onclick="montadorSwitchTab('cal')">📅 Calendário</button>
+    </div>
+    <button class="mt-close" onclick="fecharMontador()">×</button>
+  </div>
+  <div class="mt-toolbar">
+    <label>Início (segunda) <input type="date" id="mt-start-date" onchange="montadorChangeStart(this.value)"/></label>
+    <div class="mt-wkstep">
+      <span>Semanas:</span>
+      <button onclick="montadorAddWeek(-1)">−</button>
+      <span id="mt-week-count" style="min-width:16px;text-align:center;font-weight:800">0</span>
+      <button onclick="montadorAddWeek(1)">+</button>
+    </div>
+  </div>
+  <div class="mt-body">
+    <div class="mt-bank mt-active" id="mt-bank"></div>
+    <div class="mt-cal" id="mt-cal"></div>
+  </div>
+  <div class="mt-foot">
+    <span class="mt-foot-count" id="mt-foot-count">0 dias agendados</span>
+    <button class="btn-mt-save" id="mt-btn-save" disabled onclick="montadorAbrirSaveModal()">💾 Salvar Planilha Montada</button>
   </div>
 </div>
 
@@ -2697,9 +2810,14 @@ function setDur(race,w){
 function gerarPlanilha(race){
   const banner=document.getElementById(`dirty-banner-${race}`);
   const btn=document.getElementById(`btn-gerar-${race}`);
+  const btnMt=document.getElementById(`btn-montar-${race}`);
   if(banner)banner.classList.remove('show');
   if(btn)btn.innerHTML='✓ Planilha Gerada';
   renderPlan(race);
+  // Só mostra "Montar Planilha" depois que existe uma planilha gerada
+  // (é dela que o Banco de Treinos tira os treinos já calculados com os paces do atleta).
+  const profKeyNow=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
+  if(btnMt)btnMt.style.display=(profKeyNow==='estreante')?'none':'flex';
   setTimeout(()=>{if(btn)btn.innerHTML='▶ Gerar Planilha';},2000);
   // Scroll suave até a planilha
   const pw=document.getElementById(`plan-weeks-${race}`);
@@ -2711,6 +2829,8 @@ function markPlanDirty(race){
   if(!hasPlan)return; // sem planilha gerada ainda, não exibe aviso
   const banner=document.getElementById(`dirty-banner-${race}`);
   if(banner)banner.classList.add('show');
+  const btnMt=document.getElementById(`btn-montar-${race}`);
+  if(btnMt)btnMt.style.display='none'; // banco de treinos ficaria desatualizado até gerar de novo
 }
 function syncEstreanteWeekOpts(race, isEst, is10k){
   if(race!=='21')return;
@@ -4864,6 +4984,7 @@ function buildPlanUI(race){
     ${objetivoHTML}
     <div class="divider"></div><p class="sec-lbl">Duração da planilha</p><div class="dur-opts">${wOpts.map(w=>`<div class="dopt dopt-${race} ${w===defW?'on':''}" id="dopt-${race}-${w}" onclick="setDur('${race}',${w})">${(wLabels[race]&&wLabels[race][w])||w+' sem'}</div>`).join('')}</div>
     <button class="btn-gerar" id="btn-gerar-${race}" onclick="gerarPlanilha('${race}')">▶ Gerar Planilha</button>
+    <button class="btn-montar" id="btn-montar-${race}" style="display:none" onclick="abrirMontador('${race}')">🗓️ Montar Planilha</button>
     <div class="dirty-banner" id="dirty-banner-${race}"><span class="dirty-banner-icon">⚠</span><span style="flex:1">Configuração alterada — a planilha exibida pode estar desatualizada.</span><button class="btn-gerar-again" onclick="gerarPlanilha('${race}')">Gerar novamente</button></div>
   </div></div>
   <div id="plan-legend-export-${race}" style="display:${planBodyDisplay}">
@@ -5308,13 +5429,25 @@ function renderPlanShort(race,planWeeks,profKey){
   pw.innerHTML=html;
 }
 
+function syncMontarBtn(race){
+  // Mantém o botão "Montar Planilha" sincronizado com a existência de uma planilha
+  // gerada, não importa qual caminho (clique, troca de objetivo, campo de tempo etc.)
+  // disparou o redesenho. Chamado em TODOS os pontos de saída de renderPlan().
+  const btnMt=document.getElementById(`btn-montar-${race}`);
+  if(!btnMt)return;
+  const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
+  const pw=document.getElementById(`plan-weeks-${race}`);
+  const hasPlan=pw&&pw.innerHTML.trim().length>0;
+  btnMt.style.display=(hasPlan&&profKey!=='estreante')?'flex':'none';
+}
 function renderPlan(race){
   const is42=race==='42',is5k=race==='5k',is10k=race==='10k',isShort=is5k||is10k;
   const pw=document.getElementById(`plan-weeks-${race}`);
   if(!pw)return;
   if(vo2G===0){
     const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
-    if(profKey!=='estreante'){pw.innerHTML='';return;}
+    if(profKey!=='estreante'){pw.innerHTML='';syncMontarBtn(race);return;}
+    syncMontarBtn(race);
     return;
   }
   const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
@@ -5322,11 +5455,13 @@ function renderPlan(race){
   // Estreante: usar renderizador dedicado
   if(profKey==='estreante'){
     renderPlanEstreante(race,planWeeks,distEstreante);
+    syncMontarBtn(race);
     return;
   }
   // 5k/10k: engine dedicado
   if(isShort){
     renderPlanShort(race,planWeeks,profKey);
+    syncMontarBtn(race);
     return;
   }
   const prof=PROFILES[profKey],raceSpeed=getRaceSpeed(race),distKm=is42?42.195:21.0975;
@@ -5494,6 +5629,7 @@ function renderPlan(race){
     <p class="footnote" style="margin-bottom:1.5rem">Sábado = treino longo. Clique no card do Longão para ver detalhes de cada sessão.</p>`;
 
   pw.innerHTML=html;
+  syncMontarBtn(race);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -8742,6 +8878,292 @@ window.icuDesconectar=icuDesconectar;
 window.icuAbrirSettings=icuAbrirSettings;
 window.icuOnKeyInput=icuOnKeyInput;
 window.icuPaceTab=icuPaceTab;
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   MONTADOR DE PLANILHA — Calendário + Banco de Treinos (drag & drop)
+   ------------------------------------------------------------------
+   Ideia central: reaproveitar 100% o motor de cálculo (buildDays/
+   buildDaysShort + dayToGarminSteps) e 100% o pipeline de exportação
+   (icuStartExport/icuSendWorkouts/intervalsExportFromSaved) que já
+   existem. O montador só decide QUAL "day object" cai em QUAL posição
+   {wIdx,dIdx} de um plano salvo — a partir daí ele vira uma planilha
+   salva comum e todo o resto do app (paces, steps, export, progresso)
+   funciona sem nenhuma alteração.
+══════════════════════════════════════════════════════════ */
+const DAYS_BR_MT=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+var montador=null; // estado da sessão de montagem atual
+var _mtSortables=[];
+
+function _mtMondaySnap(d){
+  const dow=d.getDay();
+  const daysToMon=dow===0?-6:1-dow;
+  const m=new Date(d);
+  m.setDate(m.getDate()+daysToMon);
+  m.setHours(0,0,0,0);
+  return m;
+}
+function _mtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+function abrirMontador(race){
+  if(vo2G===0){showToast('Calcule o VO2 primeiro.');return;}
+  const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
+  if(profKey==='estreante'){showToast('⚠ Treinos por tempo (Estreante) ainda não têm Banco de Treinos.');return;}
+
+  const is42=race==='42',is5k=race==='5k',is10k=race==='10k',isShort=is5k||is10k;
+  const prof=PROFILES[profKey];
+  const planWeeks=race==='21'?planWeeks21:race==='42'?planWeeks42:race==='5k'?planWeeks5k:planWeeks10k;
+  const raceSpeed=getRaceSpeed(race);
+  const pf=prof.paces;
+  const ez=usingCustom&&customPaces.Z1?customPaces.Z1:vVO2G*pf.ez;
+  const mod=usingCustom&&customPaces.Z3?customPaces.Z3:vVO2G*pf.mod;
+  const tempo=usingCustom&&customPaces.Z4?customPaces.Z4:vVO2G*pf.tempo;
+  const intv=usingCustom&&customPaces.Z5?customPaces.Z5:vVO2G*pf.intv;
+  const obj=is42?planObj42:race==='21'?planObj21:race==='5k'?planObj5k:planObj10k;
+
+  let weeks;
+  if(isShort){({weeks}=buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
+  else{({weeks}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
+
+  montador={
+    race,profKey,ez,mod,tempo,intv,raceSpeed,
+    sourceWeeks:weeks,           // banco de treinos (origem, já com paces do atleta)
+    weekCount:weeks.length,      // nº de semanas do calendário (editável)
+    startDate:_mtMondaySnap(new Date()),
+    assigned:new Map()           // 'wIdx_dIdx' -> day object (clone)
+  };
+
+  const distLabel=is5k?'5km':is10k?'10km':is42?'Maratona':'Meia';
+  document.getElementById('mt-subtitle').textContent=`${distLabel} · ${prof.label} · ${planWeeks} semanas geradas · arraste um treino do Banco para um dia do calendário`;
+  document.getElementById('mt-start-date').value=_mtISO(montador.startDate);
+  montadorSwitchTab('bank');
+  montadorRenderAll();
+  document.getElementById('montador-overlay').style.display='flex';
+}
+
+function fecharMontador(){
+  document.getElementById('montador-overlay').style.display='none';
+  _mtSortables.forEach(s=>{try{s.destroy();}catch(e){}});
+  _mtSortables=[];
+  montador=null;
+}
+
+function montadorSwitchTab(tab){
+  document.getElementById('mt-tab-bank').classList.toggle('on',tab==='bank');
+  document.getElementById('mt-tab-cal').classList.toggle('on',tab==='cal');
+  document.getElementById('mt-bank').classList.toggle('mt-active',tab==='bank');
+  document.getElementById('mt-cal').classList.toggle('mt-active',tab==='cal');
+}
+
+function montadorChangeStart(dateStr){
+  if(!montador||!dateStr)return;
+  const d=new Date(dateStr+'T00:00:00');
+  montador.startDate=_mtMondaySnap(d);
+  document.getElementById('mt-start-date').value=_mtISO(montador.startDate);
+  montadorRenderCalendar(); // as posições {wIdx,dIdx} não mudam, só as datas exibidas
+}
+
+function montadorAddWeek(delta){
+  if(!montador)return;
+  const next=montador.weekCount+delta;
+  if(next<1||next>52)return;
+  if(delta<0){
+    // Remove a última semana: descarta agendamentos que ficariam fora do calendário
+    for(const key of Array.from(montador.assigned.keys())){
+      if(Number(key.split('_')[0])>=next)montador.assigned.delete(key);
+    }
+  }
+  montador.weekCount=next;
+  montadorRenderCalendar();
+  montadorUpdateFooter();
+}
+
+function montadorRenderAll(){
+  montadorRenderBank();
+  montadorRenderCalendar();
+  montadorUpdateFooter();
+}
+
+// ── Banco de Treinos: treinos já existentes na planilha gerada,
+//    com ritmos/paces automáticos do atleta — agrupados por semana de origem.
+function montadorRenderBank(){
+  const wrap=document.getElementById('mt-bank');
+  let html='';
+  montador.sourceWeeks.forEach((wk,wIdx)=>{
+    const cards=wk.days.map((day,dIdx)=>{
+      if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return'';
+      const col=typeColors[day.type]||'#334455';
+      const meta=[day.dist,day.pace?day.pace+'/km':''].filter(Boolean).join(' · ');
+      return`<div class="mt-card" draggable="true" style="border-left-color:${col}" data-wsrc="${wIdx}" data-dsrc="${dIdx}">
+        <div class="mt-card-body">
+          <div class="mt-card-day">${DAYS_BR_MT[dIdx]} · Sem ${wk.w}</div>
+          <div class="mt-card-type" style="color:${col}">${day.type}</div>
+          ${meta?`<div class="mt-card-meta">${meta}</div>`:''}
+          ${day.detail?`<div class="mt-card-detail">${day.detail}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    if(!cards)return;
+    html+=`<div class="mt-bank-week"><div class="mt-bank-week-lbl">Semana ${wk.w}</div>${cards}</div>`;
+  });
+  wrap.innerHTML=html||'<p style="font-size:12px;color:var(--t3);padding:8px">Nenhum treino disponível nesta planilha gerada.</p>';
+}
+
+// ── Calendário vazio: dias/semanas prontos para receber os treinos arrastados.
+function montadorRenderCalendar(){
+  const wrap=document.getElementById('mt-cal');
+  let html=`<div class="mt-cal-dow"><span></span>${DAYS_BR_MT.map(d=>`<span>${d}</span>`).join('')}</div>`;
+  for(let wIdx=0;wIdx<montador.weekCount;wIdx++){
+    const weekStart=new Date(montador.startDate);
+    weekStart.setDate(weekStart.getDate()+wIdx*7);
+    const weekEnd=new Date(weekStart);weekEnd.setDate(weekEnd.getDate()+6);
+    html+=`<div class="mt-cal-week"><div class="mt-cal-wlbl">S${wIdx+1}<span style="font-size:8px;font-weight:600;opacity:.75">${fmtDate(weekStart)}–${fmtDate(weekEnd)}</span></div>`;
+    for(let dIdx=0;dIdx<7;dIdx++){
+      const cellDate=new Date(weekStart);cellDate.setDate(cellDate.getDate()+dIdx);
+      html+=`<div class="mt-day-cell">
+        <div class="mt-day-date">${fmtDate(cellDate)}</div>
+        <div class="mt-cell-dropzone" data-week="${wIdx}" data-day="${dIdx}" style="flex:1;display:flex">${montadorChipHTML(wIdx,dIdx)}</div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  wrap.innerHTML=html;
+  montadorInitSortable();
+}
+
+function montadorChipHTML(wIdx,dIdx){
+  const day=montador.assigned.get(`${wIdx}_${dIdx}`);
+  if(!day)return'';
+  const col=typeColors[day.type]||'#334455';
+  const meta=[day.dist,day.pace?day.pace+'/km':''].filter(Boolean).join(' · ');
+  return`<div class="mt-chip" style="border-left-color:${col}">
+    <button class="mt-chip-x" onclick="montadorRemoveCell(${wIdx},${dIdx})" title="Remover">×</button>
+    <span class="mt-chip-type" style="color:${col}">${day.type}</span>
+    ${meta?`<span class="mt-chip-meta">${meta}</span>`:''}
+  </div>`;
+}
+
+function montadorInitSortable(){
+  if(typeof Sortable==='undefined'){showToast('⚠ Biblioteca de arrastar não carregou. Verifique sua conexão.');return;}
+  _mtSortables.forEach(s=>{try{s.destroy();}catch(e){}});
+  _mtSortables=[];
+
+  // Lista de origem: Banco de Treinos (clona ao arrastar, nunca "gasta" o card)
+  document.querySelectorAll('#mt-bank .mt-bank-week').forEach(container=>{
+    _mtSortables.push(new Sortable(container,{
+      group:{name:'mt',pull:'clone',put:false},
+      sort:false,
+      animation:150,
+      ghostClass:'sortable-ghost',
+      dragClass:'sortable-drag',
+      forceFallback:true // fallback touch-friendly consistente em mobile e desktop
+    }));
+  });
+
+  // Cada dia do calendário é um alvo de drop de no máximo 1 treino
+  document.querySelectorAll('.mt-cell-dropzone').forEach(zone=>{
+    _mtSortables.push(new Sortable(zone,{
+      group:{name:'mt',pull:false,put:true},
+      sort:false,
+      animation:150,
+      forceFallback:true,
+      onAdd:function(evt){
+        const wsrc=Number(evt.item.dataset.wsrc), dsrc=Number(evt.item.dataset.dsrc);
+        const wIdx=Number(evt.to.dataset.week), dIdx=Number(evt.to.dataset.day);
+        montadorAssign(wIdx,dIdx,wsrc,dsrc);
+      }
+    }));
+  });
+}
+
+function montadorAssign(wIdx,dIdx,wsrc,dsrc){
+  const srcDay=montador.sourceWeeks[wsrc]&&montador.sourceWeeks[wsrc].days[dsrc];
+  if(!srcDay)return;
+  montador.assigned.set(`${wIdx}_${dIdx}`,{...srcDay}); // clone — não compartilha referência entre dias
+  const zone=document.querySelector(`.mt-cell-dropzone[data-week="${wIdx}"][data-day="${dIdx}"]`);
+  if(zone)zone.innerHTML=montadorChipHTML(wIdx,dIdx);
+  montadorUpdateFooter();
+}
+function montadorRemoveCell(wIdx,dIdx){
+  montador.assigned.delete(`${wIdx}_${dIdx}`);
+  const zone=document.querySelector(`.mt-cell-dropzone[data-week="${wIdx}"][data-day="${dIdx}"]`);
+  if(zone)zone.innerHTML='';
+  montadorUpdateFooter();
+}
+
+function montadorUpdateFooter(){
+  const n=montador.assigned.size;
+  document.getElementById('mt-foot-count').textContent=`${n} dia${n!==1?'s':''} agendado${n!==1?'s':''}`;
+  document.getElementById('mt-week-count').textContent=montador.weekCount;
+  document.getElementById('mt-btn-save').disabled=n===0;
+}
+
+// ── Salvar planilha montada em "Meus Treinos" (reaproveita 100% do
+//    formato de planilha salva — export/paces/progresso funcionam de graça).
+function montadorAbrirSaveModal(){
+  if(!montador||montador.assigned.size===0)return;
+  const race=montador.race,is42=race==='42',is5k=race==='5k',is10k=race==='10k';
+  const distLabel=is5k?'5km':is10k?'10km':is42?'Maratona':'Meia';
+  const prof=PROFILES[montador.profKey]||PROFILES.inter;
+  document.getElementById('mt-name-input').value=`${distLabel} ${prof.label} (montada)`;
+  document.getElementById('modal-mt-save').style.display='flex';
+  setTimeout(()=>document.getElementById('mt-name-input').select(),50);
+}
+
+function montadorConfirmSave(){
+  if(!montador)return;
+  const name=document.getElementById('mt-name-input').value.trim()||'Planilha montada';
+
+  const weeks=[];
+  for(let wIdx=0;wIdx<montador.weekCount;wIdx++){
+    const days=[];
+    for(let dIdx=0;dIdx<7;dIdx++){
+      const day=montador.assigned.get(`${wIdx}_${dIdx}`);
+      days.push(day?{...day}:{rest:true,type:'Descanso'});
+    }
+    weeks.push({w:wIdx+1,days});
+  }
+  const totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
+  if(totalWorkouts===0){showToast('Arraste ao menos um treino para o calendário.');return;}
+  const intensityDist=calcIntensityDist(weeks);
+
+  const plan={
+    id:Date.now(),
+    name:`🧩 ${name}`,
+    race:montador.race,
+    planWeeks:montador.weekCount,
+    profKey:montador.profKey,
+    vo2:Math.round(vo2G*10)/10,
+    raceSpeed:montador.raceSpeed,
+    ez:montador.ez,mod:montador.mod,tempo:montador.tempo,intv:montador.intv,
+    lp:null,
+    createdAt:new Date().toLocaleDateString('pt-BR'),
+    startTimestamp:montador.startDate.getTime(),
+    weeks,
+    done:{},
+    totalWorkouts,
+    intensityDist,
+    montada:true
+  };
+  savedPlans.push(plan);
+  updateSavedBadge();
+  persistAccountPlans();
+  document.getElementById('modal-mt-save').style.display='none';
+  fecharMontador();
+  showToast(`✅ "${name}" salva em Meus Treinos! Exporte para o intervals.icu por lá.`);
+  switchNav('saved');
+  renderSavedList();
+}
+
+window.abrirMontador=abrirMontador;
+window.fecharMontador=fecharMontador;
+window.montadorSwitchTab=montadorSwitchTab;
+window.montadorChangeStart=montadorChangeStart;
+window.montadorAddWeek=montadorAddWeek;
+window.montadorRemoveCell=montadorRemoveCell;
+window.montadorAbrirSaveModal=montadorAbrirSaveModal;
+window.montadorConfirmSave=montadorConfirmSave;
 </script>
 
 <script>
