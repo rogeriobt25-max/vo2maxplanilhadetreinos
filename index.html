@@ -1431,6 +1431,11 @@ async function doLogin(){
   try{
     await fbAuth.signInWithEmailAndPassword(email,pass);
     closeAuthModal();
+    // Recarrega a página: se a pessoa gerou uma planilha sem estar logada
+    // (ou estava com outra conta), garante que a tela volte pro início
+    // limpa, e os dados corretos da conta que acabou de entrar sejam
+    // carregados do zero.
+    window.location.reload();
   }catch(e){
     const msg={
       'auth/user-not-found':'E-mail não encontrado. Crie uma conta primeiro.',
@@ -1502,6 +1507,9 @@ async function doRegister(){
     await fbDb.collection('users').doc(cred.user.uid).set({name,plans:[]});
     closeAuthModal();
     showToast('🎉 Conta criada com sucesso! Bem-vindo(a), '+name+'!');
+    // Mesmo motivo do login: se havia uma planilha gerada como visitante,
+    // a tela deve voltar limpa pro início.
+    setTimeout(()=>window.location.reload(), 900);
   }catch(e){
     const msg={
       'auth/email-already-in-use':'Este e-mail já está cadastrado.',
