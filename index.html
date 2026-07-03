@@ -1413,7 +1413,11 @@ async function loadIcuConfigFromCloud(uid){
 
 async function saveIcuConfigToCloud(uid,cfg){
   try{
-    await fbDb.collection('users').doc(uid).set({icuConfig:cfg},{merge:true});
+    // IMPORTANTE: usar mergeFields (não merge:true) porque merge:true faz um
+    // merge recursivo dentro do objeto icuConfig — ou seja, salvar {} pra
+    // "desconectar"/limpar NÃO apagava apiKey/athleteId antigos, eles ficavam
+    // pra sempre no documento. mergeFields substitui o campo inteiro.
+    await fbDb.collection('users').doc(uid).set({icuConfig:cfg},{mergeFields:['icuConfig']});
   }catch(e){console.warn('Firestore save error (icuConfig)',e)}
 }
 
@@ -1514,11 +1518,18 @@ window.doRegister=doRegister;
 async function doLogout(){
   if(!confirm('Sair da conta?'))return;
   await fbAuth.signOut();
-  // Limpa a config local do intervals.icu (API Key/Athlete ID) para não vazar
-  // pra outra conta que fizer login neste mesmo navegador em seguida.
+  // Limpa todo cache local ligado à conta (config do intervals.icu, último teste,
+  // token do Garmin) para não vazar pra outra conta que fizer login neste mesmo
+  // navegador em seguida.
   localStorage.removeItem('icu_config');
   localStorage.removeItem('icu_config_owner');
+  localStorage.removeItem('vo2_last_test');
+  if(typeof garminDisconnect==='function') garminDisconnect();
   showToast('👋 Sessão encerrada.');
+  // Recarrega a página: garante que TUDO que só existia em memória nesta sessão
+  // (planilhas salvas, último teste, etc.) seja descartado, e o próximo login
+  // neste navegador comece 100% limpo, buscando os dados certos da nuvem.
+  setTimeout(()=>window.location.reload(), 500);
 }
 window.doLogout=doLogout;
 
