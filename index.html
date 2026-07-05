@@ -6519,6 +6519,18 @@ function dayToGarminSteps(day, plan){
   const type=day.type;
   const totalDist=parseDist(day.dist);
 
+  // Extrai duração (em segundos) de um timeLabel tipo "30–40 min" ou "35-40 min".
+  // Usa o valor MAIOR do intervalo como duração fixa (evita treino curto demais)
+  // — é assim que o intervals.icu/relógio interpretam corretamente um treino "por tempo".
+  function parseTimeLabelSec(label){
+    if(!label)return null;
+    const range=label.match(/(\d+)\s*[–-]\s*(\d+)\s*min/i);
+    if(range)return Math.max(parseInt(range[1]),parseInt(range[2]))*60;
+    const single=label.match(/(\d+)\s*min/i);
+    if(single)return parseInt(single[1])*60;
+    return null;
+  }
+
   // ── Warmup padrão 10 min fácil (para treinos com intensidade)
   function addWarmup(durationSec=600){
     const tgt=planN.ez?paceTarget(s2p(planN.ez),15):null;
@@ -6538,6 +6550,15 @@ function dayToGarminSteps(day, plan){
 
   if(type==='Corrida leve'||type==='Rec. ativa'||type==='Corrida base'){
     // Treino leve/base: corrida contínua Z1-Z2 — sem aquecimento separado (já é o aquecimento)
+    // Se o dia tem timeLabel (ex: "30–40 min"), o treino é "por tempo" na tela do app —
+    // então manda pro intervals.icu/relógio como duração fixa (tempo), não distância,
+    // senão o relógio monta o step como Xkm em vez de "correr Y min".
+    const timeSec=parseTimeLabelSec(day.timeLabel);
+    if(timeSec){
+      steps.push(garminStep(order++,'active',{type:'time',value:timeSec},
+        paceTarget(day.pace||s2p(planN.ez),20),type));
+      return steps;
+    }
     const dist=totalDist||(type==='Rec. ativa'?6000:8000);
     steps.push(garminStep(order++,'active',{type:'distance',value:dist},
       paceTarget(day.pace||s2p(planN.ez),20),type));
