@@ -145,7 +145,7 @@ body{
   -webkit-tap-highlight-color:transparent;
   letter-spacing:.02em;
   position:relative;
-  padding:0 4px;
+  padding:0 2px;
 }
 .bnav-tab:active{transform:scale(0.92)}
 .bnav-tab.on{color:var(--acc)}
@@ -164,7 +164,7 @@ body{
   justify-content:center;
   transition:all .2s;
 }
-.bnav-label{font-size:10px;font-weight:700;line-height:1;white-space:nowrap}
+.bnav-label{font-size:10px;font-weight:700;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .bnav-badge{
   position:absolute;
   top:6px;
@@ -1025,9 +1025,9 @@ details[open] summary::after{transform:rotate(90deg)}
 @media (max-width:760px){
   .mt-tabs{display:flex}
   .mt-body{flex-direction:column}
-  .mt-bank{width:100%;border-right:none;border-bottom:1px solid var(--bdr);display:none}
+  .mt-bank{width:100%;border-right:none;border-bottom:1px solid var(--bdr);display:none;flex:1;min-height:0}
   .mt-bank.mt-active{display:block}
-  .mt-cal{display:none}
+  .mt-cal{display:none;flex:1;min-height:0}
   .mt-cal.mt-active{display:block}
   .mt-cal-dow,.mt-cal-week{grid-template-columns:38px repeat(7,minmax(0,1fr))}
   .mt-day-cell{min-height:64px}
@@ -1913,6 +1913,14 @@ function switchNav(p){
   if(p==='saved'){renderSavedList();}
   // Scroll to top on tab change
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Recomeçar: volta pra tela inicial (perfil/calculadora), limpando o que
+// foi preenchido nesta sessão. As planilhas já salvas em "Meus Treinos" não
+// são afetadas (ficam persistidas em conta/local storage).
+function recomecarApp(){
+  if(!confirm('Recomeçar do zero?\n\nIsso limpa os dados preenchidos nesta tela (perfil, distância, planilha gerada etc). Suas planilhas já salvas em "Meus Treinos" não são apagadas.'))return;
+  window.location.reload();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -6567,6 +6575,12 @@ function dayToGarminSteps(day, plan){
 
   if(type==='Moderado'){
     // Treino moderado: corrida contínua Z3 — sem aquecimento/desaquecimento separado (conforme planilha)
+    const timeSecMod=parseTimeLabelSec(day.timeLabel);
+    if(timeSecMod){
+      steps.push(garminStep(order++,'active',{type:'time',value:timeSecMod},
+        paceTarget(day.pace||s2p(planN.mod||planN.ez),15),'Moderado Z3'));
+      return steps;
+    }
     const dist=totalDist||10000;
     steps.push(garminStep(order++,'active',{type:'distance',value:dist},
       paceTarget(day.pace||s2p(planN.mod||planN.ez),15),'Moderado Z3'));
@@ -6644,6 +6658,12 @@ function dayToGarminSteps(day, plan){
     const hasIntensity=subtype==='Progressivo'||subtype==='Final Forte'||subtype==='MP Progressivo'||subtype==='Ritmo de Prova'||subtype==='Steady State';
     if(!hasIntensity){
       // Longo leve sem subtype: corrida contínua Z1-Z2 — sem aquecimento separado (conforme planilha)
+      const timeSecLongo=parseTimeLabelSec(day.timeLabel);
+      if(timeSecLongo){
+        steps.push(garminStep(order++,'active',{type:'time',value:timeSecLongo},
+          paceTarget(day.pace||s2p(planN.ez),20),'Longo Z1-Z2'));
+        return steps;
+      }
       steps.push(garminStep(order++,'active',{type:'distance',value:dist},
         paceTarget(day.pace||s2p(planN.ez),20),'Longo Z1-Z2'));
       return steps;
@@ -6743,9 +6763,15 @@ function dayToGarminSteps(day, plan){
   }
 
   if(type==='Correr/Caminhar'){
-    // Para iniciantes: alternância correr/caminhar, baseado em timeLabel
+    // Para iniciantes: alternância correr/caminhar (Galloway) — extrai duração real do detail/timeLabel
     let runMin=2, walkMin=2, totalMin=20;
+    const labelSec=parseTimeLabelSec(day.timeLabel);
+    if(labelSec)totalMin=Math.round(labelSec/60);
     if(day.detail){
+      const rm=day.detail.match(/correr\s+(\d+)\s*min/i);
+      const wm=day.detail.match(/caminhar\s+(\d+)\s*min/i);
+      if(rm)runMin=parseInt(rm[1]);
+      if(wm)walkMin=parseInt(wm[1]);
       const tm=day.detail.match(/(\d+)\s*min\s+contínuo/i);
       if(tm){totalMin=parseInt(tm[1]);runMin=totalMin;walkMin=0;}
     }
@@ -7862,7 +7888,11 @@ if(document.readyState==='loading'){
 <nav class="bottom-nav" id="bottom-nav">
   <button class="bnav-tab on" id="bnav-calc" onclick="switchNav('calc')">
     <div class="bnav-icon">⚡</div>
-    <span class="bnav-label">Calcular</span>
+    <span class="bnav-label">Gerar planilha</span>
+  </button>
+  <button class="bnav-tab" id="bnav-restart" onclick="recomecarApp()">
+    <div class="bnav-icon">🔄</div>
+    <span class="bnav-label">Recomeçar</span>
   </button>
   <button class="bnav-tab" id="bnav-saved" onclick="switchNav('saved')">
     <div class="bnav-icon">📋</div>
