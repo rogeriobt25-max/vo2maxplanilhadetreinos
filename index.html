@@ -3443,7 +3443,9 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     if(p==='taper'){
       if(is42&&lp.taper2Km){
         const taperPos=w-ph.taper[0]; // 0=taper1, 1=taper2, 2=taper3
-        const taperDur=ph.taper[1]-ph.taper[0];
+        // exclui a semana da prova da contagem (mesma correção do taperDay
+        // — ela é tratada por raceWeekDay, não por este cálculo de longão)
+        const taperDur=ph.taper[1]-ph.taper[0]-1;
         // última semana antes da prova → taper2Km (mais baixo)
         if(taperPos===taperDur)return lp.taper2Km;
       }
@@ -3519,21 +3521,36 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
       return capKm;
     }
 
-    // ── 21km 12sem (Intermediário): progressão específica ──────────────────
-    // 10→12→14→(desc=11)→16→18→(desc=14)→20→20→(desc=14) → Taper
+    // ── 21km 12sem: progressão específica com recuos (cutback) ─────────────
+    // Forma original: 10→12→14→(desc)→16→18→(desc)→20→20→(desc) → Taper
+    // Essa forma foi calibrada só com os números fixos do perfil Intermediário
+    // (start 10 / peak 20), e por isso não mudava para Iniciante/Avançado.
+    // Agora ela é expressa como FRAÇÃO do range [lp.start, lp.peak] de cada
+    // perfil, preservando o mesmo desenho de periodização (com os recuos nas
+    // mesmas semanas) mas escalando de fato por perfil.
     if(hasExtendedPhases&&planWeeks===12&&!is42){
-      const schedule12=[10,12,14,11,16,18,14,20,20,14];
+      const frac12=[0,0.2,0.4,0.1,0.6,0.8,0.4,1.0,1.0,0.4];
       // Semanas 1-3 = base, Sem 4-10 = specific/peak, Sem 11-12 = taper
-      if(w>=1&&w<=10)return schedule12[w-1]||lp.start;
+      if(w>=1&&w<=10){
+        const raw=Math.round(lp.start+(lp.peak-lp.start)*frac12[w-1]);
+        const[,maxKm]=longDurationCapKm();
+        return Math.max(lp.start,Math.min(raw,maxKm));
+      }
       return lp.taperKm;
     }
 
-    // ── 21km 16sem (Iniciante): progressão conservadora ───────────────────
-    // 8→10→12→(desc=8)→14→16→(desc=12)→18→20→(desc=14) → Taper
+    // ── 21km 16sem: progressão conservadora com recuos (cutback) ───────────
+    // Forma original: 8→10→12→(desc)→14→16→(desc)→18→20→(desc) → Taper
+    // Mesma correção do bloco de 12sem acima: calibrada nos números fixos do
+    // Iniciante (start 8 / peak 20), agora escalada por fração do perfil.
     if(hasExtendedPhases&&planWeeks===16&&!is42){
-      const schedule16=[8,10,12,8,14,16,12,18,20,14,16,18,14];
+      const frac16=[0,1/6,1/3,0,1/2,2/3,1/3,5/6,1,1/2,2/3,5/6,1/2];
       // Sem 1-5 = base, Sem 6-13 = build/specific, Sem 14-16 = taper
-      if(w>=1&&w<=13)return schedule16[w-1]||lp.start;
+      if(w>=1&&w<=13){
+        const raw=Math.round(lp.start+(lp.peak-lp.start)*frac16[w-1]);
+        const[,maxKm]=longDurationCapKm();
+        return Math.max(lp.start,Math.min(raw,maxKm));
+      }
       return lp.taperKm;
     }
 
@@ -4304,7 +4321,12 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     if(d===4||d===6)return{type:'Descanso',rest:true};
     if(d===0)return{type:'Descanso',rest:true};
     const taperPos=w-ph.taper[0];         // 0-indexed: 0 = primeira semana do taper
-    const taperDur=ph.taper[1]-ph.taper[0]; // total de semanas de taper
+    // taperDur: nº de semanas de taper REALMENTE processadas aqui (exclui a
+    // semana da prova — ela é interceptada por raceWeekDay antes de chegar
+    // em taperDay, então ph.taper[1]-ph.taper[0] "sobrava" 1 semana e
+    // isLastTaperWeek nunca ficava true; a última semana real antes da
+    // prova sempre caía no bloco de Taper I/II em vez do Taper Final).
+    const taperDur=ph.taper[1]-ph.taper[0]-1;
     const isLastTaperWeek=(taperPos===taperDur);
     const isPenultimateTaper=(taperDur>=2&&taperPos===taperDur-1);
 
@@ -4345,127 +4367,210 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
 
     // ═══════════════════════════════════════════════════════════════
     // MARATONA: 3 semanas de taper (quando disponível) — Pfitzinger/Hanson
+    //
+    // Volume proporcional ao perfil (mesma correção aplicada no 21km):
+    // os dias eram km fixos, iguais pra Iniciante/Intermediário/Avançado,
+    // enquanto o total da semana no card já escala por weekBase42×
+    // objMod.volFactor. Agora cada dia deriva de um total de taper
+    // (taperITotal/taperIITotal/taperFinalTotal) com os MESMOS pesos
+    // relativos que os km fixos antigos já usavam.
     // ═══════════════════════════════════════════════════════════════
     if(is42){
+      const weekBase42=Math.round((prof.weekBase42[planWeeks]||35)*objMod.volFactor);
+      const minEasy42=4,minQuality42=5,minRP42=5; // pisos — evita treinos irrisórios no Iniciante
 
-      // ── TAPER I (primeira semana) — −40% vol, intensidade preservada ──
+      // ── TAPER I (primeira semana) — ~40% de redução, intensidade preservada ──
       if(taperPos===0){
+        const taperITotal=weekBase42*0.60;
         if(obj==='finish'){
-          // finish: só Z1-Z2, sem qualidade alguma no taper
-          if(d===1)return taperLeve(14,'aeróbico suave — sem esforço, absorção total');
-          if(d===2)return taperLeve(12,'Z1 leve · pernas soltas');
-          if(d===3)return strideActivation(10,4,false);
+          // pesos originais 14/12/10 (total 36)
+          const d1=Math.max(minEasy42,Math.round(taperITotal*0.389));
+          const d2=Math.max(minEasy42,Math.round(taperITotal*0.333));
+          const d3=Math.max(minEasy42,Math.round(taperITotal*0.278));
+          if(d===1)return taperLeve(d1,'aeróbico suave — sem esforço, absorção total');
+          if(d===2)return taperLeve(d2,'Z1 leve · pernas soltas');
+          if(d===3)return strideActivation(d3,4,false);
           return{type:'Descanso',rest:true};
         }
         if(obj==='target'){
-          // target: 1 qualidade curta (intervalado preservado) + corridas leves
-          if(d===1)return taperQuality(is42?10:8,4,'800m','90s trote','taper I — target');
-          if(d===2)return taperLeve(13,'volume reduzido · aeróbico leve sem esforço');
-          if(d===3)return strideActivation(10,4,false);
+          // pesos originais: qualidade 10, leve 13, strides 10 (total 33)
+          const dQ=Math.max(minQuality42,Math.round(taperITotal*0.303));
+          const d2=Math.max(minEasy42,Math.round(taperITotal*0.394));
+          const d3=Math.max(minEasy42,Math.round(taperITotal*0.303));
+          if(d===1)return taperQuality(dQ,4,'800m','90s trote','taper I — target');
+          if(d===2)return taperLeve(d2,'volume reduzido · aeróbico leve sem esforço');
+          if(d===3)return strideActivation(d3,4,false);
           return{type:'Descanso',rest:true};
         }
-        // improve: qualidade plena, volume reduzido — intensidade totalmente preservada
-        if(d===1)return taperQuality(12,5,'800m','90s trote','taper I — improve · volume −40%');
+        // improve: pesos originais — qualidade 12, tempo 12, strides 10 (total 34)
+        const dQ=Math.max(minQuality42,Math.round(taperITotal*0.353));
+        const dT=Math.max(minQuality42+3,Math.round(taperITotal*0.353));
+        const d3=Math.max(minEasy42,Math.round(taperITotal*0.294));
+        if(d===1)return taperQuality(dQ,5,'800m','90s trote','taper I — improve · volume reduzido');
         if(d===2){
-          const td=Math.max(9,Math.round(12));
-          return{type:'Tempo run',pace:s2p(tempo),dist:`${td}km`,
-            detail:`aquec. 2km → ${td-4}km a ${s2p(tempo)}/km → desaq. 2km · Z4 · último limiar antes da queda`};
+          const warm=2,cool=2,block=Math.max(4,dT-warm-cool);
+          return{type:'Tempo run',pace:s2p(tempo),dist:`${warm+block+cool}km`,
+            detail:`aquec. ${warm}km → ${block}km a ${s2p(tempo)}/km → desaq. ${cool}km · Z4 · último limiar antes da queda`};
         }
-        if(d===3)return strideActivation(10,6,false);
+        if(d===3)return strideActivation(d3,6,false);
         return{type:'Descanso',rest:true};
       }
 
-      // ── TAPER II (penúltima semana) — −55% vol, qualidade parcial ──
+      // ── TAPER II (penúltima semana) — ~55% de redução, qualidade parcial ──
       if(isPenultimateTaper){
+        const taperIITotal=weekBase42*0.45;
         if(obj==='finish'){
-          if(d===1)return taperLeve(10,'Z1 · bem suave');
-          if(d===2)return taperLeve(9,'pernas soltas');
-          if(d===3)return strideActivation(8,4,false);
+          // pesos originais 10/9/8 (total 27)
+          const d1=Math.max(minEasy42,Math.round(taperIITotal*0.370));
+          const d2=Math.max(minEasy42,Math.round(taperIITotal*0.333));
+          const d3=Math.max(minEasy42,Math.round(taperIITotal*0.296));
+          if(d===1)return taperLeve(d1,'Z1 · bem suave');
+          if(d===2)return taperLeve(d2,'pernas soltas');
+          if(d===3)return strideActivation(d3,4,false);
           return{type:'Descanso',rest:true};
         }
         if(obj==='target'){
-          // target: 1 qualidade muito reduzida, manutenção do sistema neuromuscular
-          if(d===1)return taperQuality(8,3,'800m','2min trote','taper II — volume mínimo');
-          if(d===2)return taperLeve(11,'aeróbico suave — absorção do taper');
-          if(d===3)return strideActivation(8,4,false);
+          // pesos originais: qualidade 8, leve 11, strides 8 (total 27)
+          const dQ=Math.max(minQuality42,Math.round(taperIITotal*0.296));
+          const d2=Math.max(minEasy42,Math.round(taperIITotal*0.407));
+          const d3=Math.max(minEasy42,Math.round(taperIITotal*0.296));
+          if(d===1)return taperQuality(dQ,3,'800m','2min trote','taper II — volume mínimo');
+          if(d===2)return taperLeve(d2,'aeróbico suave — absorção do taper');
+          if(d===3)return strideActivation(d3,4,false);
           return{type:'Descanso',rest:true};
         }
-        // improve: qualidade reduzida + blocos curtos em pace próximo do prova
-        if(d===1)return taperQuality(8,3,'1000m','90s trote','taper II improve — mantém especificidade');
-        if(d===2)return taperLeve(12,'aeróbico leve · pernas frescas');
-        if(d===3)return strideActivation(8,6,true); // com pace de prova
+        // improve: pesos originais — qualidade 8, leve 12, strides 8 (total 28)
+        const dQ=Math.max(minQuality42,Math.round(taperIITotal*0.286));
+        const d2=Math.max(minEasy42,Math.round(taperIITotal*0.429));
+        const d3=Math.max(minEasy42,Math.round(taperIITotal*0.286));
+        if(d===1)return taperQuality(dQ,3,'1000m','90s trote','taper II improve — mantém especificidade');
+        if(d===2)return taperLeve(d2,'aeróbico leve · pernas frescas');
+        if(d===3)return strideActivation(d3,6,true); // com pace de prova
         return{type:'Descanso',rest:true};
       }
 
-      // ── TAPER FINAL (última semana) — −65–70% vol, sem glicólise pesada ──
+      // ── TAPER FINAL (última semana) — ~65–70% de redução, sem glicólise pesada ──
       // Foco: ativação neuromuscular, frescor máximo, zero fadiga residual
       if(isLastTaperWeek){
+        const taperFinalTotal=weekBase42*0.325;
         if(obj==='finish'){
-          // finish: apenas Z1 + poucos strides
-          if(d===1)return taperLeve(8,'última semana · bem suave · preserve as pernas');
-          if(d===2)return taperLeve(6,'Z1 muito leve');
-          if(d===3)return strideActivation(6,4,false);
+          // pesos originais 8/6/6 (total 20)
+          const d1=Math.max(minEasy42,Math.round(taperFinalTotal*0.4));
+          const d2=Math.max(minEasy42,Math.round(taperFinalTotal*0.3));
+          const d3=Math.max(minEasy42,Math.round(taperFinalTotal*0.3));
+          if(d===1)return taperLeve(d1,'última semana · bem suave · preserve as pernas');
+          if(d===2)return taperLeve(d2,'Z1 muito leve');
+          if(d===3)return strideActivation(d3,4,false);
           return{type:'Descanso',rest:true};
         }
         if(obj==='target'){
-          // target: leve + 1 bloco curto em pace de prova + strides
-          if(d===1)return racePaceBlock(2,4); // 2km aquec → 4km pace prova → 1km desaq
-          if(d===2)return taperLeve(8,'Z1 · pernas soltas');
-          if(d===3)return strideActivation(6,6,true);
+          // pesos originais: pace de prova 7, leve 8, strides 6 (total 21)
+          const dRP=Math.max(minRP42,Math.round(taperFinalTotal*0.333));
+          const d2=Math.max(minEasy42,Math.round(taperFinalTotal*0.381));
+          const d3=Math.max(minEasy42,Math.round(taperFinalTotal*0.286));
+          if(d===1){const warm=2,block=Math.max(2,dRP-3);return racePaceBlock(warm,block);}
+          if(d===2)return taperLeve(d2,'Z1 · pernas soltas');
+          if(d===3)return strideActivation(d3,6,true);
           return{type:'Descanso',rest:true};
         }
-        // improve: bloco mais longo em pace de prova + strides de alta frequência
-        if(d===1)return racePaceBlock(3,6); // 3km aquec → 6km pace prova → 2km desaq
-        if(d===2)return taperLeve(8,'aeróbico leve · última absorção');
-        if(d===3)return strideActivation(6,8,true); // 8 strides em pace prova
+        // improve: pesos originais — pace de prova 10, leve 8, strides 6 (total 24)
+        const dRP2=Math.max(minRP42,Math.round(taperFinalTotal*0.417));
+        const d2b=Math.max(minEasy42,Math.round(taperFinalTotal*0.333));
+        const d3b=Math.max(minEasy42,Math.round(taperFinalTotal*0.25));
+        if(d===1){const warm=3,block=Math.max(3,dRP2-4);return racePaceBlock(warm,block);}
+        if(d===2)return taperLeve(d2b,'aeróbico leve · última absorção');
+        if(d===3)return strideActivation(d3b,8,true); // 8 strides em pace prova
         return{type:'Descanso',rest:true};
       }
     }
 
     // ═══════════════════════════════════════════════════════════════
     // MEIA-MARATONA: 2 semanas de taper padrão
+    //
+    // Volume proporcional ao perfil (correção): antes os dias do taper
+    // usavam km fixos (iguais para Iniciante/Intermediário/Avançado),
+    // enquanto o total da semana exibido no card já é escalado por
+    // weekBase21×objMod.volFactor. Isso invertia a escala — o taper
+    // pesava proporcionalmente mais para quem tinha menos base.
+    // Agora os dias são derivados do weekBase21 do perfil (mesmo
+    // padrão aplicado no raceWeekDay do 10km): define-se um total de
+    // taper por semana (taperITotal/taperFinalTotal) e distribui-se
+    // entre os dias com os MESMOS pesos relativos que os km fixos
+    // antigos já usavam (ex.: 9/7/6 → 40.9%/31.8%/27.3%).
     // ═══════════════════════════════════════════════════════════════
+    const weekBase21=Math.round((prof.weekBase21[planWeeks]||24)*objMod.volFactor);
+    const minEasy=3,minQuality=4,minRP=4; // pisos mínimos — evita treinos irrisórios no Iniciante
 
-    // ── TAPER I (meia) — −35% vol, 1 qualidade preservada ──
+    // ── TAPER I (meia) — ~35% de redução, 1 qualidade preservada ──
     if(!isLastTaperWeek){
+      const taperITotal=weekBase21*0.65;
       if(obj==='finish'){
-        if(d===1)return taperLeve(9,'Z1 suave');
-        if(d===2)return taperLeve(7,'leve, sem esforço');
-        if(d===3)return strideActivation(6,4,false);
+        // pesos originais 9/7/6 (total 22) preservados, agora proporcionais ao weekBase21
+        const d1=Math.max(minEasy,Math.round(taperITotal*0.409));
+        const d2=Math.max(minEasy,Math.round(taperITotal*0.318));
+        const d3=Math.max(minEasy,Math.round(taperITotal*0.273));
+        if(d===1)return taperLeve(d1,'Z1 suave');
+        if(d===2)return taperLeve(d2,'leve, sem esforço');
+        if(d===3)return strideActivation(d3,4,false);
         return{type:'Descanso',rest:true};
       }
       if(obj==='target'){
-        if(d===1)return taperQuality(6,4,'800m','90s trote','taper meia — intensidade mantida');
-        if(d===2)return{type:'Tempo run',pace:s2p(tempo),dist:'9km',
-          detail:`aquec. 2km → 5km a ${s2p(tempo)}/km → desaq. · Z4 · último limiar`};
-        if(d===3)return strideActivation(6,4,false);
+        // pesos originais: qualidade 6, tempo 9, strides 6 (total 21)
+        const dQ=Math.max(minQuality,Math.round(taperITotal*0.286));
+        const dT=Math.max(minQuality+2,Math.round(taperITotal*0.429));
+        const d3=Math.max(minEasy,Math.round(taperITotal*0.286));
+        if(d===1)return taperQuality(dQ,4,'800m','90s trote','taper meia — intensidade mantida');
+        if(d===2){
+          const warm=2,cool=1,block=Math.max(3,dT-warm-cool);
+          return{type:'Tempo run',pace:s2p(tempo),dist:`${warm+block+cool}km`,
+            detail:`aquec. ${warm}km → ${block}km a ${s2p(tempo)}/km → desaq. · Z4 · último limiar`};
+        }
+        if(d===3)return strideActivation(d3,4,false);
         return{type:'Descanso',rest:true};
       }
-      // improve meia: qualidade plena reduzida
-      if(d===1)return taperQuality(8,5,'800m','90s trote','taper meia/improve — volume −35%');
-      if(d===2)return{type:'Tempo run',pace:s2p(tempo),dist:'10km',
-        detail:`aquec. 2km → 6km a ${s2p(tempo)}/km → desaq. · Z4 · intensidade preservada, volume baixo`};
-      if(d===3)return strideActivation(6,5,false);
+      // improve meia: pesos originais — qualidade 8, tempo 10, strides 6 (total 24)
+      const dQ=Math.max(minQuality,Math.round(taperITotal*0.333));
+      const dT=Math.max(minQuality+2,Math.round(taperITotal*0.417));
+      const d3=Math.max(minEasy,Math.round(taperITotal*0.25));
+      if(d===1)return taperQuality(dQ,5,'800m','90s trote','taper meia/improve — volume reduzido, intensidade preservada');
+      if(d===2){
+        const warm=2,cool=1,block=Math.max(3,dT-warm-cool);
+        return{type:'Tempo run',pace:s2p(tempo),dist:`${warm+block+cool}km`,
+          detail:`aquec. ${warm}km → ${block}km a ${s2p(tempo)}/km → desaq. · Z4 · intensidade preservada, volume baixo`};
+      }
+      if(d===3)return strideActivation(d3,5,false);
       return{type:'Descanso',rest:true};
     }
 
-    // ── TAPER FINAL (meia) — −55–60% vol, sem glicólise ──
+    // ── TAPER FINAL (meia) — ~55–60% de redução, sem glicólise ──
+    const taperFinalTotal=weekBase21*0.45;
     if(obj==='finish'){
-      if(d===1)return taperLeve(6,'última semana · Z1 muito leve');
-      if(d===2)return taperLeve(5,'pernas soltas, relaxe');
-      if(d===3)return strideActivation(4,4,false);
+      // pesos originais 6/5/4 (total 15)
+      const d1=Math.max(minEasy,Math.round(taperFinalTotal*0.4));
+      const d2=Math.max(minEasy,Math.round(taperFinalTotal*0.333));
+      const d3=Math.max(minEasy,Math.round(taperFinalTotal*0.267));
+      if(d===1)return taperLeve(d1,'última semana · Z1 muito leve');
+      if(d===2)return taperLeve(d2,'pernas soltas, relaxe');
+      if(d===3)return strideActivation(d3,4,false);
       return{type:'Descanso',rest:true};
     }
     if(obj==='target'){
-      if(d===1)return racePaceBlock(2,3); // 2km aquec → 3km pace prova
-      if(d===2)return taperLeve(6,'Z1 leve · pernas frescas');
-      if(d===3)return strideActivation(5,6,true);
+      // pesos originais: pace de prova 6, leve 6, strides 5 (total 17)
+      const dRP=Math.max(minRP,Math.round(taperFinalTotal*0.353));
+      const d2=Math.max(minEasy,Math.round(taperFinalTotal*0.353));
+      const d3=Math.max(minEasy,Math.round(taperFinalTotal*0.294));
+      if(d===1){const warm=2,block=Math.max(2,dRP-3);return racePaceBlock(warm,block);}
+      if(d===2)return taperLeve(d2,'Z1 leve · pernas frescas');
+      if(d===3)return strideActivation(d3,6,true);
       return{type:'Descanso',rest:true};
     }
-    // improve meia final: blocos em pace prova + strides de ativação
-    if(d===1)return racePaceBlock(2,4); // 2km aquec → 4km pace prova
-    if(d===2)return taperLeve(6,'leve — última absorção');
-    if(d===3)return strideActivation(5,8,true);
+    // improve meia final: pesos originais — pace de prova 7, leve 6, strides 5 (total 18)
+    const dRP2=Math.max(minRP,Math.round(taperFinalTotal*0.389));
+    const d2b=Math.max(minEasy,Math.round(taperFinalTotal*0.333));
+    const d3b=Math.max(minEasy,Math.round(taperFinalTotal*0.278));
+    if(d===1){const warm=2,block=Math.max(3,dRP2-3);return racePaceBlock(warm,block);}
+    if(d===2)return taperLeve(d2b,'leve — última absorção');
+    if(d===3)return strideActivation(d3b,8,true);
     return{type:'Descanso',rest:true};
   }
 
@@ -4709,17 +4814,33 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
   }
 
   // Semana de prova — protocolo Pfitzinger
+  // Antes: dist/seg fixos (12/6 no 42km, 8/4 no 21km) — mesmo bug do longão:
+  // números do perfil Intermediário escritos direto, sem variar por perfil.
+  // Agora deriva de lp.taperKm (teto do taper de cada perfil), mantendo a
+  // MESMA distribuição proporcional que já existia (calibrada no Intermediário:
+  // 8/7/5 no 21km · 12/10/8 no 42km), só que escalando de verdade por perfil.
   function raceWeekDay(d){
     if(d===0)return{type:'Descanso',rest:true};
-    if(d===1){const dist=is42?12:8,seg=is42?6:4;
+    const anchor=lp.taperKm;
+    const f1=is42?6/13:4/7, f2=is42?5/13:1/2, f3=is42?4/13:5/14;
+    const minDist=is42?5:3;
+    let dist=Math.max(minDist,Math.round(anchor*f1));
+    dist=Math.round(dist/2)*2; // par, pra dividir igual no detail
+    const dist2=Math.max(minDist,Math.round(anchor*f2));
+    const dist3=Math.max(minDist,Math.round(anchor*f3));
+    if(d===1){const seg=dist/2;
       return{type:'Corrida leve',pace:s2p(ez),dist:`${dist}km`,
         detail:`${dist-seg}km Z1 → ${seg}km a ${s2p(raceSpeed)}/km (pace de prova) · último estímulo específico`};}
-    if(d===2)return{type:'Corrida leve',pace:s2p(ez),dist:is42?'10km':'7km',
+    if(d===2)return{type:'Corrida leve',pace:s2p(ez),dist:`${dist2}km`,
       detail:'Z1 — pernas soltas, sem esforço'};
-    if(d===3)return{type:'Corrida leve',pace:s2p(ez),dist:is42?'8km':'5km',
+    if(d===3)return{type:'Corrida leve',pace:s2p(ez),dist:`${dist3}km`,
       detail:`Z1 + 6×100m strides a ${s2p(intv*.95)}/km · mantém fibras rápidas prontas`};
     if(d===4)return{type:'Descanso',rest:true};
-    if(d===5)return{type:'Prova!',pace:s2p(raceSpeed),dist:is42?'42km':'21km'};
+    // Prova cai no domingo (d===6) — Sábado (d===5) vira treino leve de 20min
+    // pra soltar as pernas na véspera, em vez do longão normal.
+    if(d===5)return{type:'Corrida leve',pace:s2p(ez),dist:'',timeLabel:'20 min',
+      detail:'Z1 · leve, solto · véspera da prova — só soltar as pernas, sem esforço'};
+    if(d===6)return{type:'Prova!',pace:s2p(raceSpeed),dist:is42?'42km':'21km'};
     return{type:'Descanso',rest:true};
   }
 
@@ -5363,12 +5484,38 @@ function buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed){
   }
 
   function raceWeekDay(d){
-    if(d===0||d===4||d===6)return{type:'Descanso',rest:true};
-    const dists=is10k?[12,8,6]:[8,6,4];
+    // 10km: prova cai no domingo (d===6), Sábado (d===5) vira leve de 20min.
+    // 5km: continua com a prova no sábado (d===5), como antes.
+    if(is10k){
+      if(d===0||d===4)return{type:'Descanso',rest:true};
+    }else{
+      if(d===0||d===4||d===6)return{type:'Descanso',rest:true};
+    }
+    let dists;
+    if(is10k){
+      // Antes: [12,8,6] fixo (93% do weekBase típico — quase sem afunilar,
+      // e mais pesado que a semana de prova do 21km). Agora deriva do weekBase
+      // real do perfil, com uma redução de taper de verdade (~55%), mantendo
+      // a mesma distribuição proporcional (46%/31%/23%) que o app já usava.
+      const taperRatio=0.55;
+      const raceTotal=weekBase*taperRatio;
+      const minDist=4;
+      dists=[raceTotal*0.4615,raceTotal*0.3077,raceTotal*0.2308].map(x=>Math.max(minDist,Math.round(x)));
+      // dists[0] é dividido ao meio no texto do detalhe (Z1 → pace de prova) — mantém par
+      dists[0]=Math.max(minDist,Math.round(dists[0]/2)*2);
+    }else{
+      dists=[8,6,4];
+    }
     if(d===1)return{type:'Corrida leve',pace:s2p(ez),dist:`${dists[0]}km`,detail:`${dists[0]/2}km Z1 → ${dists[0]/2}km a ${s2p(raceSpeed)}/km (pace de prova) · ativa sistema neuromuscular`};
     if(d===2)return{type:'Corrida leve',pace:s2p(ez),dist:`${dists[1]}km`,detail:'Z1 — pernas soltas, sem esforço'};
     if(d===3)return{type:'Corrida leve',pace:s2p(ez),dist:`${dists[2]}km`,detail:`Z1 + 6×100m strides a ${s2p(intv*.95)}/km · mantém fibras rápidas prontas`};
-    if(d===5)return{type:'Prova!',pace:s2p(raceSpeed),dist:is10k?'10km':'5km'};
+    if(is10k){
+      if(d===5)return{type:'Corrida leve',pace:s2p(ez),dist:'',timeLabel:'20 min',
+        detail:'Z1 · leve, solto · véspera da prova — só soltar as pernas, sem esforço'};
+      if(d===6)return{type:'Prova!',pace:s2p(raceSpeed),dist:'10km'};
+    }else{
+      if(d===5)return{type:'Prova!',pace:s2p(raceSpeed),dist:'5km'};
+    }
     return{type:'Descanso',rest:true};
   }
 
