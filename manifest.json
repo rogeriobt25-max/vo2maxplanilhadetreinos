@@ -1,6 +1,6 @@
 {
-  "name": "VO2 Máx — Treino de Corrida",
-  "short_name": "VO2 Máx",
+  "name": "VO2 RunMax",
+  "short_name": "VO2 RunMax",
   "description": "Calcule seu VO2 Máx e gere planilhas de treino para meia-maratona e maratona.",
   "start_url": "./index.html",
   "display": "standalone",
