@@ -9577,7 +9577,9 @@ function montadorConfirmSave(){
       const day=montador.assigned.get(`${wIdx}_${dIdx}`);
       days.push(day?{...day}:{rest:true,type:'Descanso'});
     }
-    weeks.push({w:wIdx+1,days});
+    const km=Math.round(days.reduce((acc,dp)=>acc+(dp.rest||!dp.dist?0:(parseFloat(dp.dist)||0)),0));
+    const lkm=Math.round(Math.max(0,...days.map(dp=>dp.rest||!dp.dist?0:(parseFloat(dp.dist)||0))));
+    weeks.push({w:wIdx+1,km,lkm,days});
   }
   const totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
   if(totalWorkouts===0){showToast('Arraste ao menos um treino para o calendário.');return;}
