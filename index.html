@@ -197,7 +197,7 @@ body{
 .hero-stat{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:5px 11px;font-size:10px;font-weight:700;color:var(--t2)}
 .hero-stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .hero-stat-dot.g{background:var(--gr)}.hero-stat-dot.b{background:var(--acc)}.hero-stat-dot.p{background:var(--pu)}
-.hero-feat-ico{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff}
+.hero-feat-ico{width:17px;height:17px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;margin-top:1px}
 .hero-feat-ico.b{background:linear-gradient(135deg,var(--acc),var(--acc2))}
 .hero-feat-ico.p{background:var(--pu)}
 .hero-feat-ico.g{background:var(--gr)}
@@ -231,8 +231,9 @@ input::placeholder{color:var(--t3)}
 /* BUTTONS */
 .btn-cta{height:44px;padding:0 1.6rem;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:22px;color:#fff;transition:all .2s;box-shadow:0 2px 10px rgba(0,102,187,0.25);-webkit-appearance:none;font-family:inherit}
 .btn-cta:active{filter:brightness(0.93);transform:scale(0.97);box-shadow:none}
-.btn-save{height:44px;padding:0 1.4rem;cursor:pointer;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,rgba(0,168,85,0.15),rgba(0,168,85,0.08));border:1.5px solid rgba(0,168,85,0.35);border-radius:22px;color:var(--gr);transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:7px;-webkit-appearance:none}
-.btn-save:active{filter:brightness(0.93);transform:scale(0.97)}
+.btn-save{height:44px;padding:0 1.4rem;cursor:pointer;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#0099cc,#00c97a);border:none;border-radius:22px;color:#000;transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:7px;-webkit-appearance:none;box-shadow:0 3px 14px rgba(0,153,204,0.22)}
+.btn-save:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 5px 18px rgba(0,153,204,0.3)}
+.btn-save:active{filter:brightness(0.93);transform:scale(0.97);box-shadow:none}
 
 /* GERAR PLANILHA */
 .btn-gerar{width:100%;height:56px;cursor:pointer;font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(135deg,var(--acc),var(--acc2));border:none;border-radius:var(--r2);color:#fff;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:1rem;box-shadow:0 4px 20px rgba(0,102,187,0.3),0 1px 4px rgba(0,0,0,0.1);-webkit-appearance:none}
@@ -291,8 +292,9 @@ input::placeholder{color:var(--t3)}
 .plan-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
 @media(max-width:480px){.plan-opts{grid-template-columns:1fr}}
 .popt{border:1px solid var(--bdr);border-radius:var(--r);padding:.85rem;cursor:pointer;transition:all .2s;background:var(--s2)}
-.popt:hover{border-color:rgba(0,180,200,0.45);background:linear-gradient(135deg,rgba(0,180,200,0.09),rgba(0,210,120,0.07))}
-.popt.on{border-color:rgba(0,180,200,0.55);background:linear-gradient(135deg,rgba(0,180,200,0.18),rgba(0,210,120,0.13));box-shadow:0 2px 10px rgba(0,180,200,0.13)}
+.popt:hover{border-color:rgba(0,180,200,0.45);background:linear-gradient(135deg,rgba(0,180,200,0.09),rgba(0,210,120,0.07));transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,180,200,0.16)}
+.popt.on{border-color:rgba(0,180,200,0.55);background:linear-gradient(135deg,rgba(0,180,200,0.18),rgba(0,210,120,0.13));box-shadow:0 6px 18px rgba(0,180,200,0.20);transform:translateY(-2px)}
+.popt:active{transform:translateY(0) scale(0.98)}
 .popt-title{font-size:12px;font-weight:800;color:var(--t1);margin-bottom:3px}
 .popt.on .popt-title{color:#000;font-weight:900}
 .popt-desc{font-size:11px;color:var(--t3)}
@@ -300,8 +302,9 @@ input::placeholder{color:var(--t3)}
 .pr-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
 @media(max-width:480px){.pr-opts{grid-template-columns:1fr 1fr}.pr-opts .propt:last-child{grid-column:1/-1;width:calc(50% - 4px);max-width:none;margin:0 auto}}
 .propt{border:1px solid var(--bdr);border-radius:var(--r);padding:.85rem;cursor:pointer;transition:all .2s;background:var(--s2);text-align:center}
-.propt:hover{border-color:rgba(0,180,200,0.45);background:linear-gradient(135deg,rgba(0,180,200,0.09),rgba(0,210,120,0.07))}
-.propt.on{border-color:rgba(0,180,200,0.55);background:linear-gradient(135deg,rgba(0,180,200,0.18),rgba(0,210,120,0.13));box-shadow:0 2px 10px rgba(0,180,200,0.13)}
+.propt:hover{border-color:rgba(0,180,200,0.45);background:linear-gradient(135deg,rgba(0,180,200,0.09),rgba(0,210,120,0.07));transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,180,200,0.16)}
+.propt.on{border-color:rgba(0,180,200,0.55);background:linear-gradient(135deg,rgba(0,180,200,0.18),rgba(0,210,120,0.13));box-shadow:0 6px 18px rgba(0,180,200,0.20);transform:translateY(-2px)}
+.propt:active{transform:translateY(0) scale(0.98)}
 .propt-icon{font-size:20px;margin-bottom:5px}
 .propt-title{font-size:12px;font-weight:800;color:var(--t1);margin-bottom:2px}
 .propt.on .propt-title{color:#000;font-weight:900}
@@ -309,8 +312,9 @@ input::placeholder{color:var(--t3)}
 
 .dur-opts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
 .dopt{padding:5px 14px;border:1px solid var(--bdr);border-radius:10px;cursor:pointer;font-size:11px;font-weight:700;color:var(--t2);background:var(--s2);transition:all .2s}
-.dopt:hover{border-color:rgba(0,180,200,0.45);color:#000;background:linear-gradient(135deg,rgba(0,180,200,0.11),rgba(0,210,120,0.08))}
-.dopt.on{border-color:rgba(0,180,200,0.55);color:#000;background:linear-gradient(135deg,rgba(0,180,200,0.25),rgba(0,210,120,0.18));box-shadow:0 2px 8px rgba(0,180,200,0.15)}
+.dopt:hover{border-color:rgba(0,180,200,0.45);color:#000;background:linear-gradient(135deg,rgba(0,180,200,0.11),rgba(0,210,120,0.08));transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,180,200,0.16)}
+.dopt.on{border-color:rgba(0,180,200,0.55);color:#000;background:linear-gradient(135deg,rgba(0,180,200,0.25),rgba(0,210,120,0.18));box-shadow:0 5px 14px rgba(0,180,200,0.20);transform:translateY(-2px)}
+.dopt:active{transform:translateY(0) scale(0.97)}
 
 .time-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:.75rem}
 .time-row input{width:64px;min-width:0;flex-shrink:0}
@@ -345,19 +349,22 @@ input::placeholder{color:var(--t3)}
 .chip-p{background:var(--pu2);color:var(--pu)}
 .chip-a{background:var(--am2);color:var(--am)}
 
-.exp-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:1rem}
-.exp-bar span{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;font-weight:700}
-.btn-exp{height:40px;padding:0 14px;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:16px;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.exp-bar{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:1rem}
+.exp-bar-title{display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--t2);line-height:1.45}
+.exp-bar-title-icon{font-size:17px;flex-shrink:0;line-height:1.3}
+.exp-bar-title strong{color:var(--t1);font-weight:800;display:block;font-size:12px;letter-spacing:.01em}
+.exp-bar-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-exp{height:40px;padding:0 14px;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:16px;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;flex:1;min-width:128px}
 .btn-exp:hover{filter:brightness(1.15);transform:translateY(-1px)}
 .btn-exp-csv{background:var(--s3);border:1px solid var(--bdr2);color:var(--t1)}
 .btn-exp-xl{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--gr)}
 .btn-exp-pr{background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.25);color:var(--acc)}
 /* Em telas estreitas, os botões viram um grid organizado em vez de "sobrar"
-   uma linha torta quando não cabem ao lado do rótulo "Exportar". */
+   uma linha torta quando não cabem. O texto explicativo do relógio fica sempre em cima. */
 @media(max-width:520px){
-  .exp-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px 8px;padding:10px 12px}
-  .exp-bar span{grid-column:1/-1;margin-bottom:-2px}
-  .btn-exp{width:100%;padding:0 6px;font-size:9.5px}
+  .exp-bar{padding:10px 12px}
+  .exp-bar-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px}
+  .btn-exp{width:100%;padding:0 6px;font-size:9.5px;min-width:0}
 }
 
 .legend-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;padding:9px 12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);font-size:11px;color:var(--t2);align-items:center}
@@ -944,7 +951,8 @@ details[open] summary::after{transform:rotate(90deg)}
 .wz-step-sub{font-size:11px;color:var(--t3);margin-top:1px}
 .wz-yn{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:.5rem}
 .wz-yn-btn{height:52px;border:1.5px solid var(--bdr2);border-radius:var(--r2);background:var(--s2);font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--t2);display:flex;align-items:center;justify-content:center;gap:8px}
-.wz-yn-btn:hover{border-color:rgba(0,180,200,0.5);background:linear-gradient(135deg,rgba(0,180,200,0.12),rgba(0,210,120,0.09));color:#000}
+.wz-yn-btn:hover{border-color:rgba(0,180,200,0.5);background:linear-gradient(135deg,rgba(0,180,200,0.12),rgba(0,210,120,0.09));color:#000;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,180,200,0.16)}
+.wz-yn-btn:active{transform:translateY(0) scale(0.98)}
 .wz-vo2-info{background:rgba(0,153,204,0.05);border:1px solid rgba(0,153,204,0.18);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.85rem;font-size:12px;color:var(--t2);line-height:1.65}
 .wz-vo2-info strong{color:var(--acc)}
 .wz-vo2-methods{display:flex;flex-wrap:wrap;gap:5px;margin-top:.5rem}
@@ -967,7 +975,10 @@ details[open] summary::after{transform:rotate(90deg)}
 .wz-next-btn{width:100%;height:48px;border:none;border-radius:var(--r2);background:linear-gradient(135deg,#0099cc,#00c97a);color:#000;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:.06em;margin-top:.85rem;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 14px rgba(0,153,204,0.22)}
 .wz-next-btn:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 5px 18px rgba(0,153,204,0.3)}
 .wz-next-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.wz-vo2-option-btn:hover{border-color:rgba(0,180,200,0.5)!important;background:linear-gradient(135deg,rgba(0,180,200,0.10),rgba(0,210,120,0.07))!important}
+.wz-vo2-option-btn:hover{border-color:rgba(0,180,200,0.5)!important;background:linear-gradient(135deg,rgba(0,180,200,0.10),rgba(0,210,120,0.07))!important;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,180,200,0.16)}
+.wz-vo2-option-btn:active{transform:translateY(0) scale(0.98)}
+.wz-test-opt-btn:hover{border-color:rgba(0,180,200,0.5)!important;background:linear-gradient(135deg,rgba(0,180,200,0.10),rgba(0,210,120,0.07))!important;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,180,200,0.16)}
+.wz-test-opt-btn:active{transform:translateY(0) scale(0.98)}
 #wz-wrap{padding-bottom:.5rem}
 </style>
 <style>
@@ -975,7 +986,8 @@ details[open] summary::after{transform:rotate(90deg)}
    MONTADOR DE PLANILHA (Calendário + Banco de Treinos + toque para agendar)
 ═══════════════════════════════ */
 .btn-montar{width:100%;height:50px;cursor:pointer;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--s1);border:2px solid var(--pu);border-radius:var(--r2);color:var(--pu);transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.6rem;-webkit-appearance:none}
-.btn-montar:active{background:var(--pu2);transform:scale(0.98)}
+.btn-montar:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(167,139,250,0.28);background:var(--pu2)}
+.btn-montar:active{background:var(--pu2);transform:translateY(0) scale(0.98);box-shadow:none}
 
 .mt-overlay{position:fixed;inset:0;background:var(--bg);z-index:950;display:flex;flex-direction:column;animation:mtFadeIn .18s ease}
 @keyframes mtFadeIn{from{opacity:0}to{opacity:1}}
@@ -1261,15 +1273,15 @@ details[open] summary::after{transform:rotate(90deg)}
         <button onclick="wzBackToOptions()" style="background:none;border:none;color:var(--acc);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:.75rem;padding:0;display:flex;align-items:center;gap:5px">← Voltar</button>
         <p style="font-size:12px;color:var(--t2);margin-bottom:.75rem">Escolha o método de teste:</p>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="wzGoToTest('cooper')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
+          <button class="wz-test-opt-btn" onclick="wzGoToTest('cooper')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
             <span style="font-size:22px">🏃</span>
             <div><div style="font-size:12px;font-weight:800;color:var(--t1)">Teste Cooper — 12 minutos</div><div style="font-size:11px;color:var(--t3)">Corra o máximo possível em 12 min e anote a distância</div></div>
           </button>
-          <button onclick="wzGoToTest('2400')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
+          <button class="wz-test-opt-btn" onclick="wzGoToTest('2400')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
             <span style="font-size:22px">📏</span>
             <div><div style="font-size:12px;font-weight:800;color:var(--t1)">Corrida 2,4 km</div><div style="font-size:11px;color:var(--t3)">Corra 2,4 km o mais rápido possível e anote o tempo</div></div>
           </button>
-          <button onclick="wzGoToTest('vdot')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
+          <button class="wz-test-opt-btn" onclick="wzGoToTest('vdot')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
             <span style="font-size:22px">🏅</span>
             <div><div style="font-size:12px;font-weight:800;color:var(--t1)">VDOT — Tempo de prova recente</div><div style="font-size:11px;color:var(--t3)">Use o resultado de uma prova oficial de 5km, 10km, 21km ou 42km</div></div>
           </button>
@@ -5271,7 +5283,10 @@ function buildPlanUI(race){
   ${isShort?'':`<div style="font-size:10px;color:var(--t3);background:rgba(0,0,0,0.03);border:1px solid var(--bdr);border-radius:6px;padding:7px 12px;margin-bottom:.75rem;line-height:1.6;display:none" id="dias-ativos-${race}">
   ⚡ <strong style="color:var(--t2)">Dias ativos por fase:</strong> ${is42?'Base 3–4 treinos · Build 4–5 treinos · Específica 4–5 treinos · Pico 5 treinos · Taper 3–4 treinos':race==='21'?'21km 12sem: 4 treinos constantes (Base→Específica→Pico→Taper) · 21km 16sem: inicia 3 treinos, evolui para 4 gradualmente':'Base 3–4 treinos · Build 4–5 treinos · Recuo 3 treinos · Taper 3–4 treinos'}. <strong style="color:var(--t2)">SEG</strong>: descanso (iniciante) ou rec.ativa progressiva (inter/avançado) · <strong style="color:var(--t2)">SEX</strong>: descanso pré-longão (leve opcional p/ avançado/improve) · <strong style="color:var(--t2)">DOM</strong> sempre descanso.
   </div>`}
-  <div class="exp-bar"><span>Exportar</span><button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminFromRace('${race}')">⌚ Garmin (.fit)</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromRace('${race}')">📅 Enviar planilha</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsWeeklyExportFromRace('${race}')">🗓 Semana a semana</button></div>
+  <div class="exp-bar">
+    <div class="exp-bar-title"><span class="exp-bar-title-icon">⌚</span><span><strong>Enviar treinos para o relógio</strong>via intervals.icu — escolha como exportar abaixo</span></div>
+    <div class="exp-bar-btns"><button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminFromRace('${race}')">⌚ Garmin (.fit)</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromRace('${race}')">📅 Enviar planilha</button><button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsWeeklyExportFromRace('${race}')">🗓 Semana a semana</button></div>
+  </div>
   <div id="save-bar-${race}" style="display:flex;justify-content:center;margin-bottom:1rem"><button class="btn-save" onclick="openSaveModal('${race}')">📋 Salvar em Meus Treinos</button></div>
   </div>
   <div id="plan-weeks-${race}"></div>`;
@@ -6243,10 +6258,12 @@ function renderSavedList(){
       </div>
       <div class="saved-weeks-panel" id="swpanel-${plan.id}">
         <div class="exp-bar" style="margin-bottom:10px">
-          <span>Exportar</span>
-          <button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminJSON(${plan.id})">⌚ Garmin (.fit)</button>
-          <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromSaved(${plan.id})">📅 Enviar planilha</button>
-          <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsWeeklyExportFromSaved(${plan.id})">🗓 Semana a semana</button>
+          <div class="exp-bar-title"><span class="exp-bar-title-icon">⌚</span><span><strong>Enviar treinos para o relógio</strong>via intervals.icu — escolha como exportar abaixo</span></div>
+          <div class="exp-bar-btns">
+            <button class="btn-exp" style="background:rgba(0,100,180,0.10);border:1px solid rgba(0,100,180,0.35);color:#0a6acf;display:none" onclick="exportGarminJSON(${plan.id})">⌚ Garmin (.fit)</button>
+            <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsExportFromSaved(${plan.id})">📅 Enviar planilha</button>
+            <button class="btn-exp" style="background:rgba(80,40,180,0.10);border:1px solid rgba(80,40,180,0.35);color:#6633cc" onclick="intervalsWeeklyExportFromSaved(${plan.id})">🗓 Semana a semana</button>
+          </div>
         </div>
         ${plan.intensityDist?buildIntensityBoxHTML(plan.intensityDist,plan.race==='42'):''}
         ${plan.weeks.map((wk,wIdx)=>{
@@ -8338,6 +8355,7 @@ function showIntervalsConfigModal(onOk){
     <!-- EXPLICAÇÃO -->
     <div style="padding:1rem 1.4rem 0;font-size:12px;color:var(--t2);line-height:1.7">
       Este app não fala diretamente com o relógio. Ele manda os treinos pro <strong>intervals.icu</strong>, um serviço gratuito que faz a ponte — e depois de conectar aqui, você também vincula sua conta Garmin, Amazfit (Zepp) ou outra compatível <strong>dentro do intervals.icu</strong> (uma vez só) em <a href="https://intervals.icu/settings" target="_blank" style="color:#6633cc;font-weight:700">Configurações → Connections</a>. A partir daí, os treinos chegam sozinhos no relógio.
+      <div style="font-size:11px;font-style:italic;color:var(--t3);margin-top:6px">Consulte a compatibilidade da marca do seu relógio no site do intervals.icu.</div>
     </div>
 
     <!-- PASSO 1 -->
