@@ -7703,7 +7703,15 @@ function exportXLSX(race){
 /* ══════════════════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════════════════ */
-document.getElementById('auth-modal').addEventListener('click',function(e){if(e.target===this)closeAuthModal()});
+(function(){
+  var authModalEl=document.getElementById('auth-modal');
+  var mouseDownOnBg=false;
+  authModalEl.addEventListener('mousedown',function(e){mouseDownOnBg=(e.target===this)});
+  authModalEl.addEventListener('click',function(e){
+    if(e.target===this && mouseDownOnBg)closeAuthModal();
+    mouseDownOnBg=false;
+  });
+})();
 
 /* ── Expor funções ao escopo global (necessário por usar type="module") ── */
 window.toggleLongExpand=toggleLongExpand;
