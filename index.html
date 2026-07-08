@@ -34,7 +34,7 @@
   --nav-h:62px;
   --nav-safe:calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
   /* Top header height + safe area */
-  --hdr-h:56px;
+  --hdr-h:64px;
   --hdr-safe:calc(var(--hdr-h) + env(safe-area-inset-top, 0px));
 }
 
@@ -98,16 +98,24 @@ body{
 .nav-label{overflow:hidden;text-overflow:ellipsis}
 
 /* ── APP LOGO in header ── */
-.app-nav::before{
-  content:'⚡ VO2 RunMax';
-  font-size:16px;
-  font-weight:900;
-  letter-spacing:-.03em;
-  color:var(--t1);
-  padding:0 16px;
-  white-space:nowrap;
+.app-logo{
+  height:44px;
+  width:auto;
+  padding:0 14px;
   flex-shrink:0;
+  object-fit:contain;
 }
+.app-logo.app-logo-hidden{display:none}
+
+/* ── APP LOGO in login/auth modal ── */
+.auth-modal-logo{
+  display:block;
+  height:70px;
+  width:auto;
+  margin:0 auto 10px;
+  object-fit:contain;
+}
+.auth-modal-logo.app-logo-hidden{display:none}
 
 /* ═══════════════════════════════
    BOTTOM TAB BAR (native style)
@@ -564,7 +572,7 @@ details[open] summary::after{transform:rotate(90deg)}
   .race-tab{font-size:11px;height:38px}
   .exp-bar{gap:6px}
   /* Header: nome cede lugar ao avatar sozinho pra não disputar espaço com o logo e o "Sair" */
-  .app-nav::before{padding:0 10px;font-size:14px}
+  .app-logo{padding:0 10px;height:36px}
   .auth-user-chip .auth-name{display:none}
   .auth-user-chip{padding:4px 6px 4px 4px;gap:0}
   .auth-btn.logout{padding:0 10px;font-size:11px}
@@ -1061,6 +1069,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <body>
 
 <div class="app-nav">
+  <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
   <button class="nav-tab on" id="nav-calc" onclick="switchNav('calc')">⚡ <span class="nav-label">Calculadora</span></button>
   <button class="nav-tab" id="nav-saved" onclick="switchNav('saved')">📋 <span class="nav-label">Meus Treinos</span> <span class="nav-badge" id="saved-count">0</span></button>
   <div class="auth-bar" id="auth-bar">
@@ -1080,7 +1089,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="auth-modal-bg" id="auth-modal">
   <div class="auth-modal-box">
     <button class="auth-modal-close" onclick="closeAuthModal()">✕</button>
-    <div class="auth-modal-eyebrow">Conta VO2 RunMax</div>
+    <img class="auth-modal-logo" id="auth-modal-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
     <div class="auth-modal-title" id="auth-modal-title">Entrar na sua conta</div>
     <div class="auth-modal-sub" id="auth-modal-sub">Salve e acesse seus treinos em qualquer dispositivo.</div>
 
