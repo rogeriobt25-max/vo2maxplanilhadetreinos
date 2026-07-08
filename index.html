@@ -112,8 +112,10 @@ body{
   display:block;
   height:70px;
   width:auto;
+  max-width:100%;
   margin:0 auto 10px;
   object-fit:contain;
+  object-position:center;
 }
 .auth-modal-logo.app-logo-hidden{display:none}
 
@@ -1089,7 +1091,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="auth-modal-bg" id="auth-modal">
   <div class="auth-modal-box">
     <button class="auth-modal-close" onclick="closeAuthModal()">✕</button>
-    <img class="auth-modal-logo" id="auth-modal-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
+    <img class="auth-modal-logo" id="auth-modal-logo" src="logologin.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
     <div class="auth-modal-title" id="auth-modal-title">Entrar na sua conta</div>
     <div class="auth-modal-sub" id="auth-modal-sub">Salve e acesse seus treinos em qualquer dispositivo.</div>
 
