@@ -1303,7 +1303,7 @@ details[open] summary::after{transform:rotate(90deg)}
           </button>
           <button class="wz-test-opt-btn" onclick="wzGoToTest('vdot')" style="display:flex;align-items:center;gap:12px;padding:.85rem 1rem;border:1.5px solid var(--bdr2);border-radius:var(--r);background:var(--s2);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s;width:100%">
             <span style="font-size:22px">🏅</span>
-            <div><div style="font-size:12px;font-weight:800;color:var(--t1)">VDOT — Tempo de prova recente</div><div style="font-size:11px;color:var(--t3)">Use o resultado de uma prova oficial de 5km, 10km, 21km ou 42km</div></div>
+            <div><div style="font-size:12px;font-weight:800;color:var(--t1)">VDOT — Tempo de prova recente</div><div style="font-size:11px;color:var(--t3)">Use o resultado de uma prova oficial de 5km, 10km, 21km ou 42km (só se for esforço máximo real)</div></div>
           </button>
         </div>
       </div>
@@ -2308,10 +2308,13 @@ function wzGoToTest(method){
         🏅 <strong style="color:var(--acc)">VDOT — Tempo de prova recente</strong><br>Use o resultado oficial de uma prova (5km, 10km, 21km ou 42km) corrida em esforço máximo.
         <button onclick="openVdotHowModal()" style="display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid rgba(0,153,204,0.3);border-radius:10px;color:var(--acc);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;padding:2px 9px;margin-left:6px">📋 O que é VDOT?</button>
       </div>
+      <div style="background:rgba(217,119,0,0.07);border:1px solid rgba(217,119,0,0.25);border-radius:var(--r);padding:.7rem .9rem;margin-bottom:.85rem;font-size:11px;color:var(--t2);line-height:1.55">
+        ⚠️ <strong style="color:var(--am)">Só use esse método se tiver um tempo recente de prova em esforço máximo real</strong> (últimos 2-3 meses). Se o tempo informado não for de uma prova a sério — for de um treino tranquilo, ritmo controlado ou muito antigo — o VDOT sai desregulado (geralmente mais baixo que sua capacidade real) e os ritmos de treino gerados ficam mais lentos do que deveriam.
+      </div>
       <div style="margin-bottom:.85rem">
         <p style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:600">Distância da prova:</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="race-tab on-5k on" id="wz-vbtn-5" onclick="wzSetVdotDist(5)">5 km</button>
+          <button class="race-tab on-5k" id="wz-vbtn-5" onclick="wzSetVdotDist(5)">5 km</button>
           <button class="race-tab" id="wz-vbtn-10" onclick="wzSetVdotDist(10)">10 km</button>
           <button class="race-tab" id="wz-vbtn-21" onclick="wzSetVdotDist(21.1)">21 km</button>
           <button class="race-tab" id="wz-vbtn-42" onclick="wzSetVdotDist(42.2)">42 km</button>
@@ -2344,9 +2347,11 @@ function wzSetSexo2400(s){
 }
 function wzSetVdotDist(d){
   window._wzVdotDist=d;vdotDist=d;
+  const selK=(d===21.1?'21':d===42.2?'42':String(d));
+  const clsMap={'5':'on-5k','10':'on-10k','21':'on-21','42':'on-42'};
   ['5','10','21','42'].forEach(k=>{
     const btn=document.getElementById('wz-vbtn-'+k);
-    if(btn)btn.classList.toggle('on',parseFloat(k)===(d===21.1?21:d===42.2?42:d));
+    if(btn)btn.classList.toggle(clsMap[k],k===selK);
   });
 }
 function wzUpdateCooperBtn(){
