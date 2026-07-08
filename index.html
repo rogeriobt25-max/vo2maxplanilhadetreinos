@@ -524,8 +524,7 @@ details[open] summary::after{transform:rotate(90deg)}
 @media(max-width:420px){
   .modal-box{padding:1.1rem;border-radius:var(--r)}
   .auth-modal-box{padding:1.2rem;border-radius:var(--r)}
-  .onb-scroll{padding:1.1rem 1.1rem 0}
-  .onb-btn-wrap{padding:.5rem 1.1rem 1.1rem}
+  .onb-box{padding:1.1rem;border-radius:16px}
 }
 .modal-title{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:6px}
 .modal-sub{font-size:12px;color:var(--t3);margin-bottom:1.2rem;line-height:1.6}
@@ -767,10 +766,9 @@ details[open] summary::after{transform:rotate(90deg)}
 .auth-modal-bg.open{display:flex}
 
 /* ONBOARDING */
-.onb-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)}
+.onb-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:1rem 1rem 2rem;backdrop-filter:blur(6px);overflow-y:auto}
 .onb-bg.open{display:flex}
-.onb-box{background:var(--s1);border:1px solid var(--bdr2);border-radius:20px;width:100%;max-width:440px;max-height:calc(100vh - 2rem);text-align:center;margin:auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.onb-scroll{padding:1.5rem 1.5rem 0}
+.onb-box{background:var(--s1);border:1px solid var(--bdr2);border-radius:20px;padding:1.5rem;width:100%;max-width:440px;text-align:center;margin:auto}
 .onb-logo{font-size:26px;margin-bottom:.5rem}
 .onb-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:4px}
 .onb-sub{font-size:12px;color:var(--t3);margin-bottom:1rem;line-height:1.45}
@@ -780,10 +778,9 @@ details[open] summary::after{transform:rotate(90deg)}
 .onb-step-text{flex:1}
 .onb-step-title{font-size:11.5px;font-weight:800;color:var(--t1);margin-bottom:1px}
 .onb-step-desc{font-size:10.5px;color:var(--t3);line-height:1.4}
-.onb-disclaimer{font-size:9.5px;color:var(--t3);line-height:1.5;border-top:1px solid var(--bdr);padding-top:9px;margin-bottom:.9rem}
+.onb-disclaimer{font-size:9.5px;color:var(--t3);line-height:1.5;border-top:1px solid var(--bdr);padding-top:9px;margin-bottom:.8rem}
 .onb-btn{width:100%;height:40px;border:none;border-radius:22px;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.05em}
 .onb-btn:hover{filter:brightness(1.1)}
-.onb-btn-wrap{position:sticky;bottom:0;background:var(--s1);padding:.6rem 1.5rem 1.5rem;box-shadow:0 -8px 12px -4px var(--s1)}
 
 /* ── INSTALL BANNER (Add to Home Screen) ── */
 .install-banner{
@@ -7790,12 +7787,10 @@ function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){_memStore[k]=v;}}
 function showOnboardingIfNeeded(){
   if(!lsGet('vo2_onboarding_done')){
     document.getElementById('onb-modal').classList.add('open');
-    document.body.style.overflow='hidden';
   }
 }
 function closeOnboarding(){
   document.getElementById('onb-modal').classList.remove('open');
-  document.body.style.overflow='';
   lsSet('vo2_onboarding_done','1');
 }
 /* ── PWA INSTALL BANNER ── */
@@ -7888,45 +7883,41 @@ if(document.readyState==='loading'){
 <!-- ONBOARDING MODAL -->
 <div class="onb-bg" id="onb-modal">
   <div class="onb-box">
-    <div class="onb-scroll">
-      <div class="onb-logo">🏃</div>
-      <div class="onb-title">Bem-vindo ao VO2 RunMax</div>
-      <div class="onb-sub">Gere planilhas personalizadas para <strong style="color:var(--acc)">10km</strong>, <strong style="color:var(--acc)">Meia-maratona</strong> e <strong style="color:var(--acc)">Maratona</strong>.<br>É simples — siga os passos:</div>
-      <div class="onb-steps">
-        <div class="onb-step">
-          <div class="onb-step-num">1</div>
-          <div class="onb-step-text">
-            <div class="onb-step-title">Escolha seu perfil</div>
-            <div class="onb-step-desc">Iniciante, Intermediário ou Avançado — baseado no seu volume semanal atual de corrida.</div>
-          </div>
-        </div>
-        <div class="onb-step">
-          <div class="onb-step-num">2</div>
-          <div class="onb-step-text">
-            <div class="onb-step-title">Informe os dados do teste</div>
-            <div class="onb-step-desc">Cooper 12 min, Corrida 2,4km ou VDOT a partir de um tempo de prova recente.</div>
-          </div>
-        </div>
-        <div class="onb-step">
-          <div class="onb-step-num">3</div>
-          <div class="onb-step-text">
-            <div class="onb-step-title">Receba zonas + planilha</div>
-            <div class="onb-step-desc">Suas zonas de treino personalizadas e planilha completa para 10km, 21km ou 42km.</div>
-          </div>
-        </div>
-        <div class="onb-step">
-          <div class="onb-step-num">4</div>
-          <div class="onb-step-text">
-            <div class="onb-step-title">Envie para o relógio</div>
-            <div class="onb-step-desc">Opção de enviar seus treinos diretamente para o relógio.</div>
-          </div>
+    <div class="onb-logo">🏃</div>
+    <div class="onb-title">Bem-vindo ao VO2 RunMax</div>
+    <div class="onb-sub">Gere planilhas personalizadas para <strong style="color:var(--acc)">10km</strong>, <strong style="color:var(--acc)">Meia-maratona</strong> e <strong style="color:var(--acc)">Maratona</strong>.<br>É simples — siga os passos:</div>
+    <div class="onb-steps">
+      <div class="onb-step">
+        <div class="onb-step-num">1</div>
+        <div class="onb-step-text">
+          <div class="onb-step-title">Escolha seu perfil</div>
+          <div class="onb-step-desc">Iniciante, Intermediário ou Avançado — baseado no seu volume semanal atual de corrida.</div>
         </div>
       </div>
-      <div class="onb-disclaimer">⚕️ As planilhas são baseadas em metodologias reconhecidas de treinamento (Daniels, Pfitzinger, Hal Higdon). O app não substitui acompanhamento profissional.</div>
+      <div class="onb-step">
+        <div class="onb-step-num">2</div>
+        <div class="onb-step-text">
+          <div class="onb-step-title">Informe os dados do teste</div>
+          <div class="onb-step-desc">Cooper 12 min, Corrida 2,4km ou VDOT a partir de um tempo de prova recente.</div>
+        </div>
+      </div>
+      <div class="onb-step">
+        <div class="onb-step-num">3</div>
+        <div class="onb-step-text">
+          <div class="onb-step-title">Receba zonas + planilha</div>
+          <div class="onb-step-desc">Suas zonas de treino personalizadas e planilha completa para 10km, 21km ou 42km.</div>
+        </div>
+      </div>
+      <div class="onb-step">
+        <div class="onb-step-num">4</div>
+        <div class="onb-step-text">
+          <div class="onb-step-title">Envie para o relógio</div>
+          <div class="onb-step-desc">Opção de enviar seus treinos diretamente para o relógio.</div>
+        </div>
+      </div>
     </div>
-    <div class="onb-btn-wrap">
-      <button class="onb-btn" onclick="closeOnboarding()">Entendido — vamos lá! 🚀</button>
-    </div>
+    <div class="onb-disclaimer">⚕️ As planilhas são baseadas em metodologias reconhecidas de treinamento (Daniels, Pfitzinger, Hal Higdon). O app não substitui acompanhamento profissional.</div>
+    <button class="onb-btn" onclick="closeOnboarding()">Entendido — vamos lá! 🚀</button>
   </div>
 </div>
 
