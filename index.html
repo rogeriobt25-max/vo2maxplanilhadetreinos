@@ -1990,12 +1990,12 @@ const PROFILES={
     paces:{ez:.60,mod:.72,tempo:.82,intv:.88},zoneRef:'Longo Z1-Z2 (60%)'},
   inter:{label:'Intermediário',icon:'🏃',method:'Daniels + Pfitzinger 21km',
     // 12sem: progressão específica 10→12→14→(desc)→16→18→(desc)→20km
-    long21:{start:10,peak:20,taperKm:14,cutbackKm:11},long42:{start:18,peak:36,taperKm:26,taper2Km:22,cutbackKm:16},
+    long21:{start:10,peak:20,taperKm:14,cutbackKm:11},long42:{start:18,peak:34,taperKm:26,taper2Km:22,cutbackKm:16},
     weekBase21:{8:28,12:26,16:22},weekBase42:{12:44,16:40,20:37},
     weekIncBase:4,weekIncBuild21:3.5,weekIncBuild42:4.5,weekTaper21:22,weekTaper42:38,
     paces:{ez:.67,mod:.77,tempo:.88,intv:.93},zoneRef:'Longo Z2 (67%) · Tempo Z4 (88%)'},
   avance:{label:'Avançado',icon:'⚡',method:'Pfitzinger / Daniels Advanced',
-    long21:{start:16,peak:18,taperKm:16,cutbackKm:14},long42:{start:22,peak:38,taperKm:28,taper2Km:17,cutbackKm:20},
+    long21:{start:16,peak:18,taperKm:16,cutbackKm:14},long42:{start:22,peak:36,taperKm:28,taper2Km:17,cutbackKm:20},
     weekBase21:{8:36,12:32,16:30},weekBase42:{12:50,16:48,20:45},
     weekIncBase:5,weekIncBuild21:4,weekIncBuild42:5,weekTaper21:30,weekTaper42:48,
     paces:{ez:.73,mod:.82,tempo:.92,intv:.97},zoneRef:'Longo Z2-Z3 (73%) · Tempo Z4+ (92%)'},
@@ -3625,9 +3625,9 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     // ══════════════════════════════════════════════════════════════
     if(is42){
       // 42KM — LONGÃO PHASE-AWARE com lpEff (peak ajustado por objetivo)
-      // finish:  lpEff.peak = lp.peak × 0.90  (ex: inter=32km, avance=34km)
-      // target:  lpEff.peak = lp.peak × 1.00  (ex: inter=36km, avance=38km)
-      // improve: lpEff.peak = lp.peak × 1.05  (ex: inter=38km, avance=40km)
+      // finish:  lpEff.peak = lp.peak × 0.90  (ex: inter=31km, avance=32km)
+      // target:  lpEff.peak = lp.peak × 1.00  (ex: inter=34km, avance=36km)
+      // improve: lpEff.peak = lp.peak × 1.05  (ex: inter=36km, avance=38km)
       //
       // BUILD endKm relativo ao lpEff.peak (não hardcoded):
       //   init 0.80 | inter 0.83 | avance 0.86
