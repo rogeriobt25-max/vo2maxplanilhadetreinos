@@ -1413,7 +1413,6 @@ details[open] summary::after{transform:rotate(90deg)}
 <!-- ── MEUS TREINOS ── -->
 <div id="page-saved" class="wrap" style="display:none">
   <div class="hero">
-    <div class="hero-eyebrow">Meus Treinos Salvos</div>
     <h1>📋 Meus <span>Treinos</span></h1>
     <p>Acompanhe o progresso das suas planilhas. Marque cada treino concluído.</p>
   </div>
@@ -1808,8 +1807,7 @@ window.persistAccountPlans=persistAccountPlans;
 function renderSavedCloudBanner(){
   const el=document.getElementById('saved-cloud-banner');if(!el)return;
   if(currentUser){
-    const name=currentUser.displayName||currentUser.email;
-    el.innerHTML=`<div class="saved-cloud-notice"><span class="icon">☁️</span><div><strong style="color:var(--gr)">Conta ativa — ${name}</strong><br>Seus treinos são sincronizados automaticamente na nuvem e acessíveis em qualquer dispositivo.</div></div>`;
+    el.innerHTML='';
   }else{
     el.innerHTML=`<div class="saved-cloud-notice"><span class="icon">💡</span><div>Seus treinos estão sendo salvos <strong>localmente neste navegador</strong>.<br>Crie uma conta para acessar de qualquer lugar.<br><button class="saved-cloud-btn" onclick="openAuthModal('register')">✨ Criar conta grátis</button></div></div>`;
   }
@@ -6331,7 +6329,7 @@ function buildTodayCard(plan){
     return`<div class="today-card" style="border-color:${accentBdr};background:${accentBg}">
       <div class="today-card-eyebrow">😴 TREINO DE HOJE · ${todayStr}</div>
       <div class="today-card-title" style="color:${accent}">${plan.name}</div>
-      <div class="today-card-meta">Semana ${week.w} · ${week.phaseLabel} · ${weekRange}</div>
+      <div class="today-card-meta">Semana ${week.w}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
       <div class="today-card-body" style="color:var(--t2)"><strong style="font-size:16px">Descanso 💤</strong><br>Hoje é dia de recuperação. O treino de amanhã agradece.</div>
     </div>`;
   }
@@ -6339,7 +6337,7 @@ function buildTodayCard(plan){
   return`<div class="today-card" style="border-color:${accentBdr};background:${accentBg}">
     <div class="today-card-eyebrow">${isDone?'✅ TREINO CONCLUÍDO':'🏃 TREINO DE HOJE'} · ${todayStr}</div>
     <div class="today-card-title" style="color:${accent}">${plan.name}</div>
-    <div class="today-card-meta">Semana ${week.w} de ${plan.planWeeks} · ${week.phaseLabel} · ${weekRange}</div>
+    <div class="today-card-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
     <div class="today-card-workout">
       <div class="today-wk-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
       ${day.pace&&!day.rest?`<div class="today-wk-pace">${day.pace}/km</div>`:''}
@@ -6465,7 +6463,7 @@ function exportSavedXLSX(id){
   plan.weeks.forEach((wk,wIdx)=>{
     wk.days.forEach((dp,dIdx)=>{
       const isDone=!!plan.done[`${wIdx}-${dIdx}`];
-      rows.push([`Sem ${wk.w}`,wk.phaseLabel,wk.km+'km',DAYS[dIdx],dp.type,dp.dist||'',dp.timeLabel||'',dp.pace&&!dp.rest?dp.pace:'',dp.rest?'—':isDone?'✓ Concluído':'Pendente']);
+      rows.push([`Sem ${wk.w}`,wk.phaseLabel||'',wk.km+'km',DAYS[dIdx],dp.type,dp.dist||'',dp.timeLabel||'',dp.pace&&!dp.rest?dp.pace:'',dp.rest?'—':isDone?'✓ Concluído':'Pendente']);
     });
   });
   const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[10,18,10,6,18,10,14,12,14].map(w=>({wch:w}));
