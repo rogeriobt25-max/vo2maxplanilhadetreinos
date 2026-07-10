@@ -986,10 +986,10 @@ details[open] summary::after{transform:rotate(90deg)}
 .cs-row{display:flex;align-items:center;gap:10px}
 .cs-row-plain .cs-txt{font-size:15px;font-weight:700;color:var(--t1)}
 .cs-row-vo2{gap:11px}
-.cs-vo2-ring{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:3px;position:relative}
-.cs-vo2-ring-in{width:100%;height:100%;border-radius:50%;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:900;color:var(--t1);position:relative;z-index:1}
-.cs-vo2-pointer{position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:50% 50%;pointer-events:none}
-.cs-vo2-pointer::after{content:'';position:absolute;top:1px;left:50%;width:0;height:0;margin-left:-3.5px;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-bottom:8px solid #4a4a52}
+.cs-vo2-ring{width:78px;height:78px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:4px;position:relative}
+.cs-vo2-ring-in{width:100%;height:100%;border-radius:50%;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--t1);position:relative;z-index:1}
+.cs-vo2-pointer{position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:50% 50%;pointer-events:none;z-index:2}
+.cs-vo2-pointer::after{content:'';position:absolute;top:0;left:50%;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:var(--dot-color,#333a42);box-shadow:0 0 0 2px var(--s1)}
 .cs-vo2-txt{font-size:15px;font-weight:700;color:var(--t1)}
 .cs-note{display:flex;align-items:flex-start;gap:6px;font-size:14px;color:var(--t3);line-height:1.45;padding:.75rem 0 0;margin:.75rem 0 0;border-top:1px solid var(--bdr)}
 .cs-today{padding:.95rem 0 0;margin-top:1rem;border-top:1px solid var(--bdr)}
@@ -1429,7 +1429,7 @@ details[open] summary::after{transform:rotate(90deg)}
       </div>
       <div class="wz-yn" style="grid-template-columns:1fr 1fr 1fr">
         <button class="wz-yn-btn" onclick="wzSelectDist('10k')" id="wz-dist-10k" style="flex-direction:column;height:auto;padding:1rem .5rem;gap:4px">
-          <span style="font-size:22px"><svg class="gi"><use href="#i-directions_run"></use></svg></span>
+          <span style="font-size:22px"><svg class="gi"><use href="#i-sports_score"></use></svg></span>
           <span style="font-size:15px;font-weight:900">10 km</span>
           <span style="font-size:12.5px;font-weight:600;color:var(--t3)">Corrida de 10km</span>
         </button>
@@ -2210,7 +2210,7 @@ function wzRenderHistory(){
   const vals={
     profile: wzState.profile?({'init':'<svg class="gi"><use href="#i-directions_walk"></use></svg> Iniciante','inter':'<svg class="gi"><use href="#i-directions_run"></use></svg> Intermediário','avance':'<svg class="gi"><use href="#i-bolt"></use></svg> Avançado'}[wzState.profile]):'',
     vo2: wzState.usedRealVo2?`${Math.round(wzState.vo2*10)/10} ml/kg/min`:(wzState.vo2?`${Math.round(wzState.vo2*10)/10} ml/kg/min · padrão do nível`:'' ),
-    dist: wzState.dist?({'10k':'<svg class="gi"><use href="#i-directions_run"></use></svg> 10 km','21':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia — 21 km','42':'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona — 42 km'}[wzState.dist]):'',
+    dist: wzState.dist?({'10k':'<svg class="gi"><use href="#i-sports_score"></use></svg> 10 km','21':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia — 21 km','42':'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona — 42 km'}[wzState.dist]):'',
     obj: wzState.obj?({'finish':'<svg class="gi"><use href="#i-track_changes"></use></svg> Completar a prova','target':'<svg class="gi"><use href="#i-schedule"></use></svg> Tempo alvo','improve':'<svg class="gi"><use href="#i-trending_up"></use></svg> Melhorar tempo atual'}[wzState.obj]):''
   };
   const steps=[
@@ -2291,19 +2291,15 @@ function buildTodayMini(plan){
   if(!info)return'';
   const is42=plan.race==='42';
   const is10k=plan.race==='10k';
-  const prof=PROFILES[plan.profKey]||PROFILES.inter;
-  const label=`${is42?'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona':is10k?'<svg class="gi"><use href="#i-directions_run"></use></svg> 10km':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia-maratona'} ${prof.label}`;
   if(info.status==='future'){
     return`<div class="cs-today">
-      <div class="cs-today-eyebrow"><svg class="gi"><use href="#i-calendar_month"></use></svg> TREINO DE HOJE</div>
-      <div class="cs-today-label">${label}</div>
+      <div class="cs-today-eyebrow">TREINO DE HOJE</div>
       <div class="cs-today-body">A planilha começa em <strong>${info.daysToStart} dia${info.daysToStart!==1?'s':''}</strong>.</div>
     </div>`;
   }
   if(info.status==='finished'){
     return`<div class="cs-today">
       <div class="cs-today-eyebrow"><svg class="gi"><use href="#i-sports_score"></use></svg> CICLO CONCLUÍDO</div>
-      <div class="cs-today-label">${label}</div>
       <div class="cs-today-body">Parabéns! Você completou as <strong>${plan.planWeeks} semanas</strong> da planilha.</div>
     </div>`;
   }
@@ -2315,15 +2311,13 @@ function buildTodayMini(plan){
   const weekRange=weekStart?`${fmtDate(weekStart)} – ${fmtDate(new Date(weekStart.getTime()+6*86400000))}`:'';
   if(day.rest){
     return`<div class="cs-today">
-      <div class="cs-today-eyebrow"><svg class="gi"><use href="#i-bedtime"></use></svg> TREINO DE HOJE · ${todayStr}</div>
-      <div class="cs-today-label">${label}</div>
+      <div class="cs-today-eyebrow">TREINO DE HOJE · ${todayStr}</div>
       <div class="cs-today-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
       <div class="cs-today-body">Descanso <svg class="gi"><use href="#i-bedtime"></use></svg> — dia de recuperação.</div>
     </div>`;
   }
   return`<div class="cs-today">
-    <div class="cs-today-eyebrow">${isDone?'<svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO':'<svg class="gi"><use href="#i-directions_run"></use></svg> TREINO DE HOJE'} · ${todayStr}</div>
-    <div class="cs-today-label">${label}</div>
+    <div class="cs-today-eyebrow">${isDone?'<svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO':'TREINO DE HOJE'} · ${todayStr}</div>
     <div class="cs-today-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
     <div class="cs-today-workout">
       <div class="cs-today-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
@@ -2356,22 +2350,23 @@ function renderCalcSummary(){
     return;
   }
   const profVal=({'init':'<svg class="gi"><use href="#i-directions_walk"></use></svg> Iniciante','inter':'<svg class="gi"><use href="#i-directions_run"></use></svg> Intermediário','avance':'<svg class="gi"><use href="#i-bolt"></use></svg> Avançado'})[profKey]||'';
-  const distVal=({'10k':'<svg class="gi"><use href="#i-directions_run"></use></svg> 10 km','21':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia-maratona · 21 km','42':'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona · 42 km'})[dist]||'';
+  const distVal=({'10k':'<svg class="gi"><use href="#i-sports_score"></use></svg> 10 km','21':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia-maratona · 21 km','42':'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona · 42 km'})[dist]||'';
   const objVal=({'finish':'<svg class="gi"><use href="#i-track_changes"></use></svg> Completar a prova','target':'<svg class="gi"><use href="#i-schedule"></use></svg> Tempo alvo','improve':'<svg class="gi"><use href="#i-trending_up"></use></svg> Melhorar tempo atual'})[obj]||'';
   const fit=vo2?getFit(vo2,'N'):null;
   const pct=vo2?Math.max(4,Math.min(100,Math.round((vo2-20)/50*100))):0;
   // Faixas de cor do gauge seguem os mesmos cortes de nível da tabela FIT_N,
   // convertidos pra % nessa mesma escala (20-70 ml/kg/min) usada no ponteiro.
   const vo2GaugeBg='conic-gradient(#ff4466 0 12%,#ff7828 12% 24%,#ffb830 24% 40%,#00ff88 40% 60%,#00e5ff 60% 100%)';
+  const vo2DotColor=pct<12?'#ff4466':pct<24?'#ff7828':pct<40?'#ffb830':pct<60?'#00ff88':'#00e5ff';
   const vo2Row=vo2?`
     <div class="cs-row cs-row-vo2">
-      <div class="cs-vo2-ring" style="background:${vo2GaugeBg}"><div class="cs-vo2-pointer" style="transform:rotate(${pct*3.6}deg)"></div><div class="cs-vo2-ring-in">${Math.round(vo2*10)/10}</div></div>
-      <span class="cs-vo2-txt">VO₂ Máx <strong style="color:var(--t1)">${Math.round(vo2*10)/10}</strong> <span style="color:var(--t3);font-weight:600;font-size:14px">· ${fit.l}</span></span>
+      <div class="cs-vo2-ring" style="background:${vo2GaugeBg}"><div class="cs-vo2-pointer" style="transform:rotate(${pct*3.6}deg);--dot-color:${vo2DotColor}"></div><div class="cs-vo2-ring-in">${Math.round(vo2*10)/10}</div></div>
+      <span class="cs-vo2-txt">VO₂ Máx <span style="color:var(--t3);font-weight:600;font-size:14px">· ${fit.l}</span></span>
     </div>`:'';
   const nomeUsuario=(typeof currentUser!=='undefined'&&currentUser)?(currentUser.displayName||currentUser.email||'').split(' ')[0]:'';
   box.innerHTML=`
     ${nomeUsuario?`<div class="cs-greeting">Olá, ${nomeUsuario}!</div>`:''}
-    <div class="cs-eyebrow"><svg class="gi"><use href="#i-push_pin"></use></svg> Planilha atual</div>
+    <div class="cs-eyebrow"><svg class="gi"><use href="#i-list_alt"></use></svg> Planilha atual</div>
     <div class="cs-rows">
       ${profVal?`<div class="cs-row cs-row-plain"><span class="cs-txt">${profVal}</span></div>`:''}
       ${vo2Row}
@@ -6715,7 +6710,7 @@ function buildTodayCard(plan){
 
   if(info.status==='future'){
     return`<div class="today-card">
-      <div class="today-card-eyebrow"><svg class="gi"><use href="#i-calendar_month"></use></svg> TREINO DE HOJE</div>
+      <div class="today-card-eyebrow">TREINO DE HOJE</div>
       <div class="today-card-title" style="color:${accent}">${plan.name}</div>
       <div class="today-card-body">A planilha começa em <strong>${info.daysToStart} dia${info.daysToStart!==1?'s':''}</strong>. Prepare-se!</div>
     </div>`;
@@ -6738,7 +6733,7 @@ function buildTodayCard(plan){
 
   if(day.rest){
     return`<div class="today-card">
-      <div class="today-card-eyebrow"><svg class="gi"><use href="#i-bedtime"></use></svg> TREINO DE HOJE · ${todayStr}</div>
+      <div class="today-card-eyebrow">TREINO DE HOJE · ${todayStr}</div>
       <div class="today-card-title" style="color:${accent}">${plan.name}</div>
       <div class="today-card-meta">Semana ${week.w}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
       <div class="today-card-body" style="color:var(--t2)"><strong style="font-size:16px">Descanso <svg class="gi"><use href="#i-bedtime"></use></svg></strong><br>Hoje é dia de recuperação. O treino de amanhã agradece.</div>
@@ -6746,7 +6741,7 @@ function buildTodayCard(plan){
   }
 
   return`<div class="today-card">
-    <div class="today-card-eyebrow">${isDone?'<svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO':'<svg class="gi"><use href="#i-directions_run"></use></svg> TREINO DE HOJE'} · ${todayStr}</div>
+    <div class="today-card-eyebrow">${isDone?'<svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO':'TREINO DE HOJE'} · ${todayStr}</div>
     <div class="today-card-title" style="color:${accent}">${plan.name}</div>
     <div class="today-card-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
     <div class="today-card-workout">
@@ -6782,7 +6777,7 @@ function renderSavedList(){
     const raceMin=Math.round(raceDistKm/plan.raceSpeed*60);const rh=Math.floor(raceMin/60),rm=raceMin%60;
     const itemIconBg=is42?'rgba(167,139,250,0.15)':is10k?'rgba(0,121,179,0.12)':'rgba(0,255,136,0.12)';
     const itemIconColor=is42?'var(--pu)':is10k?'var(--acc)':'var(--gr)';
-    const itemIconGlyph=is42?'emoji_events':is10k?'directions_run':'workspace_premium';
+    const itemIconGlyph=is42?'emoji_events':is10k?'sports_score':'workspace_premium';
     const raceLabel=is42?'Maratona 42km':is10k?'Corrida 10km':'Meia-maratona 21km';
     const profLabel=PROFILES[plan.profKey]?.label||'';
     const todayInfo=getTodayInfo(plan);
