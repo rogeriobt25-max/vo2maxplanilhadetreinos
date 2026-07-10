@@ -2273,15 +2273,20 @@ function wzClearSummaryState(){
    (cloud ou local) — se ainda não há resumo ativo, escolhe a planilha ativa
    (ou a mais recente) e grava o estado, resolvendo o problema permanentemente
    a partir da primeira visita nesta versão. */
-function wzAutoRestoreFromSavedPlans(){
-  if(wzSummaryPlanId!=null)return; // já tem resumo carregado, não sobrescreve
-  if(!savedPlans||savedPlans.length===0)return;
-  // Entre planilhas com o mesmo status (ex: duas ativas ao mesmo tempo),
-  // prioriza a mais recente (id maior = criada por último).
+// Escolhe qual planilha deve ser a "atual": entre as planilhas com o mesmo
+// status (ex: duas ativas ao mesmo tempo), prioriza a mais recente (id maior
+// = criada por último). Reaproveitada tanto na carga inicial do app quanto
+// logo após excluir uma planilha em "Meus Treinos" (ver deletePlan).
+function wzPickBestPlan(){
+  if(!savedPlans||savedPlans.length===0)return null;
   const byRecency=[...savedPlans].sort((a,b)=>b.id-a.id);
-  const chosen=byRecency.find(p=>{const i=getTodayInfo(p);return i&&i.status==='active';})
+  return byRecency.find(p=>{const i=getTodayInfo(p);return i&&i.status==='active';})
     ||byRecency.find(p=>{const i=getTodayInfo(p);return i&&i.status==='future';})
     ||byRecency[0];
+}
+function wzAutoRestoreFromSavedPlans(){
+  if(wzSummaryPlanId!=null)return; // já tem resumo carregado, não sobrescreve
+  const chosen=wzPickBestPlan();
   if(chosen)wzSaveSummaryState(chosen.id);
 }
 /* Versão enxuta do card "treino de hoje" (sem o nome da planilha) pra usar
@@ -6535,7 +6540,26 @@ function updateSavedBadge(){
   if(topBadge)topBadge.textContent=n;
   if(botBadge){botBadge.textContent=n;botBadge.classList.toggle('show',n>0);}
 }
-function deletePlan(id){if(!confirm('Remover essa planilha?'))return;savedPlans=savedPlans.filter(p=>p.id!==id);if(wzSummaryPlanId===id){wzStaleAfterDelete=true;wzClearSummaryState();wzRenderHistory();}updateSavedBadge();persistAccountPlans();renderSavedList()}
+function deletePlan(id){
+  if(!confirm('Remover essa planilha?'))return;
+  savedPlans=savedPlans.filter(p=>p.id!==id);
+  if(wzSummaryPlanId===id){
+    // A planilha excluída era a "atual" na tela inicial: em vez de zerar o
+    // resumo (o que só seria corrigido reabrindo o app), já promove na hora
+    // a planilha mais recente que sobrou pra virar a nova "Planilha atual".
+    const next=wzPickBestPlan();
+    if(next){
+      wzSaveSummaryState(next.id);
+    }else{
+      wzStaleAfterDelete=true;
+      wzClearSummaryState();
+    }
+    wzRenderHistory();
+  }
+  updateSavedBadge();
+  persistAccountPlans();
+  renderSavedList()
+}
 
 /* ══════════════════════════════════════════════════════════
    MEUS TREINOS
