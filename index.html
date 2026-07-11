@@ -2339,7 +2339,13 @@ function wzPickBestPlan(){
 function wzAutoRestoreFromSavedPlans(){
   if(wzSummaryPlanId!=null)return; // já tem resumo carregado, não sobrescreve
   const chosen=wzPickBestPlan();
-  if(chosen)wzSaveSummaryState(chosen.id);
+  if(!chosen)return;
+  wzSummaryPlanId=chosen.id;
+  wzSummarySnapshot={profile:chosen.profKey,vo2:chosen.vo2,usedRealVo2:!!chosen.vo2IsReal,dist:chosen.race,obj:null};
+  wzBuildingNew=false;
+  wzStaleAfterDelete=false;
+  try{lsSet('wz_summary_state',JSON.stringify({planId:chosen.id,snap:wzSummarySnapshot}));}catch(e){}
+  renderCalcSummary();
 }
 /* Versão enxuta do card "treino de hoje" (sem o nome da planilha) pra usar
    dentro do resumo compacto da tela inicial. */
@@ -2381,7 +2387,7 @@ function buildTodayMini(plan){
       ${day.pace&&!day.rest?`<div class="cs-today-pace">${day.pace}/km</div>`:''}
       ${day.detail?`<div class="cs-today-detail">${day.detail}</div>`:''}
     </div>
-    ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx});renderCalcSummary()"><svg class="gi"><use href="#i-check"></use></svg> Marcar como feito</button>`:`<div class="cs-today-done-lbl"><svg class="gi"><use href="#i-check_circle"></use></svg> Concluído hoje!</div>`}
+    ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx});renderCalcSummary()"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="cs-today-done-lbl"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
 }
 function renderCalcSummary(){
@@ -2489,6 +2495,7 @@ function wzFinishVo2OnlyUpdate(){
   const planVo2Update=savedPlans.find(p=>p.id===wzSummaryPlanId);
   if(planVo2Update){
     planVo2Update.vo2=wzState.vo2;
+    planVo2Update.vo2IsReal=!!wzState.usedRealVo2;
     persistAccountPlans();
   }
   try{lsSet('wz_summary_state',JSON.stringify({planId:wzSummaryPlanId,snap:wzSummarySnapshot}));}catch(e){}
@@ -6511,7 +6518,7 @@ function confirmSave(){
   else{({weeks,lp}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
   const totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
   const intensityDist=calcIntensityDist(weeks);
-  const startTimestamp=Date.now();const plan={id:startTimestamp,name,race,planWeeks,profKey,vo2:Math.round(vo2G*10)/10,raceSpeed,ez,mod,tempo,intv,lp,createdAt:new Date().toLocaleDateString('pt-BR'),startTimestamp,weeks,done:{},totalWorkouts,intensityDist};
+  const startTimestamp=Date.now();const plan={id:startTimestamp,name,race,planWeeks,profKey,vo2:Math.round(vo2G*10)/10,vo2IsReal:!!wzState.usedRealVo2,raceSpeed,ez,mod,tempo,intv,lp,createdAt:new Date().toLocaleDateString('pt-BR'),startTimestamp,weeks,done:{},totalWorkouts,intensityDist};
   savedPlans.push(plan);
   updateSavedBadge();
   persistAccountPlans();
@@ -6875,7 +6882,7 @@ function buildTodayCard(plan){
       ${day.pace&&!day.rest?`<div class="today-wk-pace">${day.pace}/km</div>`:''}
       ${day.detail?`<div class="today-wk-detail">${day.detail}</div>`:''}
     </div>
-    ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx});renderSavedList()"><svg class="gi"><use href="#i-check"></use></svg> Marcar como feito</button>`:`<div class="today-done-label"><svg class="gi"><use href="#i-check_circle"></use></svg> Concluído hoje!</div>`}
+    ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx});renderSavedList()"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="today-done-label"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
 }
 
@@ -10321,6 +10328,7 @@ function montadorConfirmSave(){
     planWeeks:montador.weekCount,
     profKey:montador.profKey,
     vo2:Math.round(vo2G*10)/10,
+    vo2IsReal:!!wzState.usedRealVo2,
     raceSpeed:montador.raceSpeed,
     ez:montador.ez,mod:montador.mod,tempo:montador.tempo,intv:montador.intv,
     lp:null,
