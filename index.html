@@ -1873,6 +1873,10 @@ async function doLogout(){
   try{ localStorage.removeItem('icu_config'); }catch(e){}
   try{ localStorage.removeItem('icu_config_owner'); }catch(e){}
   try{ localStorage.removeItem('vo2_last_test'); }catch(e){}
+  // "Planilha atual" da tela inicial não pode sobreviver ao logout — senão o
+  // próximo login (ou o uso como visitante) reabre já com a planilha da
+  // conta anterior marcada como atual.
+  try{ localStorage.removeItem('wz_summary_state'); }catch(e){}
   try{ if(typeof garminDisconnect==='function') garminDisconnect(); }catch(e){}
   // Recarrega imediatamente: reseta a tela pro início e garante que nenhum
   // dado em memória (planilha gerada sem salvar, dados selecionados, etc.)
@@ -1953,15 +1957,29 @@ function initAuth(){
   fbAuth.onAuthStateChanged(async(user)=>{
     currentUser=user;
     if(user){
+      // Login (ou troca de conta): descarta qualquer planilha "solta" que
+      // estava em memória sem estar vinculada a essa conta — seja porque
+      // foi gerada como visitante (sem login) ou porque sobrou de uma
+      // conta diferente logada antes nesta mesma aba/sessão. Sem isso, essa
+      // planilha "vazava" para dentro de "Meus Treinos" e podia até
+      // continuar marcada como "Planilha atual" na tela inicial no lugar
+      // da planilha de verdade da conta que acabou de logar.
+      savedPlans=[];
+      wzClearSummaryState();
       const cloudPlans=await loadPlansFromCloud(user.uid);
-      const localIds=new Set(savedPlans.map(p=>p.id));
-      cloudPlans.forEach(p=>{if(!localIds.has(p.id))savedPlans.push(p)});
+      savedPlans=cloudPlans;
       if(cloudPlans.length>0){updateSavedBadge();renderSavedList();}
       // Carrega último teste da nuvem (tem prioridade sobre localStorage)
       await loadLastTestFromCloud(user.uid);
       // Sincroniza a config do intervals.icu (API Key + Athlete ID) com a nuvem,
       // para que o usuário não precise digitar de novo em outro dispositivo.
       await icuSyncConfigOnLogin(user.uid);
+    }else{
+      // Logout (ou sessão expirada) sem passar pelo reload de doLogout():
+      // mesma blindagem, pra garantir que nada da conta anterior continue
+      // visível caso o app não recarregue a página.
+      savedPlans=[];
+      wzClearSummaryState();
     }
     updateAuthUI();
     updateSavedBadge();
