@@ -22,7 +22,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#f4f6f8;--s1:#ffffff;--s2:#f7f9fb;--s3:#eef1f5;
-  --bdr:rgba(20,30,45,0.07);--bdr2:rgba(20,30,45,0.10);
+  --bdr:rgba(20,30,45,0.07);--bdr2:rgba(20,30,45,0.10);--bdr-day:rgba(20,30,45,0.32);
   --t1:#1a2733;--t2:#5b6b7c;--t3:#8d99a8;
   --acc:#0079b3;--acc2:#005f8f;--acc3:rgba(0,121,179,0.10);--acc4:rgba(0,121,179,0.06);
   --gr:#2e9f51;--gr2:rgba(46,159,81,0.10);
@@ -354,7 +354,7 @@ input::placeholder{color:var(--t3)}
 .week-card.cb .week-lbl{color:var(--am)}
 .week-phase{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em}
 .week-days{display:grid;grid-template-columns:repeat(7,1fr);background:var(--s1)}
-.day-cell{padding:7px 3px;border-right:1px solid var(--bdr);text-align:center}
+.day-cell{padding:9px 3px;border-right:1px solid var(--bdr-day);text-align:center}
 .day-cell:last-child{border-right:none}
 .day-cell.rest{background:rgba(0,0,0,0.02)}
 .day-cell.long{background:rgba(255,184,48,0.04)}
@@ -470,7 +470,7 @@ details[open] summary::after{transform:rotate(90deg)}
 @keyframes savedItemFlash{0%{border-color:var(--acc);box-shadow:none}100%{border-color:var(--bdr);box-shadow:none}}
 .saved-item:hover{border-color:var(--bdr2)}
 .saved-item-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:5px 12px;border-radius:6px;margin:12px 16px 0}
-.saved-item-badge.current{background:var(--acc4);color:var(--acc);border:1px solid rgba(0,121,179,0.35)}
+.saved-item-badge.current{background:none;border:none;padding:0;color:var(--acc)}
 .saved-item-badge.completed{background:var(--gr2);color:var(--gr);border:1px solid rgba(0,168,85,0.35)}
 .saved-item.is-completed{opacity:.7}
 .saved-item.is-completed .saved-item-icon{filter:grayscale(.4)}
@@ -510,11 +510,11 @@ details[open] summary::after{transform:rotate(90deg)}
 .sw-week-lbl{font-size:12.5px;font-weight:800;color:var(--t2)}
 .sw-week-prog{font-size:11.5px;color:var(--t3)}
 .sw-days{display:grid;grid-template-columns:repeat(7,1fr);background:var(--s1)}
-.sw-day{padding:8px 3px;border-right:1px solid var(--bdr);text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.sw-day{padding:16px 3px;border-right:1px solid var(--bdr-day);text-align:center;cursor:pointer;transition:all .2s;position:relative;display:flex;flex-direction:column}
 .sw-day:last-child{border-right:none}
 .sw-day.rest{background:rgba(0,0,0,0.02);cursor:default}
 .sw-day.done{background:rgba(0,168,85,0.08)}
-.sw-day:not(.rest):hover{background:var(--s2)}
+.sw-day:not(.rest):not(.done):hover{background:var(--s2)}
 /* Hint visual: ponto no canto inferior direito em dias com detail */
 .sw-day:not(.rest){cursor:pointer}
 .sw-day-name{font-size:8px;color:var(--t3);margin-bottom:4px;text-transform:uppercase}
@@ -524,6 +524,18 @@ details[open] summary::after{transform:rotate(90deg)}
 .sw-day.done .sw-check{background:var(--gr);border-color:var(--gr);color:var(--t1)}
 /* Detail oculto por padrão em TODOS os tamanhos; só aparece ao expandir */
 .sw-day-detail{display:block;font-size:8px;color:var(--t3);line-height:1.5;margin-top:4px;padding-top:3px;border-top:1px solid var(--bdr);text-align:left}
+/* "Meus Treinos": em vez do detalhe completo do treino, mostra só um aviso
+   pra abrir o modal com os detalhes — deixa a planilha salva mais limpa */
+.sw-day-hint{display:block;font-size:8px;color:var(--acc);font-weight:700;line-height:1.4;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;margin-left:11px}
+/* Ação de marcar como feito direto no dia + link de ver detalhes — no
+   desktop ficam empilhados (um embaixo do outro) em vez de lado a lado,
+   porque a coluna do dia é estreita (grade de 7 colunas) e os dois textos
+   juntos cortavam ("Ver detalhes" com ellipsis). Empilhado, cada um usa
+   a largura toda da coluna e nunca corta. */
+.sw-day-actions{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:auto;padding-top:3px;border-top:1px solid var(--bdr)}
+.sw-mark-btn{display:flex;align-items:center;gap:3px;font-size:7.5px;font-weight:700;color:var(--gr);background:none;border:none;padding:0;cursor:pointer;font-family:inherit;line-height:1.4;white-space:nowrap;flex-shrink:0}
+.sw-mark-btn .gi{font-size:8px}
+.sw-mark-btn.is-done{color:var(--t3)}
 /* TOAST */
 .toast{position:fixed;bottom:calc(var(--nav-safe) + 12px);left:50%;transform:translateX(-50%) translateY(80px);opacity:0;visibility:hidden;background:rgba(15,30,50,0.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:none;border-radius:8px;padding:12px 22px;font-size:14px;font-weight:700;color:#fff;z-index:999;pointer-events:none;box-shadow:none;white-space:nowrap}
 .toast.show{animation:toastLifecycle 2.8s cubic-bezier(0.34,1.56,0.64,1) forwards}
@@ -627,9 +639,9 @@ details[open] summary::after{transform:rotate(90deg)}
     display:grid;
     grid-template-columns:1fr auto;
     align-items:start;
-    padding:13px 14px;
+    padding:16px 14px;
     border-right:none;
-    border-bottom:1px solid var(--bdr);
+    border-bottom:1px solid var(--bdr-day);
     text-align:left;
     gap:3px 10px;
   }
@@ -696,9 +708,9 @@ details[open] summary::after{transform:rotate(90deg)}
     flex-direction:row;
     flex-wrap:wrap;
     align-items:center;
-    padding:13px 12px;
+    padding:40px 12px;
     border-right:none;
-    border-bottom:1px solid var(--bdr);
+    border-bottom:1px solid var(--bdr-day);
     gap:0 10px;
   }
   .sw-day:last-child{border-bottom:none}
@@ -736,9 +748,8 @@ details[open] summary::after{transform:rotate(90deg)}
   }
   .sw-check{
     position:absolute;
-    top:50%;
+    top:14px;
     right:10px;
-    transform:translateY(-50%);
     width:22px;height:22px;font-size:13px;
     flex-shrink:0;
     display:flex;align-items:center;justify-content:center;
@@ -758,6 +769,29 @@ details[open] summary::after{transform:rotate(90deg)}
     border-top:none;
     margin-top:3px;
   }
+  .sw-day-hint{
+    font-size:12px;color:var(--acc);font-weight:700;
+    text-align:left;
+    white-space:nowrap;
+    margin-left:0;
+  }
+  .sw-day-actions{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    width:100%;
+    flex-basis:100%;
+    padding:8px 0 0 calc(34px + 10px);
+    border-top:none;
+    margin-top:3px;
+  }
+  .sw-mark-btn{
+    font-size:12px;
+    gap:5px;
+  }
+  .sw-mark-btn .gi{font-size:13px}
   /* Tap no dia → marca como feito */
   .sw-day:not(.rest){cursor:pointer;}
 
@@ -943,8 +977,8 @@ details[open] summary::after{transform:rotate(90deg)}
 .long-tip-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .long-tip{background:rgba(255,184,48,0.08);border:1px solid rgba(255,184,48,0.15);border-radius:6px;padding:6px 8px;font-size:11.5px;color:var(--t2);line-height:1.5}
 .long-tip strong{display:block;font-size:10.5px;color:var(--am);margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em}
-.day-cell.long{cursor:pointer;position:relative}
-.day-cell.long::after{content:'<svg class="gi"><use href="#i-info"></use></svg>';position:absolute;top:3px;right:3px;font-size:10.5px;color:var(--am);opacity:.6}
+.day-cell.long{position:relative}
+.day-cell.long::after{content:'ⓘ';position:absolute;top:3px;right:3px;font-size:11px;line-height:1;color:var(--am);opacity:.6}
 .day-cell.long:hover::after{opacity:1}
 
 /* ── SEÇÃO RECUPERAÇÃO ── */
@@ -6231,7 +6265,7 @@ function renderPlanShort(race,planWeeks,profKey){
     days.forEach((dp,d)=>{
       const col=(dp.type==='Prova!'?'#00ff88':typeColors[dp.type])||'#334455';
       const isLongDay=dp.isLong&&!isRace;
-      html+=`<div class="day-cell${dp.rest?' rest':isLongDay?' long':''}"${isLongDay?` onclick="toggleLongExpand('long-${race}-w${w}-d${d}')" title="Clique para ver mais"`:''}">
+      html+=`<div class="day-cell${dp.rest?' rest':isLongDay?' long':''}">
         <div class="day-name">${DAYS[d]}</div>
         <div class="day-type" style="color:${col}">${dp.type}</div>
         ${dp.timeLabel
@@ -6244,19 +6278,6 @@ function renderPlanShort(race,planWeeks,profKey){
       </div>`;
     });
     html+='</div>';
-    // Card do longão expansível
-    const longDay=days.find(d=>d.isLong);
-    if(longDay){
-      const longId=`long-${race}-w${w}-d5`;
-      html+=`<div class="long-expand" id="${longId}">
-        <div class="long-expand-title"><svg class="gi"><use href="#i-directions_run"></use></svg> Longão — Treino aeróbico da semana</div>
-        <div style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:8px">${isCB?'Longão de recuo — reduzido intencionalmente. Aeróbico leve, foco em recuperação.':phase==='base'?'Longão da base — constrói economia de corrida e eficiência aeróbica para suportar os treinos mais intensos que virão.':phase==='taper'?'Longão de afunilamento — curto para manter o ritmo de treino sem acumular fadiga.':'Longão de desenvolvimento — suporte aeróbico para os intervalados e tempo runs da semana.'}</div>
-        <div class="long-tip-grid">
-          <div class="long-tip"><strong><svg class="gi"><use href="#i-water_drop"></use></svg> Hidratação</strong>Mesmo treinos curtos precisam de hidratação. Leve água se for acima de 8km ou temperatura alta.</div>
-          <div class="long-tip"><strong><svg class="gi"><use href="#i-schedule"></use></svg> Pace</strong>Longão é sempre Z1-Z2. Se você consegue falar frases completas, o pace está correto. Se não consegue, vá mais devagar.</div>
-        </div>
-      </div>`;
-    }
     html+='</div>';
   });
   html+='</div>';
@@ -6399,7 +6420,7 @@ function renderPlan(race){
       const isLongDay=dp.isLong&&!isRace;
       const longId=`long-${race}-w${w}-d${d}`;
       const subtypeBadgeHtml=dp.subtypeBadge||'';
-      html+=`<div class="day-cell${dp.rest?' rest':isLongDay?' long':''}"${isLongDay?` onclick="toggleLongExpand('${longId}')" title="Clique para saber mais sobre o Longão"`:''}">
+      html+=`<div class="day-cell${dp.rest?' rest':isLongDay?' long':''}">
         <div class="day-name">${DAYS[d]}</div>
         <div class="day-type" style="color:${col}">${dp.type}${subtypeBadgeHtml}</div>
         ${dp.timeLabel
@@ -6414,36 +6435,6 @@ function renderPlan(race){
     });
 
     html+='</div>';
-
-    // Card expansível do longão
-    const longDay=days.find(d=>d.isLong);
-    if(longDay){
-      const longId=`long-${race}-w${w}-d5`;
-      const isTaper=phase==='taper',isCbWeek=isCB;
-      const subtype=longDay.subtype||'';
-      const longContext=isCbWeek?'Longão de recuo — distância reduzida intencionalmente. Mantenha o pace Z2, foco na absorção e recuperação ativa.':isTaper?'Longão de afunilamento — curto, para manter o ritmo de treino sem acumular fadiga. Pernas frescas para a prova.':phase==='base'?'Longão da fase de base — construindo a base aeróbica. Pace confortável é obrigatório; a adaptação vem do tempo em movimento.':phase==='specific'?'Longão da fase específica — maior especificidade metabólica. Pode incluir segmentos próximos ao pace de prova. Requer 48h de recuperação após.':phase==='peak'?'Longão do pico do ciclo — estímulo máximo antes do taper. Representa o ápice do volume. Recuperação completa nos dias seguintes é obrigatória.':'Longão do build — progressão de distância e qualidade. Cada semana incrementa levemente o volume ou a intensidade. Simula o stress cumulativo da prova.';
-      // Dicas específicas por variante
-      const variantTips={
-        'Progressivo':'<div class="long-tip"><strong><svg class="gi"><use href="#i-trending_up"></use></svg> Progressivo</strong>Inicie bem devagar (Z1) e aumente gradualmente. O 3º segmento deve parecer "moderadamente difícil". Se chegar ao Z3 fácil, o 1º foi muito rápido.</div>',
-        'Final Forte':'<div class="long-tip"><strong><svg class="gi"><use href="#i-bolt"></use></svg> Final Forte</strong>Os últimos km mais rápidos simulam a reta final de prova. Conserve energia nos primeiros 75% — a tentação de acelerar cedo é a maior armadilha.</div>',
-        'Ritmo de Prova':'<div class="long-tip"><strong><svg class="gi"><use href="#i-sports_score"></use></svg> Ritmo de Prova</strong>O segmento no pace de prova ensina o sistema neuromuscular a "lembrar" o esforço. Requer 48h de recuperação. Não repita essa intensidade na semana seguinte.</div>',
-        'Steady State':'<div class="long-tip"><strong><svg class="gi"><use href="#i-bar_chart"></use></svg> Steady State</strong>Pace uniforme é mais difícil do que parece. Use o GPS para manter o ritmo constante. Evite acelerar nas subidas — ajuste o esforço, não o pace.</div>',
-        'Leve':'',
-      };
-      const extraTip=(variantTips[subtype])||'';
-      const subtypeTitle=subtype?` — <span style="color:#c88800;font-weight:900">${subtype.toUpperCase()}</span>`:'';
-      html+=`<div class="long-expand" id="${longId}">
-        <div class="long-expand-title"><svg class="gi"><use href="#i-directions_run"></use></svg> Longão${subtypeTitle} — Treino mais importante da semana</div>
-        <div style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:8px">${longContext}</div>
-        ${longDay.longDetail?`<div style="font-size:11.5px;background:rgba(255,184,48,0.08);border:1px solid rgba(255,184,48,0.2);border-radius:6px;padding:7px 10px;margin-bottom:8px;line-height:1.6;color:var(--t1)">${longDay.longDetail}</div>`:''}
-        <div class="long-tip-grid">
-          ${extraTip}
-          <div class="long-tip"><strong><svg class="gi"><use href="#i-water_drop"></use></svg> Hidratação</strong>Beba antes de sentir sede. A cada 15–20min no calor. Leve gel para longas acima de ${is42?'18km':'14km'}.</div>
-          <div class="long-tip"><strong><svg class="gi"><use href="#i-psychology"></use></svg> Adaptações</strong>Aumenta mitocôndrias, capilarização muscular e eficiência de queima de gordura. Não pode ser substituído por treinos curtos intensos.</div>
-          <div class="long-tip"><strong><svg class="gi"><use href="#i-calendar_month"></use></svg> Progressão</strong>A planilha respeita o teto fisiológico de ${is42?'2h–3h15 (maratona)':'90–150min (meia)'} de duração. O volume só sobe quando a base absorve o estímulo anterior.</div>
-        </div>
-      </div>`;
-    }
 
     html+='</div>';
   });
@@ -6599,8 +6590,101 @@ function toggleDone(planId,wIdx,dIdx){
 }
 
 function swDayTap(e,planId,wIdx,dIdx){
-  // Qualquer toque no dia → marca/desmarca como feito
+  // Em "Meus Treinos" o clique no dia (ou no "Ver detalhes") abre o modal
+  // com os detalhes completos do treino.
+  if(e)e.stopPropagation();
+  openDayDetailModal(planId,wIdx,dIdx);
+}
+
+// Botão "Marcar como feito" ao lado do "Ver detalhes" — marca/desmarca na
+// hora, sem abrir o modal, e sem mexer em nada da integração com o
+// intervals.icu (só chama a mesma toggleDone já usada em todo o app).
+function swMarkDoneTap(e,planId,wIdx,dIdx,btn){
+  if(e)e.stopPropagation();
   toggleDone(planId,wIdx,dIdx);
+  const plan=savedPlans.find(p=>p.id===planId);if(!plan||!btn)return;
+  const isDone=!!plan.done[`${wIdx}-${dIdx}`];
+  btn.classList.toggle('is-done',isDone);
+  const lbl=btn.querySelector('.sw-mark-btn-label');
+  if(lbl)lbl.textContent=isDone?'Desmarcar como feito':'Marcar como feito';
+}
+window.swMarkDoneTap=swMarkDoneTap;
+
+// Modal de detalhes do treino do dia — usado só na visão "Meus Treinos"
+// (planilha já salva). Não mexe em nada da estrutura de dados do treino
+// (dp.type/dp.pace/dp.dist/dp.timeLabel/dp.detail), só muda a exibição —
+// então o envio pro intervals.icu continua igual.
+// Monta a explicação completa do treino longo (hidratação, adaptações,
+// progressão, dica por variante) — antes ficava sempre visível na prévia da
+// planilha; agora só é usada aqui, dentro do modal de detalhes de "Meus
+// Treinos", pro dia do longão.
+function buildLongExplainHTML(plan,wk,dp){
+  if(!dp||!dp.isLong)return'';
+  const race=plan.race;
+  const is42=race==='42';
+  const isShort=race==='5k'||race==='10k';
+  if(isShort){
+    return`<div class="long-expand-title" style="margin-top:1rem"><svg class="gi"><use href="#i-directions_run"></use></svg> Longão — Treino aeróbico da semana</div>
+      <div class="long-tip-grid">
+        <div class="long-tip"><strong><svg class="gi"><use href="#i-water_drop"></use></svg> Hidratação</strong>Mesmo treinos curtos precisam de hidratação. Leve água se for acima de 8km ou temperatura alta.</div>
+        <div class="long-tip"><strong><svg class="gi"><use href="#i-schedule"></use></svg> Pace</strong>Longão é sempre Z1-Z2. Se você consegue falar frases completas, o pace está correto. Se não consegue, vá mais devagar.</div>
+      </div>`;
+  }
+  const phase=wk.phase,isCbWeek=!!wk.isCB,isTaper=phase==='taper';
+  const longContext=isCbWeek?'Longão de recuo — distância reduzida intencionalmente. Mantenha o pace Z2, foco na absorção e recuperação ativa.':isTaper?'Longão de afunilamento — curto, para manter o ritmo de treino sem acumular fadiga. Pernas frescas para a prova.':phase==='base'?'Longão da fase de base — construindo a base aeróbica. Pace confortável é obrigatório; a adaptação vem do tempo em movimento.':phase==='specific'?'Longão da fase específica — maior especificidade metabólica. Pode incluir segmentos próximos ao pace de prova. Requer 48h de recuperação após.':phase==='peak'?'Longão do pico do ciclo — estímulo máximo antes do taper. Representa o ápice do volume. Recuperação completa nos dias seguintes é obrigatória.':'Longão do build — progressão de distância e qualidade. Cada semana incrementa levemente o volume ou a intensidade. Simula o stress cumulativo da prova.';
+  const subtype=dp.subtype||'';
+  const variantTips={
+    'Progressivo':'<div class="long-tip"><strong><svg class="gi"><use href="#i-trending_up"></use></svg> Progressivo</strong>Inicie bem devagar (Z1) e aumente gradualmente. O 3º segmento deve parecer "moderadamente difícil". Se chegar ao Z3 fácil, o 1º foi muito rápido.</div>',
+    'Final Forte':'<div class="long-tip"><strong><svg class="gi"><use href="#i-bolt"></use></svg> Final Forte</strong>Os últimos km mais rápidos simulam a reta final de prova. Conserve energia nos primeiros 75% — a tentação de acelerar cedo é a maior armadilha.</div>',
+    'Ritmo de Prova':'<div class="long-tip"><strong><svg class="gi"><use href="#i-sports_score"></use></svg> Ritmo de Prova</strong>O segmento no pace de prova ensina o sistema neuromuscular a "lembrar" o esforço. Requer 48h de recuperação. Não repita essa intensidade na semana seguinte.</div>',
+    'Steady State':'<div class="long-tip"><strong><svg class="gi"><use href="#i-bar_chart"></use></svg> Steady State</strong>Pace uniforme é mais difícil do que parece. Use o GPS para manter o ritmo constante. Evite acelerar nas subidas — ajuste o esforço, não o pace.</div>',
+    'Leve':'',
+  };
+  const extraTip=variantTips[subtype]||'';
+  const subtypeTitle=subtype?` — <span style="color:#c88800;font-weight:900">${subtype.toUpperCase()}</span>`:'';
+  return`<div class="long-expand-title" style="margin-top:1rem"><svg class="gi"><use href="#i-directions_run"></use></svg> Longão${subtypeTitle} — Treino mais importante da semana</div>
+    <div style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:8px">${longContext}</div>
+    ${dp.longDetail&&dp.longDetail!==dp.detail?`<div style="font-size:11.5px;background:rgba(255,184,48,0.08);border:1px solid rgba(255,184,48,0.2);border-radius:6px;padding:7px 10px;margin-bottom:8px;line-height:1.6;color:var(--t1)">${dp.longDetail}</div>`:''}
+    <div class="long-tip-grid">
+      ${extraTip}
+      <div class="long-tip"><strong><svg class="gi"><use href="#i-water_drop"></use></svg> Hidratação</strong>Beba antes de sentir sede. A cada 15–20min no calor. Leve gel para longas acima de ${is42?'18km':'14km'}.</div>
+      <div class="long-tip"><strong><svg class="gi"><use href="#i-psychology"></use></svg> Adaptações</strong>Aumenta mitocôndrias, capilarização muscular e eficiência de queima de gordura. Não pode ser substituído por treinos curtos intensos.</div>
+      <div class="long-tip"><strong><svg class="gi"><use href="#i-calendar_month"></use></svg> Progressão</strong>A planilha respeita o teto fisiológico de ${is42?'2h–3h15 (maratona)':'90–150min (meia)'} de duração. O volume só sobe quando a base absorve o estímulo anterior.</div>
+    </div>`;
+}
+
+function openDayDetailModal(planId,wIdx,dIdx){
+  const old=document.getElementById('day-detail-modal');if(old)old.remove();
+  const plan=savedPlans.find(p=>p.id===planId);if(!plan)return;
+  const wk=plan.weeks[wIdx];if(!wk)return;
+  const dp=wk.days[dIdx];if(!dp||dp.rest)return;
+  const is42=plan.race==='42';
+  const col=(dp.type==='Prova!'||dp.type==='Corrida!'?is42?'#a78bfa':'#00ff88':typeColors[dp.type])||'#334455';
+  const weekStart=getWeekStartDate(plan,wIdx);
+  const dayDate=weekStart?fmtDate(new Date(weekStart.getTime()+dIdx*86400000)):'';
+  const infoLine=(()=>{
+    if(dp.timeLabel){const paceSecondary=dp.pace?` · ${dp.pace}/km`:'';return`<svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}${paceSecondary}`;}
+    if(dp.pace&&dp.dist)return`${dp.pace}/km · ${dp.dist}`;
+    if(dp.pace)return`${dp.pace}/km`;
+    if(dp.dist)return dp.dist;
+    return'';
+  })();
+  const longExplainHtml=buildLongExplainHTML(plan,wk,dp);
+  const modal=document.createElement('div');
+  modal.id='day-detail-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:210;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`
+    <div class="modal-box" style="max-width:360px;max-height:85vh;overflow-y:auto;padding:1.7rem 1.4rem;text-align:left;display:flex;flex-direction:column">
+      <div class="modal-title" style="color:${col}">${DAYS[dIdx]}${dayDate?' · '+dayDate:''} — ${dp.type}${dp.subtypeBadge||''}</div>
+      ${infoLine?`<div class="modal-sub" style="text-align:left;font-weight:800;color:var(--t2);margin-bottom:.5rem">${infoLine}</div>`:''}
+      ${dp.detail?`<div class="modal-sub" style="text-align:left;white-space:pre-line">${dp.detail}</div>`:''}
+      ${longExplainHtml}
+      <div class="modal-actions" style="flex-direction:column;gap:10px;margin-top:1.1rem;flex-shrink:0">
+        <button class="btn-modal-cancel" style="width:100%;height:48px;font-size:14.5px" onclick="document.getElementById('day-detail-modal').remove()">Voltar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 }
 function toggleWeeksPanel(planId,forceOpen){
   const panel=document.getElementById(`swpanel-${planId}`);const btn=document.getElementById(`swbtn-${planId}`);
@@ -6817,13 +6901,13 @@ function renderSavedList(){
     const isCurrent=plan.id===latestPlanId;
     const raceDistKm=is42?42.195:is10k?10:21.0975;
     const raceMin=Math.round(raceDistKm/plan.raceSpeed*60);const rh=Math.floor(raceMin/60),rm=raceMin%60;
-    const itemIconBg=is42?'rgba(167,139,250,0.15)':is10k?'rgba(0,121,179,0.12)':'rgba(0,255,136,0.12)';
-    const itemIconColor=is42?'var(--pu)':is10k?'var(--acc)':'var(--gr)';
-    const itemIconGlyph=is42?'emoji_events':is10k?'sports_score':'workspace_premium';
     const raceLabel=is42?'Maratona 42km':is10k?'Corrida 10km':'Meia-maratona 21km';
     const profLabel=PROFILES[plan.profKey]?.label||'';
     const todayInfo=getTodayInfo(plan);
-    const badgeHtml=isCompleted?`<div class="saved-item-badge completed"><svg class="gi"><use href="#i-check_circle"></use></svg> Concluída</div>`:(isCurrent?`<div class="saved-item-badge current"><svg class="gi"><use href="#i-push_pin"></use></svg> Planilha atual</div>`:'');
+    const itemIconBg=is42?'rgba(167,139,250,0.15)':is10k?'rgba(0,121,179,0.12)':'rgba(0,255,136,0.12)';
+    const itemIconColor=is42?'var(--pu)':is10k?'var(--acc)':'var(--gr)';
+    const itemIconGlyph=is42?'emoji_events':is10k?'sports_score':'workspace_premium';
+    const badgeHtml=isCompleted?`<div class="saved-item-badge completed">Concluída</div>`:(isCurrent?`<div class="saved-item-badge current">Planilha atual</div>`:'');
     html+=`<div class="saved-item${isCompleted?' is-completed':''}" id="saved-item-${plan.id}">
       ${badgeHtml}
       <div class="saved-item-header" onclick="toggleWeeksPanel(${plan.id})">
@@ -6886,7 +6970,8 @@ function renderSavedList(){
                   if(dp.dist)return`<div class="sw-day-info">${dp.dist}</div>`;
                   return'<div class="sw-day-info"></div>';
                 })();
-                return`<div class="sw-day${dp.rest?' rest':''}${isDone?' done':''}${isToday?' today':''}" id="swday-${plan.id}-${wIdx}-${dIdx}" ${!dp.rest?`onclick="swDayTap(event,${plan.id},${wIdx},${dIdx})"`:''}><div class="sw-day-name">${DAYS[dIdx]}</div><div class="sw-day-center"><div class="sw-day-date">${dayDate||''}</div><div class="sw-day-type" style="color:${col}">${dp.type}${dp.subtypeBadge||''}</div></div>${swInfoHtml}${dp.detail&&!dp.rest?`<div class="sw-day-detail">${dp.detail}</div>`:''}<div class="sw-check">${isDone?'<svg class="gi"><use href="#i-check"></use></svg>':''}</div></div>`;
+                const swActionsHtml=(dp.detail&&!dp.rest)?`<div class="sw-day-actions"><div class="sw-day-hint" onclick="swDayTap(event,${plan.id},${wIdx},${dIdx})">Ver detalhes</div><button class="sw-mark-btn${isDone?' is-done':''}" onclick="swMarkDoneTap(event,${plan.id},${wIdx},${dIdx},this)"><svg class="gi"><use href="#i-check"></use></svg><span class="sw-mark-btn-label">${isDone?'Desmarcar como feito':'Marcar como feito'}</span></button></div>`:'';
+                return`<div class="sw-day${dp.rest?' rest':''}${isDone?' done':''}${isToday?' today':''}" id="swday-${plan.id}-${wIdx}-${dIdx}" ${!dp.rest?`onclick="swDayTap(event,${plan.id},${wIdx},${dIdx})"`:''}><div class="sw-day-name">${DAYS[dIdx]}</div><div class="sw-day-center"><div class="sw-day-date">${dayDate||''}</div><div class="sw-day-type" style="color:${col}">${dp.type}${dp.subtypeBadge||''}</div></div>${swInfoHtml}${swActionsHtml}<div class="sw-check">${isDone?'<svg class="gi"><use href="#i-check"></use></svg>':''}</div></div>`;
               }).join('')}
             </div>
           </div>`;
