@@ -8,9 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="VO2 RunMax"/>
 <meta name="theme-color" content="#0099cc"/>
-<meta name="color-scheme" content="light only"/>
-<meta name="supported-color-schemes" content="light"/>
-<style>html{color-scheme:light only!important;forced-color-adjust:none}</style>
+<meta name="color-scheme" content="light"/>
+<script>(function(){try{var t=localStorage.getItem('vo2-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();</script>
 <title>VO2 RunMax</title>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
@@ -41,6 +40,23 @@
   /* Top header height + safe area */
   --hdr-h:64px;
   --hdr-safe:calc(var(--hdr-h) + env(safe-area-inset-top, 0px));
+  --hdr-glass:rgba(255,255,255,0.92);--nav-glass:rgba(255,255,255,0.96);
+  --shadow-nav:0 -1px 8px rgba(20,30,45,0.04);--shadow-modal:0 8px 30px rgba(20,30,45,0.14);
+}
+
+html[data-theme="dark"]{
+  --bg:#12161b;--s1:#1b2027;--s2:#20262e;--s3:#272e37;
+  --bdr:rgba(255,255,255,0.08);--bdr2:rgba(255,255,255,0.12);--bdr-day:rgba(255,255,255,0.38);
+  --t1:#eef1f5;--t2:#a9b4c0;--t3:#7c8794;
+  --acc:#2ab0f0;--acc2:#5bc6f5;--acc3:rgba(42,176,240,0.16);--acc4:rgba(42,176,240,0.10);
+  --gr:#3fc46a;--gr2:rgba(63,196,106,0.14);
+  --am:#e0a13f;--am2:rgba(224,161,63,0.14);
+  --rd:#e8636d;--rd2:rgba(232,99,109,0.14);
+  --pu:#9086d6;--pu2:rgba(144,134,214,0.16);
+  --shadow-card:0 1px 2px rgba(0,0,0,0.25),0 1px 8px rgba(0,0,0,0.25);
+  --shadow-card-hover:0 2px 4px rgba(0,0,0,0.3),0 4px 14px rgba(0,0,0,0.32);
+  --hdr-glass:rgba(23,28,34,0.88);--nav-glass:rgba(23,28,34,0.92);
+  --shadow-nav:0 -1px 8px rgba(0,0,0,0.28);--shadow-modal:0 8px 30px rgba(0,0,0,0.38);
 }
 
 /* ═══════════════════════════════
@@ -86,7 +102,7 @@ body{
   z-index:100;
   height:var(--hdr-safe);
   padding-top:env(safe-area-inset-top, 0px);
-  background:rgba(255,255,255,0.92);
+  background:var(--hdr-glass);
   -webkit-backdrop-filter:blur(18px) saturate(1.6);
   backdrop-filter:blur(18px) saturate(1.6);
   border-bottom:1px solid var(--bdr);
@@ -143,11 +159,11 @@ body{
   z-index:100;
   height:var(--nav-safe);
   padding-bottom:env(safe-area-inset-bottom, 0px);
-  background:rgba(255,255,255,0.96);
+  background:var(--nav-glass);
   -webkit-backdrop-filter:blur(20px) saturate(1.8);
   backdrop-filter:blur(20px) saturate(1.8);
   border-top:1px solid var(--bdr);
-  box-shadow:0 -1px 8px rgba(20,30,45,0.04);
+  box-shadow:var(--shadow-nav);
   display:flex;
   align-items:stretch;
 }
@@ -238,7 +254,7 @@ body{
 .ig{display:flex;flex-direction:column;gap:5px}
 .ig label{font-size:12.5px;color:var(--t2);font-weight:600;letter-spacing:.06em}
 input[type=number],input[type=text]{width:100%;height:48px;padding:0 14px;border:1.5px solid rgba(0,0,0,0.10);border-radius:8px;font-size:16px;color:var(--t1);background:var(--s2);font-family:inherit;outline:none;transition:all .2s;-webkit-appearance:none;appearance:none}
-input:focus{border-color:var(--acc);box-shadow:none;background:#fff}
+input:focus{border-color:var(--acc);box-shadow:none;background:var(--s1)}
 input::placeholder{color:var(--t3)}
 .igrow{display:grid;gap:12px;align-items:flex-end}
 
@@ -570,7 +586,7 @@ details[open] summary::after{transform:rotate(90deg)}
 
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto}
-.modal-box{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--rc);padding:1.4rem;width:100%;max-width:380px;margin:auto;box-shadow:0 8px 30px rgba(20,30,45,0.14)}
+.modal-box{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--rc);padding:1.4rem;width:100%;max-width:380px;margin:auto;box-shadow:var(--shadow-modal)}
 @media(max-width:420px),(max-device-width:420px){
   .modal-box{padding:1.1rem;border-radius:var(--r)}
   .auth-modal-box{padding:1.2rem;border-radius:var(--r)}
@@ -882,7 +898,7 @@ details[open] summary::after{transform:rotate(90deg)}
 
 
 /* ── LGPD BANNER ── */
-.lgpd-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid var(--bdr2);box-shadow:none;padding:.9rem 1.2rem;padding-bottom:calc(.9rem + env(safe-area-inset-bottom,0));display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;transition:transform .4s}
+.lgpd-banner{position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--s1);border-top:1px solid var(--bdr2);box-shadow:none;padding:.9rem 1.2rem;padding-bottom:calc(.9rem + env(safe-area-inset-bottom,0));display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;transition:transform .4s}
 .lgpd-banner.hidden{transform:translateY(110%)}
 @media(max-width:400px),(max-device-width:400px){
   .lgpd-banner{flex-direction:column;align-items:flex-start;gap:10px}
@@ -1629,6 +1645,13 @@ details[open] summary::after{transform:rotate(90deg)}
     <div class="auth-avatar" id="profile-modal-avatar" style="width:56px;height:56px;font-size:22px;margin:0 auto 12px">A</div>
     <div class="modal-title" id="profile-modal-name" style="margin-bottom:4px">usuário</div>
     <div class="modal-sub" id="profile-modal-email" style="margin-bottom:1.2rem;word-break:break-all">email@exemplo.com</div>
+    <div style="padding-top:.9rem;margin-bottom:1.2rem;border-top:1px solid var(--bdr);text-align:left">
+      <div style="font-size:11.5px;font-weight:800;color:var(--t3);letter-spacing:.03em;margin-bottom:8px">TEMA DO APP</div>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="wz-yn-btn" id="theme-opt-light" onclick="setAppTheme('light')" style="flex:1;height:44px;font-size:13px">☀️ Claro</button>
+        <button type="button" class="wz-yn-btn" id="theme-opt-dark" onclick="setAppTheme('dark')" style="flex:1;height:44px;font-size:13px">🌙 Escuro</button>
+      </div>
+    </div>
     <div class="modal-actions" style="justify-content:center">
       <button class="btn-modal-cancel" onclick="closeProfileModal()">Fechar</button>
       <button class="btn-modal-ok" style="background:var(--rd)" onclick="closeProfileModal();doLogout()">Sair</button>
@@ -1983,11 +2006,32 @@ function openProfileModal(){
   document.getElementById('profile-modal-avatar').textContent=name.charAt(0).toUpperCase();
   document.getElementById('profile-modal-name').textContent=name;
   document.getElementById('profile-modal-email').textContent=currentUser.email||'';
+  updateThemeButtons();
   document.getElementById('modal-profile').style.display='flex';
 }
 window.openProfileModal=openProfileModal;
 function closeProfileModal(){document.getElementById('modal-profile').style.display='none'}
 window.closeProfileModal=closeProfileModal;
+
+function updateThemeButtons(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const lightBtn=document.getElementById('theme-opt-light');
+  const darkBtn=document.getElementById('theme-opt-dark');
+  if(lightBtn)lightBtn.style.background=isDark?'':'var(--acc3)';
+  if(darkBtn)darkBtn.style.background=isDark?'var(--acc3)':'';
+}
+function setAppTheme(mode){
+  try{localStorage.setItem('vo2-theme',mode);}catch(e){}
+  if(mode==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    document.documentElement.style.colorScheme='dark';
+  }else{
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.colorScheme='light';
+  }
+  updateThemeButtons();
+}
+window.setAppTheme=setAppTheme;
 
 async function persistAccountPlans(){
   if(!currentUser)return;
