@@ -180,16 +180,32 @@ body{
 }
 .auth-modal-logo.app-logo-hidden{display:none}
 
-/* Logo fica com tons escuros/azulados — no tema escuro precisa de mais brilho/contraste pra não sumir no fundo */
+/* Logo fica com tons escuros/azulados — no tema escuro ganha um "chip" de fundo pra garantir contraste, além de um leve brilho */
 @media(prefers-color-scheme:dark){
-  html:not([data-theme="light"]) .app-logo,
+  html:not([data-theme="light"]) .app-logo{
+    background:var(--s3);
+    border-radius:10px;
+    padding:6px 14px;
+    filter:brightness(1.15) contrast(1.05);
+  }
   html:not([data-theme="light"]) .auth-modal-logo{
-    filter:brightness(1.7) contrast(1.05) drop-shadow(0 0 10px rgba(255,255,255,.14));
+    background:var(--s3);
+    border-radius:12px;
+    padding:12px 20px;
+    filter:brightness(1.15) contrast(1.05);
   }
 }
-html[data-theme="dark"] .app-logo,
+html[data-theme="dark"] .app-logo{
+  background:var(--s3);
+  border-radius:10px;
+  padding:6px 14px;
+  filter:brightness(1.15) contrast(1.05);
+}
 html[data-theme="dark"] .auth-modal-logo{
-  filter:brightness(1.7) contrast(1.05) drop-shadow(0 0 10px rgba(255,255,255,.14));
+  background:var(--s3);
+  border-radius:12px;
+  padding:12px 20px;
+  filter:brightness(1.15) contrast(1.05);
 }
 
 /* ═══════════════════════════════
