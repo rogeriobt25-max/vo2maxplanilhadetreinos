@@ -470,7 +470,7 @@ details[open] summary::after{transform:rotate(90deg)}
 @keyframes savedItemFlash{0%{border-color:var(--acc);box-shadow:none}100%{border-color:var(--bdr);box-shadow:none}}
 .saved-item:hover{border-color:var(--bdr2)}
 .saved-item-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:5px 12px;border-radius:6px;margin:12px 16px 0}
-.saved-item-badge.current{background:none;border:none;padding:0;color:var(--acc);font-size:14.5px}
+.saved-item-badge.current{background:none;border:none;padding:0;color:var(--acc);font-size:14.5px;display:block;text-align:center}
 .saved-item-badge.completed{background:var(--gr2);color:var(--gr);border:1px solid rgba(0,168,85,0.35)}
 .saved-item.is-completed{opacity:.7}
 .saved-item.is-completed .saved-item-icon{filter:grayscale(.4)}
@@ -478,8 +478,8 @@ details[open] summary::after{transform:rotate(90deg)}
 .saved-item-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--bdr)}
 .saved-item-icon{width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .saved-item-info{flex:1;min-width:0}
-.saved-item-name{font-size:14px;font-weight:800;color:var(--t1);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.saved-item-meta{font-size:12.5px;color:var(--t3);display:flex;gap:10px;flex-wrap:wrap}
+.saved-item-name{font-size:18px;font-weight:800;color:var(--t1);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.saved-item-meta{font-size:12.5px;color:var(--t3);display:flex;flex-direction:column;gap:3px}
 .saved-item-actions{display:flex;gap:8px;flex-shrink:0}
 .btn-icon{width:40px;height:40px;border-radius:var(--rb);border:1px solid var(--bdr2);background:var(--s2);color:var(--t2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:inherit}
 .btn-watch{height:36px;padding:0 14px;min-width:170px;border-radius:var(--rb);border:1px solid var(--bdr2);background:var(--s3);color:var(--t1);cursor:pointer;font-size:11.5px;font-weight:800;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center;gap:5px;white-space:nowrap;transition:all .2s}
@@ -918,7 +918,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .cooper-warn-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto}
 .cooper-warn-bg.open{display:flex}
 .cooper-warn-box{background:var(--s1);border:1px solid var(--bdr2);border-radius:var(--rc);padding:1.8rem;width:100%;max-width:420px;text-align:center;margin:auto}
-.cooper-warn-icon{font-size:36px;margin-bottom:.75rem}
+.cooper-warn-icon{font-size:36px;margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;gap:8px}
 .cooper-warn-title{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:.5rem}
 .cooper-warn-body{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:1.2rem;text-align:left;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.85rem 1rem}
 .cooper-warn-body strong{color:var(--am)}
@@ -1463,17 +1463,38 @@ details[open] summary::after{transform:rotate(90deg)}
       </div>
       <div class="wz-yn" style="grid-template-columns:1fr 1fr 1fr">
         <button class="wz-yn-btn" onclick="wzSelectDist('10k')" id="wz-dist-10k" style="flex-direction:column;height:auto;padding:1rem .5rem;gap:4px">
-          <span style="font-size:22px"><svg class="gi"><use href="#i-sports_score"></use></svg></span>
+          <span><svg viewBox="0 0 40 40" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,2 18,2 22,18 14,22" fill="#D93025"/>
+            <polygon points="18,2 22,2 26,18 22,20" fill="#F1F3F4"/>
+            <polygon points="22,2 30,2 26,22 22,18" fill="#1A73E8"/>
+            <circle cx="20" cy="25" r="12.5" fill="#2563EB" stroke="#1D4ED8" stroke-width="1.4"/>
+            <circle cx="20" cy="25" r="9.3" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/>
+            <path d="M20 18.3l2.2 4.5 4.9.6-3.6 3.4 1 4.8-4.5-2.5-4.5 2.5 1-4.8-3.6-3.4 4.9-.6z" fill="#FFF7DA"/>
+          </svg></span>
           <span style="font-size:15px;font-weight:900">10 km</span>
           <span style="font-size:12.5px;font-weight:600;color:var(--t3)">Corrida de 10km</span>
         </button>
         <button class="wz-yn-btn" onclick="wzSelectDist('21')" id="wz-dist-21" style="flex-direction:column;height:auto;padding:1rem .5rem;gap:4px">
-          <span style="font-size:22px"><svg class="gi"><use href="#i-workspace_premium"></use></svg></span>
+          <span><svg viewBox="0 0 40 40" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,2 18,2 22,18 14,22" fill="#D93025"/>
+            <polygon points="18,2 22,2 26,18 22,20" fill="#F1F3F4"/>
+            <polygon points="22,2 30,2 26,22 22,18" fill="#1A73E8"/>
+            <circle cx="20" cy="25" r="12.5" fill="#F5C518" stroke="#B8860B" stroke-width="1.4"/>
+            <circle cx="20" cy="25" r="9.3" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/>
+            <path d="M20 18.3l2.2 4.5 4.9.6-3.6 3.4 1 4.8-4.5-2.5-4.5 2.5 1-4.8-3.6-3.4 4.9-.6z" fill="#FFF7DA"/>
+          </svg></span>
           <span style="font-size:15px;font-weight:900">21 km</span>
           <span style="font-size:12.5px;font-weight:600;color:var(--t3)">Meia Maratona</span>
         </button>
         <button class="wz-yn-btn" onclick="wzSelectDist('42')" id="wz-dist-42" style="flex-direction:column;height:auto;padding:1rem .5rem;gap:4px">
-          <span style="font-size:22px"><svg class="gi"><use href="#i-emoji_events"></use></svg></span>
+          <span><svg viewBox="0 0 40 40" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 6h14v9a7 7 0 0 1-14 0V6z" fill="#F5C518" stroke="#B8860B" stroke-width="1.2"/>
+            <path d="M13 8H7a6 6 0 0 0 6 8" fill="none" stroke="#B8860B" stroke-width="2"/>
+            <path d="M27 8h6a6 6 0 0 1-6 8" fill="none" stroke="#B8860B" stroke-width="2"/>
+            <rect x="18" y="17" width="4" height="7" fill="#B8860B"/>
+            <path d="M14 24h12l2 4H12z" fill="#D4A017"/>
+            <rect x="10" y="28" width="20" height="4" rx="1.5" fill="#B8860B"/>
+          </svg></span>
           <span style="font-size:15px;font-weight:900">42 km</span>
           <span style="font-size:12.5px;font-weight:600;color:var(--t3)">Maratona</span>
         </button>
@@ -1688,6 +1709,28 @@ details[open] summary::after{transform:rotate(90deg)}
 var fbApp,fbAuth,fbDb,currentUser=null;
 
 /* ── Helpers ── */
+function medalIconSvg(coin,coinDark,size){
+  size=size||30;
+  return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" style="vertical-align:-0.3em" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="10,2 18,2 22,18 14,22" fill="#D93025"/>
+    <polygon points="18,2 22,2 26,18 22,20" fill="#F1F3F4"/>
+    <polygon points="22,2 30,2 26,22 22,18" fill="#1A73E8"/>
+    <circle cx="20" cy="25" r="12.5" fill="${coin}" stroke="${coinDark}" stroke-width="1.4"/>
+    <circle cx="20" cy="25" r="9.3" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/>
+    <path d="M20 18.3l2.2 4.5 4.9.6-3.6 3.4 1 4.8-4.5-2.5-4.5 2.5 1-4.8-3.6-3.4 4.9-.6z" fill="#FFF7DA"/>
+  </svg>`;
+}
+function trophyIconSvg(size){
+  size=size||30;
+  return `<svg viewBox="0 0 40 40" width="${size}" height="${size}" style="vertical-align:-0.3em" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13 6h14v9a7 7 0 0 1-14 0V6z" fill="#F5C518" stroke="#B8860B" stroke-width="1.2"/>
+    <path d="M13 8H7a6 6 0 0 0 6 8" fill="none" stroke="#B8860B" stroke-width="2"/>
+    <path d="M27 8h6a6 6 0 0 1-6 8" fill="none" stroke="#B8860B" stroke-width="2"/>
+    <rect x="18" y="17" width="4" height="7" fill="#B8860B"/>
+    <path d="M14 24h12l2 4H12z" fill="#D4A017"/>
+    <rect x="10" y="28" width="20" height="4" rx="1.5" fill="#B8860B"/>
+  </svg>`;
+}
 function passRulesOk(p){
   return{len:p.length>=8,upper:/[A-Z]/.test(p),lower:/[a-z]/.test(p),num:/[0-9]/.test(p),sym:/[^a-zA-Z0-9]/.test(p)}
 }
@@ -2262,7 +2305,7 @@ function wzRenderHistory(){
   const vals={
     profile: wzState.profile?({'init':'<svg class="gi"><use href="#i-directions_walk"></use></svg> Iniciante','inter':'<svg class="gi"><use href="#i-directions_run"></use></svg> Intermediário','avance':'<svg class="gi"><use href="#i-bolt"></use></svg> Avançado'}[wzState.profile]):'',
     vo2: wzState.usedRealVo2?`${Math.round(wzState.vo2*10)/10} ml/kg/min`:(wzState.vo2?`${Math.round(wzState.vo2*10)/10} ml/kg/min · padrão do nível`:'' ),
-    dist: wzState.dist?({'10k':'<svg class="gi"><use href="#i-sports_score"></use></svg> 10 km','21':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia — 21 km','42':'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona — 42 km'}[wzState.dist]):'',
+    dist: wzState.dist?({'10k':`${medalIconSvg('#2563EB','#1D4ED8',16)} 10 km`,'21':`${medalIconSvg('#F5C518','#B8860B',16)} Meia — 21 km`,'42':`${trophyIconSvg(16)} Maratona — 42 km`}[wzState.dist]):'',
     obj: wzState.obj?({'finish':'<svg class="gi"><use href="#i-track_changes"></use></svg> Completar a prova','target':'<svg class="gi"><use href="#i-schedule"></use></svg> Tempo alvo','improve':'<svg class="gi"><use href="#i-trending_up"></use></svg> Melhorar tempo atual'}[wzState.obj]):''
   };
   const steps=[
@@ -2413,7 +2456,7 @@ function renderCalcSummary(){
     return;
   }
   const profVal=({'init':'<svg class="gi"><use href="#i-directions_walk"></use></svg> Iniciante','inter':'<svg class="gi"><use href="#i-directions_run"></use></svg> Intermediário','avance':'<svg class="gi"><use href="#i-bolt"></use></svg> Avançado'})[profKey]||'';
-  const distVal=({'10k':'<svg class="gi"><use href="#i-sports_score"></use></svg> 10 km','21':'<svg class="gi"><use href="#i-workspace_premium"></use></svg> Meia-maratona · 21 km','42':'<svg class="gi"><use href="#i-emoji_events"></use></svg> Maratona · 42 km'})[dist]||'';
+  const distVal=({'10k':`${medalIconSvg('#2563EB','#1D4ED8',18)} 10 km`,'21':`${medalIconSvg('#F5C518','#B8860B',18)} Meia-maratona · 21 km`,'42':`${trophyIconSvg(18)} Maratona · 42 km`})[dist]||'';
   const objVal=({'finish':'<svg class="gi"><use href="#i-track_changes"></use></svg> Completar a prova','target':'<svg class="gi"><use href="#i-schedule"></use></svg> Tempo alvo','improve':'<svg class="gi"><use href="#i-trending_up"></use></svg> Melhorar tempo atual'})[obj]||'';
   const fit=vo2?getFit(vo2,'N'):null;
   const pct=vo2?Math.max(4,Math.min(100,Math.round((vo2-20)/50*100))):0;
@@ -6485,23 +6528,17 @@ function renderPlan(race){
 ══════════════════════════════════════════════════════════ */
 function openSaveModal(race){
   pendingSaveRace=race;
-  const is42=race==='42',is5k=race==='5k',is10k=race==='10k';
-  const planWeeks=race==='21'?planWeeks21:race==='42'?planWeeks42:race==='5k'?planWeeks5k:planWeeks10k;
-  const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
-  const prof=PROFILES[profKey]||PROFILES.inter;
-  const distLabel=is5k?'5km':is10k?'10km':is42?'Maratona':'Meia';
-  document.getElementById('modal-name-input').value=`${distLabel} ${prof.label} ${planWeeks}sem`;
-  document.getElementById('modal-save').style.display='flex';
-  setTimeout(()=>document.getElementById('modal-name-input').select(),50);
+  confirmSave();
 }
 function closeModal(){document.getElementById('modal-save').style.display='none';pendingSaveRace=null}
 function confirmSave(){
-  const name=document.getElementById('modal-name-input').value.trim()||'Planilha sem nome';
   if(!pendingSaveRace)return;
   const race=pendingSaveRace;const is42=race==='42';const is5k=race==='5k',is10k=race==='10k',isShort=is5k||is10k;
   const planWeeks=race==='21'?planWeeks21:race==='42'?planWeeks42:race==='5k'?planWeeks5k:planWeeks10k;
   const profKey=race==='21'?profile21:race==='42'?profile42:race==='5k'?profile5k:profile10k;
   const prof=PROFILES[profKey]||PROFILES.inter;
+  const distLabel=is5k?'5km':is10k?'10km':is42?'Maratona':'Meia';
+  const name=`${distLabel} ${prof.label} ${planWeeks}sem`;
   const raceSpeed=getRaceSpeed(race);
   const pf=prof.paces;
   const ez=usingCustom&&customPaces.Z1?customPaces.Z1:vVO2G*pf.ez;
@@ -6908,24 +6945,23 @@ function renderSavedList(){
     const isCurrent=plan.id===latestPlanId;
     const raceDistKm=is42?42.195:is10k?10:21.0975;
     const raceMin=Math.round(raceDistKm/plan.raceSpeed*60);const rh=Math.floor(raceMin/60),rm=raceMin%60;
-    const raceLabel=is42?'Maratona 42km':is10k?'Corrida 10km':'Meia-maratona 21km';
+    const raceKmLabel=is42?'42km':is10k?'10km':'21km';
+    const titleLabel=is42?'Maratona':is10k?'10km':'Meia Maratona';
+    const montadaName=plan.montada?(plan.name||'').replace(/<svg[\s\S]*?<\/svg>\s*/,'').trim():'';
+    const titleWithParens=`${titleLabel}${montadaName?` <span style="font-weight:400">(${montadaName})</span>`:''}`;
     const profLabel=PROFILES[plan.profKey]?.label||'';
     const todayInfo=getTodayInfo(plan);
-    const itemIconBg=is42?'rgba(167,139,250,0.15)':is10k?'rgba(0,121,179,0.12)':'rgba(0,255,136,0.12)';
-    const itemIconColor=is42?'var(--pu)':is10k?'var(--acc)':'var(--gr)';
-    const itemIconGlyph=is42?'emoji_events':is10k?'sports_score':'workspace_premium';
+    const itemIconSvg=is42?trophyIconSvg(24):is10k?medalIconSvg('#2563EB','#1D4ED8',24):medalIconSvg('#F5C518','#B8860B',24);
     const badgeHtml=isCompleted?`<div class="saved-item-badge completed">Concluída</div>`:(isCurrent?`<div class="saved-item-badge current">Planilha atual</div>`:'');
     html+=`<div class="saved-item${isCompleted?' is-completed':''}" id="saved-item-${plan.id}">
       ${badgeHtml}
       <div class="saved-item-header" onclick="toggleWeeksPanel(${plan.id})">
-        <div class="saved-item-icon" style="background:${itemIconBg};color:${itemIconColor};"><svg class="gi"><use href="#i-${itemIconGlyph}"></use></svg></div>
         <div class="saved-item-info">
-          <div class="saved-item-name">${plan.name}</div>
+          <div class="saved-item-name" style="display:flex;align-items:center;gap:6px">${itemIconSvg}${titleWithParens}</div>
           <div class="saved-item-meta">
-            <span>${raceLabel}</span>
-            <span>${plan.planWeeks} semanas · ${profLabel}</span>
-            <span>VO2: ${plan.vo2} ml/kg/min</span>
-            <span>Pace: ${s2p(plan.raceSpeed)}/km · ${rh}h${rm.toString().padStart(2,'0')}</span>
+            <span>${raceKmLabel} · ${plan.planWeeks} semanas</span>
+            <span>${profLabel}</span>
+            <span>VO2: ${plan.vo2}</span>
             <span style="color:var(--t3)">Criado ${plan.createdAt}</span>
           </div>
         </div>
@@ -8711,7 +8747,14 @@ if(document.readyState==='loading'){
 <!-- MARATONA 42KM WARNING MODAL -->
 <div class="cooper-warn-bg" id="marathon42-warn-modal">
   <div class="cooper-warn-box">
-    <div class="cooper-warn-icon"><svg class="gi"><use href="#i-emoji_events"></use></svg><svg class="gi"><use href="#i-warning"></use></svg></div>
+    <div class="cooper-warn-icon"><svg viewBox="0 0 40 40" width="38" height="38" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 6h14v9a7 7 0 0 1-14 0V6z" fill="#F5C518" stroke="#B8860B" stroke-width="1.2"/>
+      <path d="M13 8H7a6 6 0 0 0 6 8" fill="none" stroke="#B8860B" stroke-width="2"/>
+      <path d="M27 8h6a6 6 0 0 1-6 8" fill="none" stroke="#B8860B" stroke-width="2"/>
+      <rect x="18" y="17" width="4" height="7" fill="#B8860B"/>
+      <path d="M14 24h12l2 4H12z" fill="#D4A017"/>
+      <rect x="10" y="28" width="20" height="4" rx="1.5" fill="#B8860B"/>
+    </svg><svg class="gi" style="color:#FFB300"><use href="#i-warning"></use></svg></div>
     <div class="cooper-warn-title">Antes de escolher o plano de 42 km</div>
     <div class="cooper-warn-body">
       <strong>Importante:</strong> este plano de 42 km é destinado a corredores que já conseguem completar longões de <strong>16–18 km</strong> e treinam regularmente.<br><br>
@@ -10294,17 +10337,13 @@ function montadorUpdateFooter(){
 //    formato de planilha salva — export/paces/progresso funcionam de graça).
 function montadorAbrirSaveModal(){
   if(!montador||montador.assigned.size===0)return;
-  const race=montador.race,is42=race==='42',is5k=race==='5k',is10k=race==='10k';
-  const distLabel=is5k?'5km':is10k?'10km':is42?'Maratona':'Meia';
-  const prof=PROFILES[montador.profKey]||PROFILES.inter;
-  document.getElementById('mt-name-input').value=`${distLabel} ${prof.label} (montada)`;
-  document.getElementById('modal-mt-save').style.display='flex';
-  setTimeout(()=>document.getElementById('mt-name-input').select(),50);
+  montadorConfirmSave();
 }
 
 function montadorConfirmSave(){
   if(!montador)return;
-  const name=document.getElementById('mt-name-input').value.trim()||'Planilha montada';
+  const race=montador.race,is42=race==='42',is5k=race==='5k',is10k=race==='10k';
+  const name='montada manualmente';
 
   const weeks=[];
   for(let wIdx=0;wIdx<montador.weekCount;wIdx++){
@@ -10323,7 +10362,7 @@ function montadorConfirmSave(){
 
   const plan={
     id:Date.now(),
-    name:`<svg class="gi"><use href="#i-extension"></use></svg> ${name}`,
+    name:name,
     race:montador.race,
     planWeeks:montador.weekCount,
     profKey:montador.profKey,
@@ -10344,7 +10383,6 @@ function montadorConfirmSave(){
   updateSavedBadge();
   persistAccountPlans();
   wzSaveSummaryState(plan.id);
-  document.getElementById('modal-mt-save').style.display='none';
   fecharMontador();
   renderSavedList();
   showSaveSuccessModal(plan.id);
