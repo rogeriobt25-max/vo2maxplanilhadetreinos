@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="VO2 RunMax"/>
 <meta name="theme-color" content="#0099cc"/>
-<meta name="color-scheme" content="light"/>
-<script>(function(){try{var t=localStorage.getItem('vo2-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();</script>
+<meta name="color-scheme" content="light dark"/>
+<script>(function(){try{var t=localStorage.getItem('vo2-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.documentElement.style.colorScheme='dark';}else if(t==='light'){document.documentElement.setAttribute('data-theme','light');document.documentElement.style.colorScheme='light';}else{document.documentElement.style.colorScheme='light dark';}}catch(e){}})();</script>
 <title>VO2 RunMax</title>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
@@ -42,21 +42,51 @@
   --hdr-safe:calc(var(--hdr-h) + env(safe-area-inset-top, 0px));
   --hdr-glass:rgba(255,255,255,0.92);--nav-glass:rgba(255,255,255,0.96);
   --shadow-nav:0 -1px 8px rgba(20,30,45,0.04);--shadow-modal:0 8px 30px rgba(20,30,45,0.14);
+
+  /* ── Paleta escura (fonte única — usada tanto no modo automático quanto na escolha manual) ── */
+  --dbg:#12161b;--ds1:#1b2027;--ds2:#20262e;--ds3:#272e37;
+  --dbdr:rgba(255,255,255,0.08);--dbdr2:rgba(255,255,255,0.12);--dbdr-day:rgba(255,255,255,0.38);
+  --dt1:#eef1f5;--dt2:#a9b4c0;--dt3:#7c8794;
+  --dacc:#2ab0f0;--dacc2:#5bc6f5;--dacc3:rgba(42,176,240,0.16);--dacc4:rgba(42,176,240,0.10);
+  --dgr:#3fc46a;--dgr2:rgba(63,196,106,0.14);
+  --dam:#e0a13f;--dam2:rgba(224,161,63,0.14);
+  --drd:#e8636d;--drd2:rgba(232,99,109,0.14);
+  --dpu:#9086d6;--dpu2:rgba(144,134,214,0.16);
+  --dshadow-card:0 1px 2px rgba(0,0,0,0.25),0 1px 8px rgba(0,0,0,0.25);
+  --dshadow-card-hover:0 2px 4px rgba(0,0,0,0.3),0 4px 14px rgba(0,0,0,0.32);
+  --dhdr-glass:rgba(23,28,34,0.88);--dnav-glass:rgba(23,28,34,0.92);
+  --dshadow-nav:0 -1px 8px rgba(0,0,0,0.28);--dshadow-modal:0 8px 30px rgba(0,0,0,0.38);
 }
 
+/* Aplica a paleta escura: automaticamente pelo sistema (se a pessoa não fixou "claro" no perfil)... */
+@media(prefers-color-scheme:dark){
+  html:not([data-theme="light"]){
+    --bg:var(--dbg);--s1:var(--ds1);--s2:var(--ds2);--s3:var(--ds3);
+    --bdr:var(--dbdr);--bdr2:var(--dbdr2);--bdr-day:var(--dbdr-day);
+    --t1:var(--dt1);--t2:var(--dt2);--t3:var(--dt3);
+    --acc:var(--dacc);--acc2:var(--dacc2);--acc3:var(--dacc3);--acc4:var(--dacc4);
+    --gr:var(--dgr);--gr2:var(--dgr2);
+    --am:var(--dam);--am2:var(--dam2);
+    --rd:var(--drd);--rd2:var(--drd2);
+    --pu:var(--dpu);--pu2:var(--dpu2);
+    --shadow-card:var(--dshadow-card);--shadow-card-hover:var(--dshadow-card-hover);
+    --hdr-glass:var(--dhdr-glass);--nav-glass:var(--dnav-glass);
+    --shadow-nav:var(--dshadow-nav);--shadow-modal:var(--dshadow-modal);
+  }
+}
+/* ...ou manualmente, se a pessoa fixou "escuro" no perfil (independe do sistema) */
 html[data-theme="dark"]{
-  --bg:#12161b;--s1:#1b2027;--s2:#20262e;--s3:#272e37;
-  --bdr:rgba(255,255,255,0.08);--bdr2:rgba(255,255,255,0.12);--bdr-day:rgba(255,255,255,0.38);
-  --t1:#eef1f5;--t2:#a9b4c0;--t3:#7c8794;
-  --acc:#2ab0f0;--acc2:#5bc6f5;--acc3:rgba(42,176,240,0.16);--acc4:rgba(42,176,240,0.10);
-  --gr:#3fc46a;--gr2:rgba(63,196,106,0.14);
-  --am:#e0a13f;--am2:rgba(224,161,63,0.14);
-  --rd:#e8636d;--rd2:rgba(232,99,109,0.14);
-  --pu:#9086d6;--pu2:rgba(144,134,214,0.16);
-  --shadow-card:0 1px 2px rgba(0,0,0,0.25),0 1px 8px rgba(0,0,0,0.25);
-  --shadow-card-hover:0 2px 4px rgba(0,0,0,0.3),0 4px 14px rgba(0,0,0,0.32);
-  --hdr-glass:rgba(23,28,34,0.88);--nav-glass:rgba(23,28,34,0.92);
-  --shadow-nav:0 -1px 8px rgba(0,0,0,0.28);--shadow-modal:0 8px 30px rgba(0,0,0,0.38);
+  --bg:var(--dbg);--s1:var(--ds1);--s2:var(--ds2);--s3:var(--ds3);
+  --bdr:var(--dbdr);--bdr2:var(--dbdr2);--bdr-day:var(--dbdr-day);
+  --t1:var(--dt1);--t2:var(--dt2);--t3:var(--dt3);
+  --acc:var(--dacc);--acc2:var(--dacc2);--acc3:var(--dacc3);--acc4:var(--dacc4);
+  --gr:var(--dgr);--gr2:var(--dgr2);
+  --am:var(--dam);--am2:var(--dam2);
+  --rd:var(--drd);--rd2:var(--drd2);
+  --pu:var(--dpu);--pu2:var(--dpu2);
+  --shadow-card:var(--dshadow-card);--shadow-card-hover:var(--dshadow-card-hover);
+  --hdr-glass:var(--dhdr-glass);--nav-glass:var(--dnav-glass);
+  --shadow-nav:var(--dshadow-nav);--shadow-modal:var(--dshadow-modal);
 }
 
 /* ═══════════════════════════════
@@ -149,6 +179,18 @@ body{
   object-fit:contain;
 }
 .auth-modal-logo.app-logo-hidden{display:none}
+
+/* Logo fica com tons escuros/azulados — no tema escuro precisa de mais brilho/contraste pra não sumir no fundo */
+@media(prefers-color-scheme:dark){
+  html:not([data-theme="light"]) .app-logo,
+  html:not([data-theme="light"]) .auth-modal-logo{
+    filter:brightness(1.7) contrast(1.05) drop-shadow(0 0 10px rgba(255,255,255,.14));
+  }
+}
+html[data-theme="dark"] .app-logo,
+html[data-theme="dark"] .auth-modal-logo{
+  filter:brightness(1.7) contrast(1.05) drop-shadow(0 0 10px rgba(255,255,255,.14));
+}
 
 /* ═══════════════════════════════
    BOTTOM TAB BAR (native style)
@@ -1257,7 +1299,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="auth-modal-bg" id="auth-modal">
   <div class="auth-modal-box">
     <button class="auth-modal-close" onclick="closeAuthModal()"><svg class="gi"><use href="#i-close"></use></svg></button>
-    <img class="auth-modal-logo" id="auth-modal-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
+    <img class="auth-modal-logo" id="auth-modal-logo" src="logologin.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
     <div class="auth-modal-title" id="auth-modal-title">Entrar na sua conta</div>
     <div class="auth-modal-sub" id="auth-modal-sub">Salve e acesse seus treinos em qualquer dispositivo.</div>
 
@@ -1647,9 +1689,10 @@ details[open] summary::after{transform:rotate(90deg)}
     <div class="modal-sub" id="profile-modal-email" style="margin-bottom:1.2rem;word-break:break-all">email@exemplo.com</div>
     <div style="padding-top:.9rem;margin-bottom:1.2rem;border-top:1px solid var(--bdr);text-align:left">
       <div style="font-size:11.5px;font-weight:800;color:var(--t3);letter-spacing:.03em;margin-bottom:8px">TEMA DO APP</div>
-      <div style="display:flex;gap:8px">
-        <button type="button" class="wz-yn-btn" id="theme-opt-light" onclick="setAppTheme('light')" style="flex:1;height:44px;font-size:13px">☀️ Claro</button>
-        <button type="button" class="wz-yn-btn" id="theme-opt-dark" onclick="setAppTheme('dark')" style="flex:1;height:44px;font-size:13px">🌙 Escuro</button>
+      <div style="display:flex;gap:6px">
+        <button type="button" class="wz-yn-btn" id="theme-opt-auto" onclick="setAppTheme('auto')" style="flex:1;height:44px;font-size:12px;padding:0 2px">📱 Auto</button>
+        <button type="button" class="wz-yn-btn" id="theme-opt-light" onclick="setAppTheme('light')" style="flex:1;height:44px;font-size:12px;padding:0 2px">☀️ Claro</button>
+        <button type="button" class="wz-yn-btn" id="theme-opt-dark" onclick="setAppTheme('dark')" style="flex:1;height:44px;font-size:12px;padding:0 2px">🌙 Escuro</button>
       </div>
     </div>
     <div class="modal-actions" style="justify-content:center">
@@ -2014,20 +2057,29 @@ function closeProfileModal(){document.getElementById('modal-profile').style.disp
 window.closeProfileModal=closeProfileModal;
 
 function updateThemeButtons(){
-  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  let saved=null;
+  try{saved=localStorage.getItem('vo2-theme');}catch(e){}
+  const mode=saved==='dark'?'dark':saved==='light'?'light':'auto';
+  const autoBtn=document.getElementById('theme-opt-auto');
   const lightBtn=document.getElementById('theme-opt-light');
   const darkBtn=document.getElementById('theme-opt-dark');
-  if(lightBtn)lightBtn.style.background=isDark?'':'var(--acc3)';
-  if(darkBtn)darkBtn.style.background=isDark?'var(--acc3)':'';
+  if(autoBtn)autoBtn.style.background=mode==='auto'?'var(--acc3)':'';
+  if(lightBtn)lightBtn.style.background=mode==='light'?'var(--acc3)':'';
+  if(darkBtn)darkBtn.style.background=mode==='dark'?'var(--acc3)':'';
 }
 function setAppTheme(mode){
-  try{localStorage.setItem('vo2-theme',mode);}catch(e){}
   if(mode==='dark'){
+    try{localStorage.setItem('vo2-theme','dark');}catch(e){}
     document.documentElement.setAttribute('data-theme','dark');
     document.documentElement.style.colorScheme='dark';
-  }else{
-    document.documentElement.removeAttribute('data-theme');
+  }else if(mode==='light'){
+    try{localStorage.setItem('vo2-theme','light');}catch(e){}
+    document.documentElement.setAttribute('data-theme','light');
     document.documentElement.style.colorScheme='light';
+  }else{
+    try{localStorage.removeItem('vo2-theme');}catch(e){}
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.colorScheme='light dark';
   }
   updateThemeButtons();
 }
