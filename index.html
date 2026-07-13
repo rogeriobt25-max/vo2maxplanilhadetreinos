@@ -169,6 +169,8 @@ body{
   object-fit:contain;
 }
 .app-logo.app-logo-hidden{display:none}
+/* logo.png tem mais margem interna (espaço vazio) que a logodark.png — compensa aumentando a caixa só da versão clara */
+img.app-logo[src$="logo.png"]{height:56px}
 
 /* ── APP LOGO in login/auth modal ── */
 .auth-modal-logo{
@@ -661,6 +663,7 @@ details[open] summary::after{transform:rotate(90deg)}
   .exp-bar{gap:6px}
   /* Header: nome cede lugar ao avatar sozinho pra não disputar espaço com o logo e o "Sair" */
   .app-logo{padding:0 10px;height:36px}
+  img.app-logo[src$="logo.png"]{height:46px}
   .auth-user-chip .auth-name{display:none}
   .auth-user-chip{padding:4px 6px 4px 4px;gap:0}
   .auth-btn.logout{padding:0 10px;font-size:11px}
