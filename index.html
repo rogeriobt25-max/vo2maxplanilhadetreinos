@@ -2205,9 +2205,17 @@ var pendingSaveRace=null;
 /* In-memory saved plans */
 var savedPlans=[];
 var lastTestResult=null; // {vo2, vVO2, methodLabel, methodType, profKey, date}
+// Guarda separadamente o último teste REAL (methodType !== 'profileDefault'),
+// não vinculado a nenhuma planilha específica e NUNCA sobrescrito por um
+// cálculo "sem informar" (por nível). Serve pra restaurar o VO2 real do
+// usuário mesmo quando esse teste real nunca virou uma planilha salva — por
+// exemplo, quando a pessoa só clicou no aviso da tela inicial e recalculou,
+// sem gerar uma planilha nova a partir dali. Ver uso em deletePlan().
+var lastRealTest=null; // {vo2, vVO2, methodLabel, methodType, profKey, date}
 
 /* ── Persistência do último teste ── */
 const LS_TEST_KEY='vo2_last_test';
+const LS_REAL_TEST_KEY='vo2_last_real_test';
 
 function saveLastTest(vo2,vVO2,methodLabel,methodType,profKey){
   const data={vo2,vVO2,methodLabel,methodType,profKey,date:new Date().toLocaleDateString('pt-BR')};
@@ -2217,9 +2225,22 @@ function saveLastTest(vo2,vVO2,methodLabel,methodType,profKey){
   if(currentUser&&fbDb){
     try{fbDb.collection('users').doc(currentUser.uid).set({lastTest:data},{merge:true});}catch(e){}
   }
+  // Só atualiza o "último teste real" quando o cálculo NÃO for "sem
+  // informar" — assim ele nunca é sobrescrito por um cálculo por nível.
+  if(methodType!=='profileDefault'){
+    lastRealTest=data;
+    lsSet(LS_REAL_TEST_KEY,JSON.stringify(data));
+    if(currentUser&&fbDb){
+      try{fbDb.collection('users').doc(currentUser.uid).set({lastRealTest:data},{merge:true});}catch(e){}
+    }
+  }
 }
 
 function loadLastTestFromStorage(){
+  try{
+    const rawReal=lsGet(LS_REAL_TEST_KEY);
+    if(rawReal)lastRealTest=JSON.parse(rawReal);
+  }catch(e){}
   try{
     const raw=lsGet(LS_TEST_KEY);
     if(raw){lastTestResult=JSON.parse(raw);return true;}
@@ -2230,6 +2251,10 @@ function loadLastTestFromStorage(){
 async function loadLastTestFromCloud(uid){
   try{
     const snap=await fbDb.collection('users').doc(uid).get();
+    if(snap.exists&&snap.data().lastRealTest){
+      lastRealTest=snap.data().lastRealTest;
+      try{lsSet(LS_REAL_TEST_KEY,JSON.stringify(lastRealTest));}catch(e){}
+    }
     if(snap.exists&&snap.data().lastTest){
       lastTestResult=snap.data().lastTest;
       try{lsSet(LS_TEST_KEY,JSON.stringify(lastTestResult));}catch(e){}
@@ -2324,7 +2349,7 @@ const PROFILES={
   init:{label:'Iniciante',icon:'<svg class="gi"><use href="#i-directions_walk"></use></svg>',method:'Hal Higdon Novice',
     // 16sem: progressão conservadora 8→10→12→(desc)→14→16→(desc)→18→20km
     // 12sem: progressão moderada — não usada normalmente para iniciante
-    long21:{start:8,peak:20,taperKm:12,cutbackKm:8},long42:{start:14,peak:32,taperKm:22,taper2Km:13,cutbackKm:13},
+    long21:{start:8,peak:18,taperKm:11,cutbackKm:7},long42:{start:14,peak:32,taperKm:22,taper2Km:13,cutbackKm:13},
     weekBase21:{8:20,12:18,16:14},weekBase42:{12:32,16:30,20:27},
     weekIncBase:3,weekIncBuild21:3,weekIncBuild42:4,weekTaper21:18,weekTaper42:32,
     paces:{ez:.60,mod:.72,tempo:.82,intv:.88},zoneRef:'Longo Z1-Z2 (60%)'},
@@ -2466,6 +2491,19 @@ function wzSaveSummaryState(planId){
   try{lsSet('wz_summary_state',JSON.stringify({planId:planId,snap:wzSummarySnapshot}));}catch(e){}
   renderCalcSummary();
 }
+/* Promove uma planilha JÁ EXISTENTE (não recém-criada) a "planilha atual",
+   lendo perfil/vo2/distância/objetivo diretamente dos dados salvos na própria
+   planilha — nunca do wzState (que pode estar com dados de outra planilha,
+   como a que acabou de ser excluída). Usado por deletePlan ao promover a
+   próxima planilha da lista. */
+function wzSaveSummaryStateFromPlan(plan){
+  wzSummaryPlanId=plan.id;
+  wzSummarySnapshot={profile:plan.profKey,vo2:plan.vo2,usedRealVo2:!!plan.vo2IsReal,vo2Method:plan.vo2Method||null,dist:plan.race,obj:plan.obj||null};
+  wzBuildingNew=false;
+  wzStaleAfterDelete=false;
+  try{lsSet('wz_summary_state',JSON.stringify({planId:plan.id,snap:wzSummarySnapshot}));}catch(e){}
+  renderCalcSummary();
+}
 function wzRestoreSummaryState(){
   try{
     const raw=lsGet('wz_summary_state');
@@ -2506,7 +2544,7 @@ function wzAutoRestoreFromSavedPlans(){
   const chosen=wzPickBestPlan();
   if(!chosen)return;
   wzSummaryPlanId=chosen.id;
-  wzSummarySnapshot={profile:chosen.profKey,vo2:chosen.vo2,usedRealVo2:!!chosen.vo2IsReal,vo2Method:chosen.vo2Method||null,dist:chosen.race,obj:null};
+  wzSummarySnapshot={profile:chosen.profKey,vo2:chosen.vo2,usedRealVo2:!!chosen.vo2IsReal,vo2Method:chosen.vo2Method||null,dist:chosen.race,obj:chosen.obj||null};
   wzBuildingNew=false;
   wzStaleAfterDelete=false;
   try{lsSet('wz_summary_state',JSON.stringify({planId:chosen.id,snap:wzSummarySnapshot}));}catch(e){}
@@ -2570,9 +2608,10 @@ function renderCalcSummary(){
   const snap=wzSummarySnapshot||{};
   const profKey=plan?plan.profKey:snap.profile;
   const dist=plan?plan.race:snap.dist;
-  const obj=snap.obj;
-  const vo2=plan?plan.vo2:snap.vo2;
-  const usedReal=!!snap.usedRealVo2;
+  const obj=plan?(plan.obj||snap.obj):snap.obj;
+  const vo2Live=(lastTestResult&&lastTestResult.vo2)?lastTestResult.vo2:null;
+  const vo2=vo2Live!=null?vo2Live:(plan?plan.vo2:snap.vo2);
+  const usedReal=vo2Live!=null?(lastTestResult.methodType!=='profileDefault'):!!snap.usedRealVo2;
   if(!profKey&&!dist&&!vo2){
     // Nada pra mostrar (estado inválido/expirado) — limpa e volta pro wizard
     wzClearSummaryState();
@@ -2603,6 +2642,7 @@ function renderCalcSummary(){
       ${objVal?`<div class="cs-row cs-row-plain"><span class="cs-txt">${objVal}</span></div>`:''}
     </div>
     ${(vo2&&!usedReal)?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>VO₂ padrão do perfil — calcule seu VO₂ real para ritmos ainda mais precisos.<div style="margin-top:6px"><button onclick="wzCalcRealVo2()" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Calcular VO₂ real →</button></div></div></div>`:''}
+    ${(plan&&planNeedsVo2Refresh(plan))?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>Você tem um teste de VO₂ real mais recente (${Math.round(lastRealTest.vo2*10)/10}) que ainda não foi aplicado nos ritmos desta planilha.<div style="margin-top:6px"><button onclick="recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Recalcular planilha →</button></div></div></div>`:''}
     ${plan?buildTodayMini(plan):''}
     <div class="cs-actions-discrete">
       <button class="cs-link" onclick="goToSavedPlan(${wzSummaryPlanId})"><svg class="gi"><use href="#i-menu_book"></use></svg> Abrir planilha</button>
@@ -2662,6 +2702,7 @@ function buildVo2ZonesContent(vo2,isReal,method){
 /* Pega o VO2 do resumo/planilha atual — sempre o último calculado e salvo,
    nunca o estado ao vivo do wizard (que pode estar no meio de outra edição). */
 function getCurrentSummaryVo2(){
+  if(lastTestResult&&lastTestResult.vo2)return{vo2:lastTestResult.vo2,isReal:lastTestResult.methodType!=='profileDefault',method:lastTestResult.methodLabel||null};
   const plan=savedPlans.find(p=>p.id===wzSummaryPlanId);
   if(plan&&plan.vo2)return{vo2:plan.vo2,isReal:!!plan.vo2IsReal,method:plan.vo2Method||null};
   if(wzSummarySnapshot&&wzSummarySnapshot.vo2)return{vo2:wzSummarySnapshot.vo2,isReal:!!wzSummarySnapshot.usedRealVo2,method:wzSummarySnapshot.vo2Method||null};
@@ -6771,7 +6812,7 @@ function confirmSave(){
   else{({weeks,lp}=buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj));}
   const totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
   const intensityDist=calcIntensityDist(weeks);
-  const startTimestamp=Date.now();const plan={id:startTimestamp,name,race,planWeeks,profKey,vo2:Math.round(vo2G*10)/10,vo2IsReal:!!wzState.usedRealVo2,vo2Method:(wzState.usedRealVo2&&lastTestResult&&lastTestResult.methodLabel)?lastTestResult.methodLabel:null,raceSpeed,ez,mod,tempo,intv,lp,createdAt:new Date().toLocaleDateString('pt-BR'),startTimestamp,weeks,done:{},totalWorkouts,intensityDist};
+  const startTimestamp=Date.now();const plan={id:startTimestamp,name,race,planWeeks,profKey,obj,vo2:Math.round(vo2G*10)/10,vo2IsReal:!!wzState.usedRealVo2,vo2Method:(wzState.usedRealVo2&&lastTestResult&&lastTestResult.methodLabel)?lastTestResult.methodLabel:null,raceSpeed,ez,mod,tempo,intv,lp,createdAt:new Date().toLocaleDateString('pt-BR'),startTimestamp,weeks,done:{},totalWorkouts,intensityDist};
   savedPlans.push(plan);
   updateSavedBadge();
   persistAccountPlans();
@@ -6809,16 +6850,90 @@ function updateSavedBadge(){
   if(topBadge)topBadge.textContent=n;
   if(botBadge){botBadge.textContent=n;botBadge.classList.toggle('show',n>0);}
 }
+/* ══════════════════════════════════════════════════════════
+   RECALCULAR PLANILHA COM O VO2 REAL MAIS RECENTE
+   Quando o usuário faz um teste real DEPOIS de já ter salvo uma
+   planilha (seja ela por nível ou por um teste real anterior), a
+   planilha continua com os ritmos/distâncias calculados na hora em
+   que foi criada — ela não se atualiza sozinha. Estas funções deixam
+   o usuário recalcular manualmente os ritmos (fácil/moderado/tempo/
+   intervalado) e as distâncias do longão pro VO2 mais atual, SEM
+   mexer na estrutura da planilha (mesmas semanas, mesmos dias de
+   treino/descanso, mesmo objetivo/pace de prova) e SEM chamar nada
+   de sincronização com o intervals.icu — se algum treino já tiver
+   sido enviado pra lá, ele não é alterado automaticamente.
+══════════════════════════════════════════════════════════ */
+// Planilhas "montadas manualmente" (arrastar-e-soltar) não são geradas pelo
+// motor algorítmico (buildDays/buildDaysShort), então não há como recalcular
+// os dias com segurança — cada dia foi escolhido um a um pelo usuário.
+function planSupportsVo2Recalc(plan){
+  return !!(plan&&!plan.montada&&PROFILES[plan.profKey]&&PROFILES[plan.profKey].paces);
+}
+// Só oferece recalcular quando já existe um teste REAL mais novo que o VO2
+// com o qual a planilha foi gerada (evita mostrar o botão à toa).
+function planNeedsVo2Refresh(plan){
+  if(!planSupportsVo2Recalc(plan))return false;
+  if(!lastRealTest||!lastRealTest.vo2)return false;
+  const newVo2=Math.round(lastRealTest.vo2*10)/10;
+  return newVo2!==plan.vo2;
+}
+function recalcPlanVo2(planId){
+  const plan=savedPlans.find(p=>p.id===planId);
+  if(!plan||!planSupportsVo2Recalc(plan))return;
+  if(!lastRealTest||!lastRealTest.vo2){showToast('Nenhum teste real de VO2 encontrado ainda.');return;}
+  const newVo2=Math.round(lastRealTest.vo2*10)/10;
+  if(newVo2===plan.vo2){showToast('Esta planilha já está com o VO2 mais recente.');return;}
+  if(!confirm(`Recalcular esta planilha com o VO2 mais recente (${newVo2})?\n\nOs ritmos e as distâncias do longão serão atualizados. As semanas, os dias de treino/descanso e o progresso já marcado como feito são mantidos. Treinos já enviados pro intervals.icu NÃO são alterados automaticamente.`))return;
+  const prof=PROFILES[plan.profKey]||PROFILES.inter;
+  const vVO2new=lastRealTest.vVO2||(lastRealTest.vo2/3.5);
+  const pf=prof.paces;
+  const ez=vVO2new*pf.ez,mod=vVO2new*pf.mod,tempo=vVO2new*pf.tempo,intv=vVO2new*pf.intv;
+  const isShort=plan.race==='5k'||plan.race==='10k';
+  let weeks,lp;
+  if(isShort){
+    ({weeks}=buildDaysShort(plan.race,plan.planWeeks,prof,ez,mod,tempo,intv,plan.raceSpeed));
+    lp=plan.lp;
+  }else{
+    ({weeks,lp}=buildDays(plan.race,plan.planWeeks,prof,ez,mod,tempo,intv,plan.raceSpeed,plan.obj));
+  }
+  plan.vo2=newVo2;
+  plan.vo2IsReal=true;
+  plan.vo2Method=lastRealTest.methodLabel||plan.vo2Method;
+  plan.ez=ez;plan.mod=mod;plan.tempo=tempo;plan.intv=intv;plan.lp=lp;
+  plan.weeks=weeks;
+  plan.totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
+  plan.intensityDist=calcIntensityDist(weeks);
+  persistAccountPlans();
+  if(wzSummaryPlanId===plan.id)wzSaveSummaryStateFromPlan(plan);
+  renderSavedList();
+  showToast(`Planilha recalculada com VO2 ${newVo2}.`);
+}
+window.recalcPlanVo2=recalcPlanVo2;
+
 function deletePlan(id){
   if(!confirm('Remover essa planilha?'))return;
+  const deletedPlan=savedPlans.find(p=>p.id===id);
   savedPlans=savedPlans.filter(p=>p.id!==id);
+  // Se a planilha excluída foi gerada com VO2 "sem informar" (estimado pelo
+  // nível, não real) e o último teste em memória (lastTestResult — usado no
+  // card "Último VO2 Máx registrado" e como base pra novas planilhas) ainda
+  // reflete esse mesmo cálculo por nível, restaura o último VO2 REAL já
+  // calculado. Usa lastRealTest (guardado à parte, nunca sobrescrito por um
+  // cálculo por nível) em vez de depender de outra planilha salva — assim
+  // funciona mesmo se o teste real tiver sido feito só clicando no aviso da
+  // tela inicial, sem nunca ter virado uma planilha. Sem isso, mesmo
+  // excluindo a planilha "por nível", o app continuava usando esse VO2
+  // estimado em vez de voltar pro teste real do usuário.
+  if(deletedPlan&&!deletedPlan.vo2IsReal&&lastTestResult&&lastTestResult.methodType==='profileDefault'&&lastRealTest){
+    saveLastTest(lastRealTest.vo2,lastRealTest.vVO2,lastRealTest.methodLabel,lastRealTest.methodType,lastRealTest.profKey);
+  }
   if(wzSummaryPlanId===id){
     // A planilha excluída era a "atual" na tela inicial: em vez de zerar o
     // resumo (o que só seria corrigido reabrindo o app), já promove na hora
     // a planilha mais recente que sobrou pra virar a nova "Planilha atual".
     const next=wzPickBestPlan();
     if(next){
-      wzSaveSummaryState(next.id);
+      wzSaveSummaryStateFromPlan(next);
     }else{
       wzStaleAfterDelete=true;
       wzClearSummaryState();
@@ -6838,6 +6953,7 @@ function calcProgress(plan){const done=Object.values(plan.done).filter(Boolean).
 function toggleDone(planId,wIdx,dIdx){
   const plan=savedPlans.find(p=>p.id===planId);if(!plan)return;
   const key=`${wIdx}-${dIdx}`;plan.done[key]=!plan.done[key];
+  const isDoneNow=!!plan.done[key];
   const prog=calcProgress(plan);
   /* update progress bar */
   const bar=document.getElementById(`prog-fill-${planId}`);const pct=document.getElementById(`prog-pct-${planId}`);const lbl=document.getElementById(`prog-lbl-${planId}`);
@@ -6845,8 +6961,38 @@ function toggleDone(planId,wIdx,dIdx){
   /* update week prog */
   const wk=plan.weeks[wIdx];const weekDone=wk.days.filter((d,di)=>!d.rest&&plan.done[`${wIdx}-${di}`]).length;const weekTotal=wk.days.filter(d=>!d.rest).length;const wkLbl=document.getElementById(`wprog-${planId}-${wIdx}`);if(wkLbl)wkLbl.textContent=`${weekDone}/${weekTotal}`;
   /* toggle cell style */
-  const cell=document.getElementById(`swday-${planId}-${wIdx}-${dIdx}`);if(cell)cell.classList.toggle('done',!!plan.done[key]);
+  const cell=document.getElementById(`swday-${planId}-${wIdx}-${dIdx}`);if(cell)cell.classList.toggle('done',isDoneNow);
+  /* sincroniza o botão "Marcar/Desmarcar como feito" dentro da célula, caso
+     a planilha esteja aberta (mesmo se o toggle veio de outro lugar) */
+  const markBtn=cell?cell.querySelector('.sw-mark-btn'):null;
+  if(markBtn){
+    markBtn.classList.toggle('is-done',isDoneNow);
+    const markLbl=markBtn.querySelector('.sw-mark-btn-label');
+    if(markLbl)markLbl.textContent=isDoneNow?'Desmarcar como feito':'Marcar como feito';
+  }
   persistAccountPlans();
+  syncTodayViewsForPlanDay(planId);
+}
+
+/* Reflete a conclusão/desmarcação do treino em TODOS os lugares que podem
+   estar exibindo o mesmo dia — tela inicial ("Planilha atual") e o card
+   "Treino de hoje" no topo de Meus Treinos — não importa de qual dos três
+   lugares (tela inicial, card de hoje, ou célula do dia na planilha aberta)
+   a marcação partiu. Atualiza pontualmente (sem redesenhar a lista toda),
+   pra não fechar painéis de planilha que estejam abertos.*/
+function syncTodayViewsForPlanDay(planId){
+  // Tela inicial: o mini-card "hoje" só existe pra planilha marcada como atual
+  if(wzSummaryPlanId===planId)renderCalcSummary();
+  // Card "Treino de hoje" no topo de Meus Treinos: sempre é o da planilha
+  // mais recente (mesma regra já usada dentro de renderSavedList)
+  const wrap=document.getElementById('today-card-wrap');
+  if(wrap&&savedPlans.length){
+    const activePlan=[...savedPlans].sort((a,b)=>b.id-a.id)[0];
+    if(activePlan&&activePlan.id===planId){
+      wrap.innerHTML=buildTodayCard(activePlan);
+      wrap.style.display='';
+    }
+  }
 }
 
 function swDayTap(e,planId,wIdx,dIdx){
@@ -7153,7 +7299,7 @@ function renderSavedList(){
   // (mesma regra do selo "Planilha atual" logo abaixo: a última é sempre a atual).
   const activePlan=orderedPlans[0]||null;
   const todayHtml=activePlan?buildTodayCard(activePlan):'';
-  let html=(todayHtml?`<div style="margin-bottom:1.2rem">${todayHtml}</div>`:'')+`<div class="saved-list">`;
+  let html=(todayHtml?`<div style="margin-bottom:1.2rem" id="today-card-wrap">${todayHtml}</div>`:'<div id="today-card-wrap" style="display:none"></div>')+`<div class="saved-list">`;
   orderedPlans.forEach(plan=>{
     const is42=plan.race==='42';const is10k=plan.race==='10k';const prog=calcProgress(plan);
     const isCompleted=prog.pct>=100;
@@ -7177,7 +7323,7 @@ function renderSavedList(){
             ${montadaName?`<span>(${montadaName})</span>`:''}
             <span>${raceKmLabel} · ${plan.planWeeks} semanas</span>
             <span>${profLabel}</span>
-            <span>VO2: ${plan.vo2}</span>
+            <span>VO2: ${plan.vo2}${planNeedsVo2Refresh(plan)?` · <button onclick="event.stopPropagation();recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:inherit;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Recalcular c/ novo VO2 (${Math.round(lastRealTest.vo2*10)/10}) →</button>`:''}</span>
             <span style="color:var(--t3)">Criado ${plan.createdAt}</span>
           </div>
         </div>
@@ -10620,6 +10766,7 @@ function montadorConfirmSave(){
     race:montador.race,
     planWeeks:montador.weekCount,
     profKey:montador.profKey,
+    obj:wzState.obj||null,
     vo2:Math.round(vo2G*10)/10,
     vo2IsReal:!!wzState.usedRealVo2,
     vo2Method:(wzState.usedRealVo2&&lastTestResult&&lastTestResult.methodLabel)?lastTestResult.methodLabel:null,
