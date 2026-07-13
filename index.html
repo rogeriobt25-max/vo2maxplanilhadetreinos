@@ -180,34 +180,6 @@ body{
 }
 .auth-modal-logo.app-logo-hidden{display:none}
 
-/* Logo fica com tons escuros/azulados — no tema escuro ganha um "chip" de fundo pra garantir contraste, além de um leve brilho */
-@media(prefers-color-scheme:dark){
-  html:not([data-theme="light"]) .app-logo{
-    background:var(--s3);
-    border-radius:10px;
-    padding:6px 14px;
-    filter:brightness(1.15) contrast(1.05);
-  }
-  html:not([data-theme="light"]) .auth-modal-logo{
-    background:var(--s3);
-    border-radius:12px;
-    padding:12px 20px;
-    filter:brightness(1.15) contrast(1.05);
-  }
-}
-html[data-theme="dark"] .app-logo{
-  background:var(--s3);
-  border-radius:10px;
-  padding:6px 14px;
-  filter:brightness(1.15) contrast(1.05);
-}
-html[data-theme="dark"] .auth-modal-logo{
-  background:var(--s3);
-  border-radius:12px;
-  padding:12px 20px;
-  filter:brightness(1.15) contrast(1.05);
-}
-
 /* ═══════════════════════════════
    BOTTOM TAB BAR (native style)
 ═══════════════════════════════ */
@@ -1295,7 +1267,7 @@ details[open] summary::after{transform:rotate(90deg)}
 </svg>
 
 <div class="app-nav">
-  <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
+  <img class="app-logo" id="app-logo" src="logo.png" data-src-light="logo.png" data-src-dark="logodark.png" alt="VO2 RunMax" onerror="logoImgError(this)"/>
   <button class="nav-tab on" id="nav-calc" onclick="switchNav('calc')"><svg class="gi"><use href="#i-bolt"></use></svg> <span class="nav-label">Calculadora</span></button>
   <button class="nav-tab" id="nav-saved" onclick="switchNav('saved')"><svg class="gi"><use href="#i-list_alt"></use></svg> <span class="nav-label">Meus Treinos</span> <span class="nav-badge" id="saved-count">0</span></button>
   <div class="auth-bar" id="auth-bar">
@@ -1315,7 +1287,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="auth-modal-bg" id="auth-modal">
   <div class="auth-modal-box">
     <button class="auth-modal-close" onclick="closeAuthModal()"><svg class="gi"><use href="#i-close"></use></svg></button>
-    <img class="auth-modal-logo" id="auth-modal-logo" src="logologin.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
+    <img class="auth-modal-logo" id="auth-modal-logo" src="logologin.png" data-src-light="logologin.png" data-src-dark="logologindark.png" alt="VO2 RunMax" onerror="logoImgError(this)"/>
     <div class="auth-modal-title" id="auth-modal-title">Entrar na sua conta</div>
     <div class="auth-modal-sub" id="auth-modal-sub">Salve e acesse seus treinos em qualquer dispositivo.</div>
 
@@ -2072,6 +2044,38 @@ window.openProfileModal=openProfileModal;
 function closeProfileModal(){document.getElementById('modal-profile').style.display='none'}
 window.closeProfileModal=closeProfileModal;
 
+function isEffectiveDarkTheme(){
+  const forced=document.documentElement.getAttribute('data-theme');
+  if(forced==='dark')return true;
+  if(forced==='light')return false;
+  try{return window.matchMedia('(prefers-color-scheme: dark)').matches;}catch(e){return false;}
+}
+function logoImgError(img){
+  // Se a imagem escura ainda não foi enviada ao GitHub, cai de volta pra imagem clara em vez de sumir
+  if(img.src.indexOf(img.dataset.srcDark)!==-1 && img.dataset.srcLight){
+    img.src=img.dataset.srcLight;
+  }else{
+    img.classList.add('app-logo-hidden');
+  }
+}
+window.logoImgError=logoImgError;
+function updateLogoImages(){
+  const dark=isEffectiveDarkTheme();
+  document.querySelectorAll('#app-logo, #auth-modal-logo').forEach(img=>{
+    const wanted=dark?img.dataset.srcDark:img.dataset.srcLight;
+    if(wanted && img.getAttribute('src')!==wanted)img.setAttribute('src',wanted);
+  });
+}
+window.updateLogoImages=updateLogoImages;
+try{
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',updateLogoImages);
+}catch(e){}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',updateLogoImages);
+}else{
+  updateLogoImages();
+}
+
 function updateThemeButtons(){
   let saved=null;
   try{saved=localStorage.getItem('vo2-theme');}catch(e){}
@@ -2098,6 +2102,7 @@ function setAppTheme(mode){
     document.documentElement.style.colorScheme='light dark';
   }
   updateThemeButtons();
+  updateLogoImages();
 }
 window.setAppTheme=setAppTheme;
 
