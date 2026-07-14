@@ -56,9 +56,9 @@
   --shadow-nav:0 -1px 8px rgba(20,30,45,0.04);--shadow-modal:0 8px 30px rgba(20,30,45,0.14);
 
   /* ── Paleta escura (fonte única — usada tanto no modo automático quanto na escolha manual) ── */
-  --dbg:#12161b;--ds1:#1b2027;--ds2:#20262e;--ds3:#272e37;
-  --dbdr:rgba(255,255,255,0.08);--dbdr2:rgba(255,255,255,0.12);--dbdr-day:rgba(255,255,255,0.38);
-  --dt1:#eef1f5;--dt2:#a9b4c0;--dt3:#7c8794;
+  --dbg:#000000;--ds1:#161616;--ds2:#1e1e1e;--ds3:#262626;
+  --dbdr:rgba(255,255,255,0.09);--dbdr2:rgba(255,255,255,0.13);--dbdr-day:rgba(255,255,255,0.38);
+  --dt1:#ffffff;--dt2:#c2cdd6;--dt3:#98a3ae;
   --dacc:#2ab0f0;--dacc2:#5bc6f5;--dacc3:rgba(42,176,240,0.16);--dacc4:rgba(42,176,240,0.10);
   --dgr:#3fc46a;--dgr2:rgba(63,196,106,0.14);
   --dam:#e0a13f;--dam2:rgba(224,161,63,0.14);
@@ -624,6 +624,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .sw-week-today{border-color:var(--acc)!important}
 .sw-week-today .sw-week-header{background:rgba(0,121,179,0.07)!important}
 .sw-day.today{background:rgba(0,121,179,0.12)!important;outline:2px solid var(--acc);outline-offset:-2px;border-radius:4px}
+.sw-day.today.done{background:rgba(0,168,85,0.08)!important}
 .sw-day-date{font-size:7px;color:var(--t3);margin-bottom:2px;font-family:monospace;font-weight:700}
 
 /* MODAL */
@@ -2365,7 +2366,7 @@ const PROFILES={
     weekIncBase:5,weekIncBuild21:4,weekIncBuild42:5,weekTaper21:30,weekTaper42:48,
     paces:{ez:.73,mod:.82,tempo:.92,intv:.97},zoneRef:'Longo Z2-Z3 (73%) · Tempo Z4+ (92%)'},
 };
-const typeColors={'Longo':'#ffb830','Corrida leve':'#00aaff','Moderado':'#00cc66','Intervalado':'#ff2244','Tempo run':'#ff6b00','Fartlek':'#cc4400','Fartlek Base':'#cc4400','Fartlek Build':'#ee3300','Fartlek Avançado':'#ff0055','Rec. ativa':'#556677','Descanso':'#334455','Caminhar':'#778899','Correr/Caminhar':'#9b59b6','Corrida base':'#3498db'};
+const typeColors={'Longo':'#ffb830','Corrida leve':'#00aaff','Moderado':'#00cc66','Intervalado':'#ff2244','Tempo run':'#ff6b00','Fartlek':'#cc4400','Fartlek Base':'#cc4400','Fartlek Build':'#ee3300','Fartlek Avançado':'#ff0055','Rec. ativa':'#556677','Descanso':'var(--t3)','Caminhar':'#778899','Correr/Caminhar':'#9b59b6','Corrida base':'#3498db'};
 const DAYS=['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
 
 /* ══════════════════════════════════════════════════════════
@@ -2641,8 +2642,8 @@ function renderCalcSummary(){
       ${distVal?`<div class="cs-row cs-row-plain"><span class="cs-txt">${distVal}</span></div>`:''}
       ${objVal?`<div class="cs-row cs-row-plain"><span class="cs-txt">${objVal}</span></div>`:''}
     </div>
-    ${(vo2&&!usedReal)?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>VO₂ padrão do perfil — calcule seu VO₂ real para ritmos ainda mais precisos.<div style="margin-top:6px"><button onclick="wzCalcRealVo2()" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Calcular VO₂ real →</button></div></div></div>`:''}
-    ${(plan&&planNeedsVo2Refresh(plan))?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>Você tem um teste de VO₂ real mais recente (${Math.round(lastRealTest.vo2*10)/10}) que ainda não foi aplicado nos ritmos desta planilha.<div style="margin-top:6px"><button onclick="recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Recalcular planilha →</button></div></div></div>`:''}
+    ${(vo2&&!usedReal&&!lastRealTest)?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>VO₂ padrão do perfil — calcule seu VO₂ real para ritmos ainda mais precisos.<div style="margin-top:6px"><button onclick="wzCalcRealVo2()" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Calcular VO₂ real →</button></div></div></div>`:''}
+    ${(plan&&planNeedsVo2Refresh(plan))?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>Esta planilha foi gerada com um VO₂ estimado pelo nível. Você possui um VO₂ real calculado anteriormente.<div style="margin-top:6px"><button onclick="recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Atualizar planilha com VO₂ real →</button></div></div></div>`:''}
     ${plan?buildTodayMini(plan):''}
     <div class="cs-actions-discrete">
       <button class="cs-link" onclick="goToSavedPlan(${wzSummaryPlanId})"><svg class="gi"><use href="#i-menu_book"></use></svg> Abrir planilha</button>
@@ -2786,15 +2787,15 @@ function wzFinishVo2OnlyUpdate(){
     wzSummarySnapshot.vo2=wzState.vo2;
     wzSummarySnapshot.usedRealVo2=wzState.usedRealVo2;
   }
-  // renderCalcSummary() usa plan.vo2 (não o snapshot) quando existe uma planilha
-  // salva associada — sem isso o card só refletia o VO2 novo depois de recarregar
-  // a página (quando o snapshot salvo era relido). Atualiza o plano também.
-  const planVo2Update=savedPlans.find(p=>p.id===wzSummaryPlanId);
-  if(planVo2Update){
-    planVo2Update.vo2=wzState.vo2;
-    planVo2Update.vo2IsReal=!!wzState.usedRealVo2;
-    persistAccountPlans();
-  }
+  // Importante: NÃO mexe em plan.vo2/plan.vo2IsReal aqui. O card "Planilha
+  // atual" já mostra o VO2 mais recente direto do lastTestResult (ver
+  // renderCalcSummary), então não precisa sobrescrever o plano pra exibição.
+  // Se sobrescrevesse, plan.vo2 passaria a "bater" com o teste real sem os
+  // ritmos/semanas (plan.ez/mod/tempo/intv/weeks) terem sido de fato
+  // recalculados — mascarando o aviso de "Atualizar planilha com VO2 real"
+  // (planNeedsVo2Refresh) mesmo com a planilha ainda desatualizada por
+  // dentro. Deixa o lastRealTest divergir de plan.vo2 de propósito, pra o
+  // aviso aparecer e o usuário decidir se quer recalcular de verdade.
   try{lsSet('wz_summary_state',JSON.stringify({planId:wzSummaryPlanId,snap:wzSummarySnapshot}));}catch(e){}
   const step2=document.getElementById('wz-step-2');if(step2)step2.style.display='none';
   const wzWrap=document.getElementById('wz-wrap');if(wzWrap)wzWrap.style.display='none';
@@ -2920,18 +2921,25 @@ function wzShowStep2(){
   const cc0=document.getElementById('wz-calc-confirm');if(cc0){cc0.style.display='none';cc0.innerHTML='';}
   // Verifica se há VO2 salvo
   const saved=document.getElementById('wz-saved-vo2');
-  if(lastTestResult&&lastTestResult.vo2){
-    const fit=getFit(lastTestResult.vo2);
+  // Usa lastRealTest (não lastTestResult) de propósito: lastRealTest só é
+  // atualizado por um teste REAL e nunca é sobrescrito por um cálculo "sem
+  // informar" no meio do caminho. Assim, se o usuário informou/calculou um
+  // teste real, depois gerou outra planilha por nível, e agora está gerando
+  // uma terceira planilha, o teste real de antes continua sendo oferecido
+  // aqui pra "Manter" — em vez de "sumir" só porque o lastTestResult foi
+  // temporariamente sobrescrito pelo cálculo por nível no meio.
+  if(lastRealTest&&lastRealTest.vo2){
+    const fit=getFit(lastRealTest.vo2);
     saved.style.display='';
     saved.innerHTML=`
       <div class="wz-saved-vo2-banner">
         <div class="wz-saved-vo2-icon"><svg class="gi"><use href="#i-track_changes"></use></svg></div>
         <div class="wz-saved-vo2-info">
           <div class="wz-saved-vo2-label">Teste de VO₂ já registrado</div>
-          <div class="wz-saved-vo2-val">${Math.round(lastTestResult.vo2*10)/10} <span style="font-size:13px;font-weight:400;color:var(--t2)">ml/kg/min</span>
+          <div class="wz-saved-vo2-val">${Math.round(lastRealTest.vo2*10)/10} <span style="font-size:13px;font-weight:400;color:var(--t2)">ml/kg/min</span>
             <span class="badge" style="font-size:11.5px;background:${fit.bg};color:${fit.c};margin-left:6px">${fit.l}</span>
           </div>
-          <div class="wz-saved-vo2-meta">${lastTestResult.methodLabel||'Teste anterior'} · ${lastTestResult.date||''}</div>
+          <div class="wz-saved-vo2-meta">${lastRealTest.methodLabel||'Teste anterior'} · ${lastRealTest.date||''}</div>
         </div>
         <div class="wz-saved-vo2-actions">
           <button class="wz-saved-btn keep" onclick="wzKeepSavedVo2()"><svg class="gi"><use href="#i-check_circle"></use></svg> Manter</button>
@@ -2947,10 +2955,14 @@ function wzShowStep2(){
 }
 
 function wzKeepSavedVo2(){
-  wzState.vo2=lastTestResult.vo2;
-  wzState.usedRealVo2=lastTestResult.methodType!=='profileDefault';
-  vo2G=lastTestResult.vo2;
-  vVO2G=lastTestResult.vVO2||lastTestResult.vo2/3.5;
+  wzState.vo2=lastRealTest.vo2;
+  wzState.usedRealVo2=true; // lastRealTest é sempre um teste real, por definição
+  vo2G=lastRealTest.vo2;
+  vVO2G=lastRealTest.vVO2||lastRealTest.vo2/3.5;
+  // Ressincroniza o lastTestResult com esse teste real, já que o usuário
+  // optou por mantê-lo — assim o card da tela inicial e o resto do app
+  // voltam a enxergar esse valor como o "último teste" atual também.
+  saveLastTest(lastRealTest.vo2,lastRealTest.vVO2,lastRealTest.methodLabel,lastRealTest.methodType,lastRealTest.profKey);
   wzAdvanceTo3();
 }
 function wzReplaceSavedVo2(){
@@ -6883,30 +6895,69 @@ function recalcPlanVo2(planId){
   if(!lastRealTest||!lastRealTest.vo2){showToast('Nenhum teste real de VO2 encontrado ainda.');return;}
   const newVo2=Math.round(lastRealTest.vo2*10)/10;
   if(newVo2===plan.vo2){showToast('Esta planilha já está com o VO2 mais recente.');return;}
-  if(!confirm(`Recalcular esta planilha com o VO2 mais recente (${newVo2})?\n\nOs ritmos e as distâncias do longão serão atualizados. As semanas, os dias de treino/descanso e o progresso já marcado como feito são mantidos. Treinos já enviados pro intervals.icu NÃO são alterados automaticamente.`))return;
+  if(!confirm(`Atualizar esta planilha com o VO2 real (${newVo2})?\n\nSó os treinos de hoje em diante que ainda NÃO foram concluídos serão recalculados. Dias já passados e treinos já marcados como feitos (mesmo de dias futuros) são mantidos como estão. Treinos já enviados pro relógio NÃO são alterados automaticamente.`))return;
   const prof=PROFILES[plan.profKey]||PROFILES.inter;
   const vVO2new=lastRealTest.vVO2||(lastRealTest.vo2/3.5);
   const pf=prof.paces;
   const ez=vVO2new*pf.ez,mod=vVO2new*pf.mod,tempo=vVO2new*pf.tempo,intv=vVO2new*pf.intv;
   const isShort=plan.race==='5k'||plan.race==='10k';
-  let weeks,lp;
+  let newWeeks,newLp;
   if(isShort){
-    ({weeks}=buildDaysShort(plan.race,plan.planWeeks,prof,ez,mod,tempo,intv,plan.raceSpeed));
-    lp=plan.lp;
+    ({weeks:newWeeks}=buildDaysShort(plan.race,plan.planWeeks,prof,ez,mod,tempo,intv,plan.raceSpeed));
+    newLp=plan.lp;
   }else{
-    ({weeks,lp}=buildDays(plan.race,plan.planWeeks,prof,ez,mod,tempo,intv,plan.raceSpeed,plan.obj));
+    ({weeks:newWeeks,lp:newLp}=buildDays(plan.race,plan.planWeeks,prof,ez,mod,tempo,intv,plan.raceSpeed,plan.obj));
   }
+  // Descobre a partir de qual dia (índice global = semana*7+dia) é "hoje em
+  // diante". Dias com índice menor que esse já passaram e nunca são tocados.
+  // Sem startTimestamp (não deveria acontecer numa planilha já salva),
+  // assume que ainda não começou nada e recalcula tudo.
+  let todayGlobalIdx=0;
+  if(plan.startTimestamp){
+    const start=new Date(plan.startTimestamp);
+    const dow=start.getDay();
+    const daysToMon=dow===0?-6:1-dow;
+    const planStart=new Date(start);
+    planStart.setDate(planStart.getDate()+daysToMon);
+    planStart.setHours(0,0,0,0);
+    const today=new Date();today.setHours(0,0,0,0);
+    todayGlobalIdx=Math.round((today-planStart)/86400000);
+  }
+  const oldWeeks=plan.weeks;
+  const mergedWeeks=newWeeks.map((wk,wIdx)=>{
+    const oldWk=oldWeeks[wIdx];
+    if(!oldWk)return wk; // segurança: semana nova sem correspondente antiga
+    const days=wk.days.map((d,dIdx)=>{
+      const globalIdx=wIdx*7+dIdx;
+      const isDone=!!plan.done[`${wIdx}-${dIdx}`];
+      const oldDay=oldWk.days[dIdx];
+      // Mantém dias já passados OU já concluídos (inclusive um treino
+      // futuro que o usuário já tenha adiantado/feito hoje) exatamente
+      // como estavam — só o que ainda não foi feito e é de hoje em
+      // diante é recalculado com o VO2 novo.
+      if(oldDay&&(globalIdx<todayGlobalIdx||isDone))return oldDay;
+      return d;
+    });
+    return{...wk,days};
+  });
   plan.vo2=newVo2;
   plan.vo2IsReal=true;
   plan.vo2Method=lastRealTest.methodLabel||plan.vo2Method;
-  plan.ez=ez;plan.mod=mod;plan.tempo=tempo;plan.intv=intv;plan.lp=lp;
-  plan.weeks=weeks;
-  plan.totalWorkouts=weeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
-  plan.intensityDist=calcIntensityDist(weeks);
+  plan.ez=ez;plan.mod=mod;plan.tempo=tempo;plan.intv=intv;plan.lp=newLp;
+  plan.weeks=mergedWeeks;
+  plan.totalWorkouts=mergedWeeks.reduce((acc,wk)=>acc+wk.days.filter(d=>!d.rest).length,0);
+  plan.intensityDist=calcIntensityDist(mergedWeeks);
   persistAccountPlans();
+  // Re-sincroniza o lastTestResult com o teste real que acabou de ser
+  // aplicado. Sem isso, se o usuário tivesse gerado outra planilha "sem
+  // informar" no meio do caminho (o que sobrescreve o lastTestResult pra
+  // por nível, mas não o lastRealTest), o card da tela inicial continuaria
+  // mostrando esse VO2 por nível antigo — mesmo com a planilha já
+  // corretamente atualizada pro VO2 real por dentro.
+  saveLastTest(lastRealTest.vo2,lastRealTest.vVO2,lastRealTest.methodLabel,lastRealTest.methodType,lastRealTest.profKey);
   if(wzSummaryPlanId===plan.id)wzSaveSummaryStateFromPlan(plan);
   renderSavedList();
-  showToast(`Planilha recalculada com VO2 ${newVo2}.`);
+  showToast(`Planilha atualizada com VO2 ${newVo2} — treinos de hoje em diante ainda não concluídos foram recalculados.`);
 }
 window.recalcPlanVo2=recalcPlanVo2;
 
@@ -7323,7 +7374,7 @@ function renderSavedList(){
             ${montadaName?`<span>(${montadaName})</span>`:''}
             <span>${raceKmLabel} · ${plan.planWeeks} semanas</span>
             <span>${profLabel}</span>
-            <span>VO2: ${plan.vo2}${planNeedsVo2Refresh(plan)?` · <button onclick="event.stopPropagation();recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:inherit;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Recalcular c/ novo VO2 (${Math.round(lastRealTest.vo2*10)/10}) →</button>`:''}</span>
+            <span>VO2: ${plan.vo2}${planNeedsVo2Refresh(plan)?` · <button onclick="event.stopPropagation();recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:inherit;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Atualizar planilha com VO₂ real (${Math.round(lastRealTest.vo2*10)/10}) →</button>`:''}</span>
             <span style="color:var(--t3)">Criado ${plan.createdAt}</span>
           </div>
         </div>
