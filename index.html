@@ -145,11 +145,11 @@ body{
    normal, mesmo que a largura passe de 761px.
 ═══════════════════════════════ */
 @media(min-width:761px) and (any-pointer:fine){
-  body{zoom:1.18}
+  body{zoom:1.04}
   .wrap{max-width:1040px;padding-left:2rem;padding-right:2rem}
 }
 @media(min-width:1301px) and (any-pointer:fine){
-  body{zoom:1.28}
+  body{zoom:1.08}
   .wrap{max-width:1080px;padding-left:2.5rem;padding-right:2.5rem}
 }
 
@@ -159,24 +159,30 @@ body{
    - distância (.day-info): estava em 9px cinza, quase invisível — aumentei
    - dia da semana (.day-name/.sw-day-name): estava em 8px, aumentei
    - data do dia (.sw-day-date): também aumentada, mesmo peso visual
+   - ritmo agora mostra a FAIXA (ex: 5:56/km-6:36/km) em vez de um valor só —
+     por isso a fonte do ritmo é menor que antes, e forcei uma linha só
+     (nowrap), pra caber sem quebrar dentro do card
    Uso !important aqui porque as regras originais desses elementos ficam
    depois deste bloco no arquivo — com a mesma especificidade, a que vem
    depois vence, e cancelava o aumento em alguns cards (só o "Corrida leve"
    pegava, por usar um seletor mais específico). !important resolve isso
    de vez, sem depender de onde cada regra está no arquivo. */
 @media(min-width:761px) and (any-pointer:fine){
-  .day-name,.sw-day-name{font-size:14px!important;margin-bottom:5px!important}
-  .sw-day-date{font-size:13px!important}
+  .day-name,.sw-day-name{font-size:11px!important;margin-bottom:4px!important}
+  .sw-day-date{font-size:10.5px!important}
 
-  .day-info-sub{display:block!important;font-size:13px!important;font-weight:400!important;color:var(--t1)!important;font-family:monospace!important;margin-top:2px!important}
-  .sw-day-info{font-size:14px!important;font-weight:400!important;color:var(--t1)!important;margin-top:3px!important}
+  .day-info-sub{display:block!important;font-size:9.5px!important;font-weight:400!important;color:var(--t1)!important;font-family:monospace!important;margin-top:2px!important;white-space:nowrap!important;letter-spacing:-0.2px!important}
+  .sw-day-info{font-size:9.5px!important;font-weight:400!important;color:var(--t1)!important;margin-top:3px!important;white-space:nowrap!important;letter-spacing:-0.2px!important}
   /* a segunda linha do card "Corrida leve" (ritmo abaixo da duração) usava
      cor cinza (--t3) fixa no próprio HTML — sobrescreve só essa, sem mexer
      na cor de destaque (--acc) da duração, que já está correta */
-  .sw-day-info div[style*="--t3"]{color:var(--t1)!important;font-weight:400!important;font-size:14px!important}
+  .sw-day-info div[style*="--t3"]{color:var(--t1)!important;font-weight:400!important;font-size:9.5px!important;white-space:nowrap!important;letter-spacing:-0.2px!important}
 
   /* distância (quando aparece sozinha, acima do ritmo) — estava minúscula */
   .day-info{font-size:12px!important;color:var(--t1)!important}
+
+  /* título da semana ("Semana 1 — ~25km · 13/07-19/07") — pode crescer um pouco */
+  .sw-week-lbl,.week-lbl{font-size:14.5px!important}
 }
 
 
@@ -590,6 +596,8 @@ details[open] summary::after{transform:rotate(90deg)}
 .saved-item-meta{font-size:12.5px;color:var(--t3);display:flex;flex-direction:column;gap:3px}
 .saved-item-actions{display:flex;gap:8px;flex-shrink:0}
 .btn-icon{width:40px;height:40px;border-radius:var(--rb);border:1px solid var(--bdr2);background:var(--s2);color:var(--t2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:inherit}
+.btn-icon.spinning svg{animation:icu-spin .8s linear infinite}
+@keyframes icu-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .btn-watch{height:36px;padding:0 14px;min-width:170px;border-radius:var(--rb);border:1px solid var(--bdr2);background:var(--s3);color:var(--t1);cursor:pointer;font-size:11.5px;font-weight:800;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center;gap:5px;white-space:nowrap;transition:all .2s}
 .btn-watch:hover{filter:brightness(0.97)}
 .btn-watch.active{background:var(--s2);border-color:var(--acc)}
@@ -1337,9 +1345,10 @@ details[open] summary::after{transform:rotate(90deg)}
 </svg>
 
 <div class="app-nav">
-  <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="logoImgError(this)"/>
+  <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
   <button class="nav-tab on" id="nav-calc" onclick="switchNav('calc')"><svg class="gi"><use href="#i-bolt"></use></svg> <span class="nav-label">Calculadora</span></button>
   <button class="nav-tab" id="nav-saved" onclick="switchNav('saved')"><svg class="gi"><use href="#i-list_alt"></use></svg> <span class="nav-label">Meus Treinos</span> <span class="nav-badge" id="saved-count">0</span></button>
+  <button id="icu-header-sync-btn" onclick="icuHeaderSyncTap(this)" style="display:none;background:none;border:none;color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:0 8px;white-space:nowrap;display:flex;align-items:center;gap:4px"><svg class="gi" style="font-size:13px"><use href="#i-refresh"></use></svg> Sincronizar</button>
   <div class="auth-bar" id="auth-bar">
     <button class="auth-btn primary" onclick="openAuthModal('login')" id="auth-login-btn"><svg class="gi"><use href="#i-key"></use></svg> Entrar</button>
     <button class="auth-btn" onclick="openAuthModal('register')" id="auth-reg-btn">Criar conta</button>
@@ -1357,7 +1366,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="auth-modal-bg" id="auth-modal">
   <div class="auth-modal-box">
     <button class="auth-modal-close" onclick="closeAuthModal()"><svg class="gi"><use href="#i-close"></use></svg></button>
-    <img class="auth-modal-logo" id="auth-modal-logo" src="logologin.png" alt="VO2 RunMax" onerror="logoImgError(this)"/>
+    <img class="auth-modal-logo" id="auth-modal-logo" src="logologin.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
     <div class="auth-modal-title" id="auth-modal-title">Entrar na sua conta</div>
     <div class="auth-modal-sub" id="auth-modal-sub">Salve e acesse seus treinos em qualquer dispositivo.</div>
 
@@ -1486,6 +1495,7 @@ details[open] summary::after{transform:rotate(90deg)}
         <div class="wz-step-num">1</div>
         <div><div class="wz-step-title">Qual é o seu perfil de corredor?</div><div class="wz-step-sub">Selecione o que melhor descreve seu volume semanal atual</div></div>
       </div>
+      <div id="wz-vo2-real-note" style="display:none;margin:0 0 14px 0;padding:9px 12px;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.25);border-radius:8px;font-size:12.5px;color:var(--t2)"></div>
       <div class="pr-opts" style="grid-template-columns:1fr 1fr 1fr">
         <div class="propt propt-calc" id="calc-prof-init" onclick="wzSelectProfile('init')">
           <div class="propt-icon"><svg class="gi"><use href="#i-directions_walk"></use></svg></div><div class="propt-title">Iniciante</div>
@@ -1715,6 +1725,17 @@ details[open] summary::after{transform:rotate(90deg)}
     <div class="modal-sub" style="margin-bottom:1.3rem">Para sincronizar com o relógio, abra a planilha em <strong style="color:var(--t2)">Meus Treinos</strong> e use a opção de exportar. Na primeira vez que clicar em exportar, você verá um passo a passo de como conectar com o intervals.icu — depois disso a conexão fica configurada e não precisa repetir.</div>
     <div class="modal-actions" style="flex-direction:column;gap:8px">
       <button class="btn-modal-ok" style="width:100%" onclick="confirmSaveSuccessGoToSaved()">OK, ir para Meus Treinos</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-vo2-updated" style="display:none;z-index:850">
+  <div class="modal-box" style="max-width:360px;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px"><svg class="gi"><use href="#i-check_circle"></use></svg></div>
+    <div class="modal-title" style="margin-bottom:8px">Planilha atualizada</div>
+    <div class="modal-sub" id="modal-vo2-updated-text" style="margin-bottom:1.3rem"></div>
+    <div class="modal-actions" style="flex-direction:column;gap:8px">
+      <button class="btn-modal-ok" style="width:100%" onclick="document.getElementById('modal-vo2-updated').style.display='none'">OK</button>
     </div>
   </div>
 </div>
@@ -2183,6 +2204,7 @@ function initAuth(){
     renderSavedCloudBanner();
     wzRestoreSummaryState();
     wzAutoRestoreFromSavedPlans();
+    icuUpdateHeaderSyncVisibility();icuAutoCheckAllPlans();
     // Hide login/register buttons since auth is unavailable
     const authBar=document.getElementById('auth-bar');
     if(authBar)authBar.style.display='none';
@@ -2222,6 +2244,9 @@ function initAuth(){
       // Sincroniza a config do intervals.icu (API Key + Athlete ID) com a nuvem,
       // para que o usuário não precise digitar de novo em outro dispositivo.
       await icuSyncConfigOnLogin(user.uid);
+      // Checagem automática de treinos concluídos no intervals.icu — silenciosa,
+      // não trava a tela. Só roda se a integração estiver configurada.
+      icuUpdateHeaderSyncVisibility();icuAutoCheckAllPlans();
     }else{
       // Logout (ou sessão expirada) sem passar pelo reload de doLogout():
       // mesma blindagem, pra garantir que nada da conta anterior continue
@@ -2289,6 +2314,7 @@ function loadLastTestFromStorage(){
     const rawReal=lsGet(LS_REAL_TEST_KEY);
     if(rawReal)lastRealTest=JSON.parse(rawReal);
   }catch(e){}
+  renderWzVo2RealNote();
   try{
     const raw=lsGet(LS_TEST_KEY);
     if(raw){lastTestResult=JSON.parse(raw);return true;}
@@ -2303,6 +2329,7 @@ async function loadLastTestFromCloud(uid){
       lastRealTest=snap.data().lastRealTest;
       try{lsSet(LS_REAL_TEST_KEY,JSON.stringify(lastRealTest));}catch(e){}
     }
+    renderWzVo2RealNote();
     if(snap.exists&&snap.data().lastTest){
       lastTestResult=snap.data().lastTest;
       try{lsSet(LS_TEST_KEY,JSON.stringify(lastTestResult));}catch(e){}
@@ -2310,6 +2337,21 @@ async function loadLastTestFromCloud(uid){
     }
   }catch(e){}
   return false;
+}
+/* Mostra no topo da Etapa 1 do wizard ("Qual é o seu perfil de corredor?")
+   um aviso discreto quando já existe um VO2 REAL calculado (lastRealTest) —
+   assim o usuário vê isso de cara, sem precisar chegar até a Etapa 2 pra
+   saber que não precisa usar o VO2 padrão do nível. Só mostra o valor,
+   não seleciona nada automaticamente (ver wzSelectProfile/Etapa 2 pra isso). */
+function renderWzVo2RealNote(){
+  const el=document.getElementById('wz-vo2-real-note');
+  if(!el)return;
+  if(lastRealTest&&lastRealTest.vo2){
+    el.style.display='';
+    el.innerHTML=`<svg class="gi" style="vertical-align:-3px;margin-right:4px"><use href="#i-check_circle"></use></svg>VO₂ real já calculado: <strong style="color:var(--t1)">${Math.round(lastRealTest.vo2*10)/10} ml/kg/min</strong>`;
+  }else{
+    el.style.display='none';el.innerHTML='';
+  }
 }
 
 function renderLastVo2Card(profKey){
@@ -2524,6 +2566,7 @@ function wzRenderHistory(){
       <div class="wz-confirmed-edit">Editar</div>
       <div class="wz-check-icon"><svg class="gi"><use href="#i-check_circle"></use></svg></div>
     </div>`).join('');
+  renderWzVo2RealNote();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2630,15 +2673,17 @@ function buildTodayMini(plan){
       <div class="cs-today-body">Descanso <svg class="gi"><use href="#i-bedtime"></use></svg> — dia de recuperação.</div>
     </div>`;
   }
+  const realInfo=(isDone&&plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
   return`<div class="cs-today">
     <div class="cs-today-eyebrow">${isDone?'<svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO':'TREINO DE HOJE'} · ${todayStr}</div>
     <div class="cs-today-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
     <div class="cs-today-workout">
       <div class="cs-today-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
-      ${day.pace&&!day.rest?`<div class="cs-today-pace">${day.pace}/km</div>`:''}
+      ${day.pace&&!day.rest?`<div class="cs-today-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="cs-today-detail">${day.detail}</div>`:''}
+      ${realInfo?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);font-size:13px;color:var(--t2)">Realizado: ${realInfo.dist||'—'}${realInfo.duration?` · ${realInfo.duration}`:''}</div>`:''}
     </div>
-    ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx});renderCalcSummary()"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="cs-today-done-lbl"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
+    ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="cs-today-done-lbl"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
 }
 function renderCalcSummary(){
@@ -2678,7 +2723,8 @@ function renderCalcSummary(){
     <div class="cs-row cs-row-vo2">
       <div class="cs-vo2-ring" style="background:${vo2GaugeBg}"><div class="cs-vo2-pointer" style="transform:rotate(${pct*3.6}deg);--dot-color:${vo2DotColor}"></div><div class="cs-vo2-ring-in">${Math.round(vo2*10)/10}</div></div>
       <span class="cs-vo2-txt">VO₂ Máx <span style="color:var(--t3);font-weight:600;font-size:14px">· ${fit.l}</span></span>
-    </div>`:'';
+    </div>
+    <button onclick="wzCalcRealVo2()" style="background:none;border:none;padding:0;margin:2px 0 0 0;font-size:12.5px;font-weight:600;color:var(--t3);text-decoration:underline;cursor:pointer;font-family:inherit">Calcular novo VO₂</button>`:'';
   const nomeUsuario=(typeof currentUser!=='undefined'&&currentUser)?(currentUser.displayName||currentUser.email||'').split(' ')[0]:'';
   box.innerHTML=`
     ${nomeUsuario?`<div class="cs-greeting">Olá, ${nomeUsuario}!</div>`:''}
@@ -2689,7 +2735,6 @@ function renderCalcSummary(){
       ${distVal?`<div class="cs-row cs-row-plain"><span class="cs-txt">${distVal}</span></div>`:''}
       ${objVal?`<div class="cs-row cs-row-plain"><span class="cs-txt">${objVal}</span></div>`:''}
     </div>
-    ${(vo2&&!usedReal&&!lastRealTest)?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>VO₂ padrão do perfil — calcule seu VO₂ real para ritmos ainda mais precisos.<div style="margin-top:6px"><button onclick="wzCalcRealVo2()" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Calcular VO₂ real →</button></div></div></div>`:''}
     ${(plan&&planNeedsVo2Refresh(plan))?`<div class="cs-note"><span><svg class="gi"><use href="#i-info"></use></svg></span><div>Esta planilha foi gerada com um VO₂ estimado pelo nível. Você possui um VO₂ real calculado.<div style="margin-top:6px"><button onclick="recalcPlanVo2(${plan.id})" style="background:none;border:none;padding:0;font-size:14px;font-weight:700;color:var(--acc);text-decoration:underline;cursor:pointer;font-family:inherit">Atualizar planilha com VO₂ real →</button></div></div></div>`:''}
     ${plan?buildTodayMini(plan):''}
     <div class="cs-actions-discrete">
@@ -2851,6 +2896,17 @@ function wzFinishVo2OnlyUpdate(){
   const optEst=document.getElementById('wz-opt-est');if(optEst)optEst.style.display='flex';
   renderCalcSummary();
   window.scrollTo({top:0,behavior:'smooth'});
+  // Se já existe uma planilha atual e o VO2 novo é diferente do que foi
+  // usado pra gerá-la, oferece atualizar na hora — reaproveita o mesmo
+  // confirm() e a mesma lógica de recálculo de recalcPlanVo2 (só recalcula
+  // treinos futuros ainda não feitos). Se o usuário cancelar, o VO2 novo
+  // continua salvo mesmo assim — o aviso "VO2 real disponível, atualizar
+  // planilha?" no card da planilha aparece depois, permitindo atualizar a
+  // qualquer momento.
+  if(wzSummaryPlanId!=null){
+    const planToOffer=savedPlans.find(p=>p.id===wzSummaryPlanId);
+    if(planToOffer&&planNeedsVo2Refresh(planToOffer))recalcPlanVo2(planToOffer.id);
+  }
 }
 /* Botão "+ Nova planilha": abre o wizard do zero pra montar outra planilha,
    SEM apagar o resumo da planilha atual — ela só é substituída quando a nova
@@ -2861,7 +2917,7 @@ function wzStartNewPlan(){
   wzVo2OnlyMode=false;
   const optEst=document.getElementById('wz-opt-est');if(optEst)optEst.style.display='flex';
   wzState={profile:null,vo2:null,usedRealVo2:false,dist:null,obj:null,dur:null};
-  document.querySelectorAll('.propt-calc').forEach(e=>e.classList.remove('on'));
+  renderWzVo2RealNote();
   document.querySelectorAll('#wz-step-3 .wz-yn-btn').forEach(b=>b.style.background='');
   const hist=document.getElementById('wz-history');if(hist)hist.innerHTML='';
   const wzWrap=document.getElementById('wz-wrap');if(wzWrap)wzWrap.style.display='';
@@ -3606,6 +3662,33 @@ function setMethod(m){
 function setSexo2400(s){sexo2400=s;setSexo(s);document.getElementById('btn2400-m').classList.toggle('on',s==='M');document.getElementById('btn2400-f').classList.toggle('on',s==='F')}
 function getFit(v,sexoOverride){const s=sexoOverride||sexo;const t=s==='N'?FIT_N:(s==='M'?FIT_M:FIT_F);return t.find(f=>v>=f.min&&v<f.max)||t[0]}
 function s2p(kmh){if(!kmh||kmh<=0)return'--:--';const m=60/kmh,mi=Math.floor(m),s=Math.round((m-mi)*60);return`${mi}:${s.toString().padStart(2,'0')}`}
+// Faixa de ritmo "M:SS/km-M:SS/km" a partir de uma velocidade (km/h) e uma
+// tolerância em segundos por km — a MESMA conta usada em paceTarget() pra
+// montar os steps exportados pro intervals.icu/relógio. Usada pra exibir no
+// app a mesma faixa de ritmo que aparece no intervals.icu/Garmin, em vez de
+// um ritmo único "fixo" que não bate com o que a pessoa vê no relógio.
+function paceBand(kmh,tolSec){
+  if(!kmh||kmh<=0)return'--:--';
+  const base=3600/kmh;
+  const fast=Math.max(1,base-tolSec),slow=base+tolSec;
+  const fmt=s=>{const m=Math.floor(s/60),ss=Math.round(s%60);return`${m}:${String(ss).padStart(2,'0')}`};
+  return`${fmt(fast)}/km-${fmt(slow)}/km`;
+}
+// Distância REAL de uma sessão de Intervalado — aquecimento (10min) + tiros
+// (reps×distM) + recuperação (reps×pauseSec, no ritmo ez) + desaquecimento
+// (10min) — a mesma estrutura que é montada no arquivo exportado. Substitui
+// o antigo cálculo solto (% do km semanal, sem relação com reps/distância
+// real dos tiros).
+function intervaloRealKm(ez,reps,distM,pauseSec){
+  const warmCoolKm=ez*1200/3.6/1000;
+  const activeKm=reps*distM/1000;
+  const recoveryKm=reps*pauseSec*ez/3600;
+  return Math.round((warmCoolKm+activeKm+recoveryKm)*10)/10;
+}
+function parsePauseSec(pause){
+  if(!pause)return 90;
+  return pause.includes('min')?parseInt(pause)*60:parseInt(pause);
+}
 function p2m(kmh){return kmh<=0?0:60/kmh}
 function p2kmh(str){if(!str||!str.includes(':'))return null;const[mi,se]=str.split(':').map(Number);if(isNaN(mi)||isNaN(se))return null;return 60/(mi+se/60)}
 function zSpeedRange(i){const id=ZONES[i].id;if(usingCustom&&customPaces[id]){const v=customPaces[id];return[v,v]}return[vVO2G*ZONES[i].pctVO2[0],vVO2G*ZONES[i].pctVO2[1]]}
@@ -4593,8 +4676,9 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
         // Fase específica: intervalado leve introduzido aqui
         const d=Math.max(7,Math.round(km*.14));
         const reps=Math.min(6,Math.max(4,Math.round(d/.8)));
-        return{type:'Intervalado',pace:s2p(intv),dist:`${d}km`,
-          detail:`${reps}×800m a ${s2p(intv)}/km · pausa 90s trote · Z5 — primeiro contato com velocidade`};
+        const dReal=intervaloRealKm(ez,reps,800,90);
+        return{type:'Intervalado',pace:s2p(intv),dist:`${dReal}km`,
+          detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×800m a ${paceBand(intv,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · primeiro contato com velocidade`};
       }
     }
 
@@ -4608,20 +4692,23 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     const id2=Math.max(6,Math.round(km*(is42?.12:.14)));
     if(block===1){
       const reps=Math.min(8,Math.max(5,Math.round(id2/.8)));
-      return{type:'Intervalado',pace:s2p(intv),dist:`${id2}km`,
-        detail:`${reps}×800m a ${s2p(intv)}/km · pausa 90s trote · Z5 — introdução ao volume de qualidade`};
+      const dReal=intervaloRealKm(ez,reps,800,90);
+      return{type:'Intervalado',pace:s2p(intv),dist:`${dReal}km`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×800m a ${paceBand(intv,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · introdução ao volume de qualidade`};
     }
     if(block===2){
       const reps=Math.min(7,Math.max(5,Math.round(id2/1.0)));
-      return{type:'Intervalado',pace:s2p(intv),dist:`${id2}km`,
-        detail:`${reps}×1000m a ${s2p(intv)}/km · pausa 75s trote · Z5 — volume crescente`};
+      const dReal=intervaloRealKm(ez,reps,1000,75);
+      return{type:'Intervalado',pace:s2p(intv),dist:`${dReal}km`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×1000m a ${paceBand(intv,8)} (Z5) · pausa 75s trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · volume crescente`};
     }
     // Bloco 3+: distâncias longas, pausa curta — estímulo máximo
     const use1200=is42&&block>=3;
     const rdist=use1200?'1200m':'1000m',rlen=use1200?1.2:1.0;
     const reps=Math.min(7,Math.max(4,Math.round(id2/rlen)));
-    return{type:'Intervalado',pace:s2p(intv),dist:`${id2}km`,
-      detail:`${reps}×${rdist} a ${s2p(intv)}/km · pausa 60s trote · Z5 — pico de estímulo`};
+    const dReal4=intervaloRealKm(ez,reps,use1200?1200:1000,60);
+    return{type:'Intervalado',pace:s2p(intv),dist:`${dReal4}km`,
+      detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×${rdist} a ${paceBand(intv,8)} (Z5) · pausa 60s trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · pico de estímulo`};
   }
 
   // ── VARIAÇÕES DE LONGÃO ──────────────────────────────────
@@ -4750,6 +4837,13 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     const paceMod=s2p(mod);
     const paceProva=s2p(raceSpeed);
     const paceTempo=s2p(tempo);
+    // Distância real da parte "principal" (por distância) descontando os
+    // 5min de aquecimento + 5min de desaquecimento (por tempo, no ritmo ez)
+    // — a MESMA conta que o exportador usa, pra o texto bater com o arquivo.
+    const warmCoolKm=Math.round(ez*600/3.6)/1000;
+    const mainKm=Math.max(5,Math.round((lkm-warmCoolKm)*10)/10);
+    const halfKm=Math.round(mainKm/2*10)/10;
+    const restKm=Math.round((mainKm-halfKm)*10)/10;
     if(cb||variant==='leve'){
       return{
         type:'Longo',subtype:'Leve',
@@ -4758,44 +4852,39 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
       };
     }
     if(variant==='progressivo'){
-      const s1=Math.round(lkm*.40),s2=Math.round(lkm*.35),s3=lkm-s1-s2;
       return{
         type:'Longo',subtype:'Progressivo',
-        pace:paceEz,
-        detail:`${s1}km Z1 (${paceEz}/km) → ${s2}km Z2 (${s2p(ez*.92)}/km) → ${s3}km Z3 (${paceMod}/km) · cada segmento mais rápido que o anterior · não force o 1º segmento`
+        pace:paceMod,
+        detail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${halfKm}km Z1-Z2 (${paceBand(ez,20)}) → ${restKm}km Z3 progressivo (${paceBand(mod,15)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)}) · segunda metade mais rápida que a primeira · não force o início`
       };
     }
     if(variant==='final_forte'){
-      const main=Math.round(lkm*.75),forte=lkm-main;
       return{
         type:'Longo',subtype:'Final Forte',
-        pace:paceEz,
-        detail:`${main}km Z2 (${paceEz}/km) → últimos ${forte}km a ${s2p(ez*.88)}/km · simula fadiga de prova · não inicie rápido — guarde energia para o final`
+        pace:paceMod,
+        detail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${halfKm}km Z1-Z2 (${paceBand(ez,20)}) → ${restKm}km Z3 forte (${paceBand(mod,15)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)}) · simula fadiga de prova · não inicie rápido — guarde energia para o final`
       };
     }
     if(variant==='prova'){
-      const aq=Math.round(lkm*.25),mp=Math.round(lkm*.55),dq=lkm-aq-mp;
       return{
         type:'Longo',subtype:'Ritmo de Prova',
         pace:paceProva,
-        detail:`${aq}km Z2 (${paceEz}/km) → ${mp}km pace de prova (${paceProva}/km) → ${dq}km Z2 · estímulo específico · requer 48h de recuperação após`
+        detail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${mainKm}km pace de prova (${paceBand(raceSpeed,10)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)}) · estímulo específico · requer 48h de recuperação após`
       };
     }
     if(variant==='steady'){
       return{
         type:'Longo',subtype:'Steady State',
         pace:s2p(ez*.90),
-        detail:`Todo o percurso em Z2 constante (${s2p(ez*.90)}/km) · pace uniforme do início ao fim · não acelere nem diminua · excelente para eficiência aeróbica`
+        detail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${mainKm}km Z3-Z4 constante (${paceBand(ez*.90,10)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)}) · pace uniforme do início ao fim · não acelere nem diminua`
       };
     }
     // ── Variante específica para 42km: MP progressivo (specific/peak) ──
     if(variant==='mpSegment'){
-      const aq=Math.round(lkm*.20),final=Math.round(lkm*.15);
-      const mpSeg=lkm-aq-final;
       return{
         type:'Longo',subtype:'MP Progressivo',
         pace:s2p(raceSpeed),
-        detail:`${aq}km Z2 (${s2p(ez*.92)}/km) → ${mpSeg}km crescendo até pace de prova (${s2p(raceSpeed)}/km) → ${final}km Z2 · Daniels marathon-specific · simula stress metabólico de prova`
+        detail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${halfKm}km Z1-Z2 (${paceBand(ez,20)}) → ${restKm}km no pace de prova (${paceBand(raceSpeed,15)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)}) · Daniels marathon-specific · simula stress metabólico de prova`
       };
     }
     return{type:'Longo',subtype:'',pace:paceEz,detail:`Z2 (${paceEz}/km)`};
@@ -4833,6 +4922,13 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
 
   // Fartlek — variações por fase e nível (Canova/Daniels)
   // MICROPROGRESSÃO: reps e duração de aceleração crescem com a posição na fase
+  // IMPORTANTE: a distância mostrada (dist) é sempre calculada A PARTIR da
+  // estrutura real por tempo (aquecimento + séries + desaquecimento, nos
+  // ritmos de cada trecho) — a mesma estrutura que é montada no arquivo do
+  // treino enviado pro intervals.icu/relógio (ver garminStepsForDay). Antes
+  // era um % solto do km semanal, sem nenhuma relação com o tempo/ritmo real,
+  // podendo divergir bastante do que de fato ia pro relógio. O "~" indica que
+  // é uma estimativa (o fartlek em si é guiado por tempo, não por distância).
   function fartlekSession(phase,km,adv,w){
     const buildPos=phase==='build'?Math.max(0,w-getBuildStart(w)):0;
     const block=Math.floor(buildPos/cutbackCycle);
@@ -4840,26 +4936,32 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     const buildEnd=hasExtendedPhases?(ph.taper[0]-1):(ph.build?ph.build[1]:ph.taper[0]-1);
     const buildDur=Math.max(1,buildEnd-getBuildStart(w));
     const tBuild=Math.min(1,buildPos/buildDur);
-    const base=Math.round(km*(is42?.15:.17));
-    const dist=Math.min(Math.round(base*(1+block*.06)),is42?20:14);
     if(phase==='base'){
-      const d=Math.max(6,Math.round(km*(is42?.16:.18)));
-      return{type:'Fartlek Base',pace:s2p(mod),dist:`${d}km`,
-        detail:`${d}km total · 4×2min a ${s2p(intv)}/km (Z5) com 3min trote entre · introdução à velocidade`};
+      // Base: aquec. 10min + 4×(2min Z5 intv + 3min trote ez) + desaquec. 10min
+      const totalMinBase=Math.round((600+600+4*(120+180))/60);
+      const d=Math.round(((600+600)*ez+4*(120*intv+180*ez))/3600*10)/10;
+      return{type:'Fartlek Base',pace:s2p(intv),dist:`~${d}km`,timeLabel:`${totalMinBase} min`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → 4×(2min Z5 a ${paceBand(intv,10)} + 3min trote Z1 a ${paceBand(ez,20)}) → Desaquecimento Z1 · 10min (${paceBand(ez,15)})`};
     }
     if(adv){
-      // Avançado: reps crescem de 4 a 8, duração das acelerações de 2min a 4min
+      // Avançado: reps crescem de 4 a 8, duração das acelerações de 2min a 4min,
+      // recuperação fixa de 2min ez entre séries (igual ao que é exportado)
       const reps=Math.min(8,Math.round(4+tBuild*4));
       const acMin=Math.round(2+tBuild*2); // 2min → 4min
-      return{type:'Fartlek Avançado',pace:s2p(intv),dist:`${dist}km`,
-        detail:`${dist}km total · ${reps}×(${acMin}min Z5 + 2min Z2) · fartlek estruturado — progressão sem. ${buildPos+1}`};
+      const totalMinAdv=Math.round((600+600+reps*(acMin*60+120))/60);
+      const dist=Math.round(((600+600)*ez+reps*(acMin*60*intv+120*ez))/3600*10)/10;
+      return{type:'Fartlek Avançado',pace:s2p(intv),dist:`~${dist}km`,timeLabel:`${totalMinAdv} min`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×(${acMin}min Z5 a ${paceBand(intv,8)} + 2min Z1-Z2 a ${paceBand(ez,20)}) → Desaquecimento Z1 · 10min (${paceBand(ez,15)})`};
     }
-    // Intermediário: reps crescem de 3 a 6, acelerações de 90s a 3min
+    // Intermediário: reps crescem de 3 a 6, acelerações de 90s a 3min,
+    // recuperação fixa de 2min ez entre séries (igual ao que é exportado)
     const reps=Math.min(6,Math.round(3+tBuild*3));
     const acSec=Math.round(90+tBuild*90); // 90s → 3min
-    const acLabel=acSec>=120?`${Math.round(acSec/60)}min`:`${acSec}s`;
-    return{type:'Fartlek Build',pace:s2p(intv),dist:`${dist}km`,
-      detail:`${dist}km total · ${reps}×(${acLabel} Z5 + 2min Z2) · fartlek guiado — sem. ${buildPos+1} do build`};
+    const acLabel=(acSec%60===0)?`${acSec/60}min`:`${acSec}s`;
+    const totalMinBuild=Math.round((600+600+reps*(acSec+120))/60);
+    const dist=Math.round(((600+600)*ez+reps*(acSec*intv+120*ez))/3600*10)/10;
+    return{type:'Fartlek Build',pace:s2p(intv),dist:`~${dist}km`,timeLabel:`${totalMinBuild} min`,
+      detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×(${acLabel} Z5 a ${paceBand(intv,10)} + 2min Z1-Z2 a ${paceBand(ez,20)}) → Desaquecimento Z1 · 10min (${paceBand(ez,15)})`};
   }
 
   // ── wednesdaySession — Matriz 3 perfis × 3 objetivos ─────────────────
@@ -4884,13 +4986,14 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     // O segmento central cresce progressivamente semana a semana
     function tempoRun(baseKm,label){
       const td=Math.max(6,Math.min(Math.round(baseKm*objMod.tempoLenFactor),is42?24:17));
-      const seg=Math.max(3,td-3);
+      const warmCoolKmT=Math.round(ez*1200/3.6)/1000;
+      const seg=Math.max(3,Math.round((td-warmCoolKmT)*10)/10);
       // Microprogressão: nota de ondulação (cada semana cresce ~0.5–1km de segmento útil)
       const buildStart=getBuildStart(w);
       const phasePos=Math.max(0,w-buildStart);
       const ondNote=phasePos>0?` · ${seg}km contínuos`:'';
       return{type:'Tempo run',pace:s2p(tempo),dist:`${td}km`,
-        detail:`aquec. 1,5km → ${seg}km a ${s2p(tempo)}/km → desaq. · Z4${label?` · ${label}`:''}${ondNote}`};
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${seg}km Z4 a ${paceBand(tempo,8)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)})${label?` · ${label}`:''}${ondNote}`};
     }
 
     // finish → sempre Moderado (sem qualidade na QUA)
@@ -5078,8 +5181,9 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
       // reps sobe nos blocos não-cutback; na semana antes do cutback, leve redução
       const posAdj=posInBlock===(cutbackCycle-2)?.92:1.0; // penúltima semana do bloco = frescor pré-cutback
       const reps=Math.min(8,Math.max(3,Math.round((id/repsPerKm)*posAdj)));
-      return{type:'Intervalado',pace:s2p(intv),dist:`${id}km`,
-        detail:`${reps}×${distLabel} a ${s2p(intv)}/km · pausa ${pause} trote · Z5${note?` — ${note}`:''}`};
+      const dReal=intervaloRealKm(ez,reps,parseInt(distLabel),parsePauseSec(pause));
+      return{type:'Intervalado',pace:s2p(intv),dist:`${dReal}km`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×${distLabel} a ${paceBand(intv,8)} (Z5) · pausa ${pause} trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)})${note?` — ${note}`:''}`};
     }
 
     // Calcula posição na fase (semanas não-cutback) para microprogressão
@@ -5353,15 +5457,20 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     // helper para qualidade reduzida no taper: 1 série curta, pausa longa
     // Mantém intensidade sem acumular carga — Pfitzinger "quality preservation"
     function taperQuality(kmTotal,reps,distLabel,pause,label){
-      return{type:'Intervalado',pace:s2p(intv),dist:`${kmTotal}km`,
-        detail:`${reps}×${distLabel} a ${s2p(intv)}/km · pausa ${pause} · Z5 — ${label} · volume reduzido, intensidade preservada`};
+      const dReal=intervaloRealKm(ez,reps,parseInt(distLabel),parsePauseSec(pause));
+      return{type:'Intervalado',pace:s2p(intv),dist:`${dReal}km`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×${distLabel} a ${paceBand(intv,8)} (Z5) · pausa ${pause} trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · ${label} · volume reduzido, intensidade preservada`};
     }
 
     // helper para bloco curto em pace de prova (semana final improve)
+    // aquec./desaq. são por TEMPO (10min cada, igual ao exportador) — a
+    // distância total exibida soma o km real coberto nesses 10min (no
+    // ritmo ez) ao km de qualidade (blockKm), pra bater com o exportado.
     function racePaceBlock(warmKm,blockKm){
-      const coolKm=Math.max(1,3-warmKm);
-      return{type:'Tempo run',pace:s2p(raceSpeed),dist:`${warmKm+blockKm+coolKm}km`,
-        detail:`${warmKm}km Z1 → ${blockKm}km a ${s2p(raceSpeed)}/km (pace de prova) → ${coolKm}km Z1 · último estímulo específico · não force`};
+      const warmCoolKm=Math.round(ez*1200/3.6)/1000;
+      const totalDist=Math.round((blockKm+warmCoolKm)*10)/10;
+      return{type:'Tempo run',pace:s2p(raceSpeed),dist:`${totalDist}km`,
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${blockKm}km a ${paceBand(raceSpeed,8)} (pace de prova) → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · último estímulo específico · não force`};
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -5407,9 +5516,11 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
         const d3=Math.max(minEasy42,Math.round(taperITotal*0.294));
         if(d===1)return taperQuality(dQ,5,'800m','90s trote','taper I — improve · volume reduzido');
         if(d===2){
-          const warm=2,cool=2,block=Math.max(4,dT-warm-cool);
-          return{type:'Tempo run',pace:s2p(tempo),dist:`${warm+block+cool}km`,
-            detail:`aquec. ${warm}km → ${block}km a ${s2p(tempo)}/km → desaq. ${cool}km · Z4 · último limiar antes da queda`};
+          const warmCoolKm=Math.round(ez*1200/3.6)/1000;
+          const block=Math.max(4,dT-Math.round(warmCoolKm));
+          const totalDist=Math.round((block+warmCoolKm)*10)/10;
+          return{type:'Tempo run',pace:s2p(tempo),dist:`${totalDist}km`,
+            detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${block}km Z4 a ${paceBand(tempo,8)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · último limiar antes da queda`};
         }
         if(d===3)return strideActivation(d3,6,false);
         return{type:'Descanso',rest:true};
@@ -5520,9 +5631,11 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
         const d3=Math.max(minEasy,Math.round(taperITotal*0.286));
         if(d===1)return taperQuality(dQ,4,'800m','90s trote','taper meia — intensidade mantida');
         if(d===2){
-          const warm=2,cool=1,block=Math.max(3,dT-warm-cool);
-          return{type:'Tempo run',pace:s2p(tempo),dist:`${warm+block+cool}km`,
-            detail:`aquec. ${warm}km → ${block}km a ${s2p(tempo)}/km → desaq. · Z4 · último limiar`};
+          const warmCoolKm=Math.round(ez*1200/3.6)/1000;
+          const block=Math.max(3,dT-Math.round(warmCoolKm));
+          const totalDist=Math.round((block+warmCoolKm)*10)/10;
+          return{type:'Tempo run',pace:s2p(tempo),dist:`${totalDist}km`,
+            detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${block}km Z4 a ${paceBand(tempo,8)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · último limiar`};
         }
         if(d===3)return strideActivation(d3,4,false);
         return{type:'Descanso',rest:true};
@@ -5533,9 +5646,11 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
       const d3=Math.max(minEasy,Math.round(taperITotal*0.25));
       if(d===1)return taperQuality(dQ,5,'800m','90s trote','taper meia/improve — volume reduzido, intensidade preservada');
       if(d===2){
-        const warm=2,cool=1,block=Math.max(3,dT-warm-cool);
-        return{type:'Tempo run',pace:s2p(tempo),dist:`${warm+block+cool}km`,
-          detail:`aquec. ${warm}km → ${block}km a ${s2p(tempo)}/km → desaq. · Z4 · intensidade preservada, volume baixo`};
+        const warmCoolKm=Math.round(ez*1200/3.6)/1000;
+        const block=Math.max(3,dT-Math.round(warmCoolKm));
+        const totalDist=Math.round((block+warmCoolKm)*10)/10;
+        return{type:'Tempo run',pace:s2p(tempo),dist:`${totalDist}km`,
+          detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${block}km Z4 a ${paceBand(tempo,8)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · intensidade preservada, volume baixo`};
       }
       if(d===3)return strideActivation(d3,5,false);
       return{type:'Descanso',rest:true};
@@ -5599,10 +5714,15 @@ function buildDays(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed,obj='finish')
     if(d===5){
       if(p==='build'&&isMPRunWeek(w)){
         const totalDist=Math.round(lkm*.85);
-        const mpSeg=Math.round(totalDist*.60);
+        // mesma conta corrigida do exportador: desconta os 5min+5min (por
+        // tempo, ritmo ez) antes de dividir o restante em Z2 + pace de prova
+        const warmCoolKmMP=Math.round(ez*600/3.6)/1000;
+        const distAdj=Math.max(8,Math.round((totalDist-warmCoolKmMP)*10)/10);
+        const mpSeg=Math.round(distAdj*.60*10)/10;
+        const warmSeg=Math.round((distAdj-mpSeg)*10)/10;
         return{type:'MP Run',pace:s2p(raceSpeed),dist:`${totalDist}km`,isLong:true,isPeak:false,
-          longDetail:`Treino específico — ${totalDist-mpSeg}km Z2 → ${mpSeg}km a ${s2p(raceSpeed)}/km (pace de prova). Simula o stress metabólico sem destruir a recuperação.`,
-          detail:`${totalDist-mpSeg}km Z2 → ${mpSeg}km pace prova (${s2p(raceSpeed)}/km)`};
+          longDetail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${warmSeg}km Z2 (${paceBand(ez,20)}) → ${mpSeg}km a pace de prova (${paceBand(raceSpeed,8)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)}). Simula o stress metabólico sem destruir a recuperação.`,
+          detail:`Aquecimento Z1 · 5min (${paceBand(ez,20)}) → ${warmSeg}km Z2 (${paceBand(ez,20)}) → ${mpSeg}km pace de prova (${paceBand(raceSpeed,8)}) → Desaquecimento Z1 · 5min (${paceBand(ez,20)})`};
       }
       const variant=getLongaoVariant(w,lkm,p,cb);
       const lo=buildLongaoDetail(lkm,variant,p,cb);
@@ -6428,16 +6548,22 @@ function buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed){
     // TER = sessão de qualidade principal
     if(d===1){
       if(p==='base'){
-        // Base: fartlek introdutório
-        const d2=Math.max(is10k?5:4,Math.round(km*.22));
-        return{type:'Fartlek',pace:s2p(mod),dist:`${d2}km`,
-          detail:`Alternância livre: 2min forte / 2min fácil × ${Math.round(d2/4)} séries · Z3-Z4 · introdução ao ritmo`};
+        // Base: fartlek introdutório — decide o nº de séries primeiro (mesmo valor
+        // usado no texto e na exportação/relógio), depois calcula a distância
+        // estimada a PARTIR do tempo+ritmo real (10min aquec. + N×(2min forte Z3-Z4
+        // + 2min fácil Z1-Z2) + 10min desaquec.) — igual ao que é montado no arquivo
+        // do treino, em vez de um % solto do km semanal sem relação com a estrutura.
+        const reps=Math.max(2,Math.min(5,Math.round(km*.09)));
+        const totalMinGen=Math.round((600+600+reps*(120+120))/60);
+        const d2=Math.round(((600+600)*ez+reps*(120*mod+120*ez))/3600*10)/10;
+        return{type:'Fartlek',pace:s2p(mod),dist:`~${d2}km`,timeLabel:`${totalMinGen} min`,
+          detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×(2min forte Z3-Z4 a ${paceBand(mod,10)} + 2min fácil Z1-Z2 a ${paceBand(ez,20)}) → Desaquecimento Z1 · 10min (${paceBand(ez,15)})`};
       }
       if(p==='taper'){
         // Taper TER: intervalado curto para manter a velocidade
         const reps=is10k?4:4;
         return{type:'Intervalado',pace:s2p(intv),dist:`${is10k?6:5}km`,
-          detail:`${reps}×400m a ${s2p(intv)}/km · pausa 90s trote · Z5 — mantém fibras rápidas ativas no taper · volume baixo, intensidade alta`};
+          detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${reps}×400m a ${paceBand(intv,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · mantém fibras rápidas ativas no taper · volume baixo, intensidade alta`};
       }
       // Build: intervalado progressivo por bloco
       const buildPos=w-ph.build[0];
@@ -6453,23 +6579,41 @@ function buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed){
       }
       if(cb){
         return{type:'Intervalado',pace:s2p(intv),dist:`${is10k?6:5}km`,
-          detail:`4×400m a ${s2p(intv)}/km · pausa 2min · semana de recuo — volume baixo, intensidade mantida`};
+          detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → 4×400m a ${paceBand(intv,8)} (Z5) · pausa 2min trote a ${paceBand(ez,20)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) · semana de recuo — volume baixo, intensidade mantida`};
       }
-      // Progressão de intervalados por bloco
+      // Progressão de intervalados por bloco — o ritmo-base de cada bloco
+      // (intervSpeeds) é o MESMO usado tanto no texto (via paceBand, com a
+      // mesma tolerância do exportador: 8 no trecho forte, 20 no trote) quanto
+      // no campo "pace" enviado pro relógio. Antes o campo pace ficava sempre
+      // fixo no ritmo de intervalado, mesmo nos blocos 3-4 que descrevem
+      // ritmo de tempo run — divergindo do que ia pro intervals.icu/Garmin.
+      const intervSpeeds=is10k?[intv,intv,tempo,tempo]:[intv*.97,intv,intv,tempo];
+      const aquec=`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → `;
+      const desaq=` → Desaquecimento Z1 · 10min (${paceBand(ez,15)})`;
       const intervSchemes=is10k?[
-        `6×400m a ${s2p(intv)}/km · pausa 90s · Z5 — bloco 1, base de velocidade`,
-        `4×800m a ${s2p(intv)}/km · pausa 90s · Z5 — bloco 2, resistência de velocidade`,
-        `3×1600m a ${s2p(tempo)}/km · pausa 2min · Z4-Z5 — bloco 3, limiar de ritmo`,
-        `2×2000m a ${s2p(tempo)}/km · pausa 2min · Z4 — bloco 4, especificidade 10km`,
+        `${aquec}6×400m a ${paceBand(intv,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)}${desaq} · bloco 1, base de velocidade`,
+        `${aquec}4×800m a ${paceBand(intv,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)}${desaq} · bloco 2, resistência de velocidade`,
+        `${aquec}3×1600m a ${paceBand(tempo,8)} (Z4-Z5) · pausa 2min trote a ${paceBand(ez,20)}${desaq} · bloco 3, limiar de ritmo`,
+        `${aquec}2×2000m a ${paceBand(tempo,8)} (Z4) · pausa 2min trote a ${paceBand(ez,20)}${desaq} · bloco 4, especificidade 10km`,
       ]:[
-        `6×200m a ${s2p(intv*.97)}/km · pausa 90s · Z5 — bloco 1, velocidade pura`,
-        `6×400m a ${s2p(intv)}/km · pausa 90s · Z5 — bloco 2, base de velocidade`,
-        `5×600m a ${s2p(intv)}/km · pausa 2min · Z4-Z5 — bloco 3, resistência`,
-        `4×800m a ${s2p(tempo)}/km · pausa 2min · Z4-Z5 — bloco 4, especificidade 5km`,
+        `${aquec}6×200m a ${paceBand(intv*.97,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)}${desaq} · bloco 1, velocidade pura`,
+        `${aquec}6×400m a ${paceBand(intv,8)} (Z5) · pausa 90s trote a ${paceBand(ez,20)}${desaq} · bloco 2, base de velocidade`,
+        `${aquec}5×600m a ${paceBand(intv,8)} (Z4-Z5) · pausa 2min trote a ${paceBand(ez,20)}${desaq} · bloco 3, resistência`,
+        `${aquec}4×800m a ${paceBand(tempo,8)} (Z4-Z5) · pausa 2min trote a ${paceBand(ez,20)}${desaq} · bloco 4, especificidade 5km`,
       ];
-      const dists=is10k?['8km','10km','12km','12km']:['6km','7km','8km','8km'];
+      const dists=is10k?[
+        `${intervaloRealKm(ez,6,400,90)}km`,
+        `${intervaloRealKm(ez,4,800,90)}km`,
+        `${intervaloRealKm(ez,3,1600,120)}km`,
+        `${intervaloRealKm(ez,2,2000,120)}km`,
+      ]:[
+        `${intervaloRealKm(ez,6,200,90)}km`,
+        `${intervaloRealKm(ez,6,400,90)}km`,
+        `${intervaloRealKm(ez,5,600,120)}km`,
+        `${intervaloRealKm(ez,4,800,120)}km`,
+      ];
       const idx=Math.min(block,intervSchemes.length-1);
-      return{type:'Intervalado',pace:s2p(intv),dist:dists[idx],detail:intervSchemes[idx]};
+      return{type:'Intervalado',pace:s2p(intervSpeeds[idx]),dist:dists[idx],detail:intervSchemes[idx]};
     }
 
     // QUA = Tempo Run (build) ou descanso (base/cutback — sessão passa pra QUI)
@@ -6497,9 +6641,10 @@ function buildDaysShort(race,planWeeks,prof,ez,mod,tempo,intv,raceSpeed){
       const tempoKm=is10k?
         [8,10,12,14][Math.min(block,3)]:
         [5,6,7,8][Math.min(block,3)];
-      const seg=Math.max(is10k?4:3,tempoKm-3);
+      const warmCoolKmT=Math.round(ez*1200/3.6)/1000;
+      const seg=Math.max(is10k?4:3,Math.round((tempoKm-warmCoolKmT)*10)/10);
       return{type:'Tempo run',pace:s2p(tempo),dist:`${tempoKm}km`,
-        detail:`aquec. 1,5km → ${seg}km a ${s2p(tempo)}/km → desaq. · Z4 — especificidade ${is10k?'10km':'5km'} · bloco ${block+1}`};
+        detail:`Aquecimento Z1 · 10min (${paceBand(ez,15)}) → ${seg}km Z4 a ${paceBand(tempo,8)} → Desaquecimento Z1 · 10min (${paceBand(ez,15)}) — especificidade ${is10k?'10km':'5km'} · bloco ${block+1}`};
     }
 
     // QUI = corrida leve (base/recuo, e sempre no iniciante) ou moderado (build inter/avançado)
@@ -6635,10 +6780,10 @@ function renderPlanShort(race,planWeeks,profKey){
         <div class="day-name">${DAYS[d]}</div>
         <div class="day-type" style="color:${col}">${dp.type}</div>
         ${dp.timeLabel
-          ?`<div class="day-info" style="color:var(--acc);font-weight:700"><svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${dp.pace}/km${dp.dist?' · '+dp.dist:''}</div>`:''}`
+          ?`<div class="day-info" style="color:var(--acc);font-weight:700"><svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${compactPaceDisplay(dp)}${dp.dist?' · '+dp.dist:''}</div>`:''}`
           :dp.dist
-            ?`<div class="day-info">${dp.dist}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${dp.pace}/km</div>`:''}`
-            :dp.pace&&!dp.rest?`<div class="day-info">${dp.pace}/km</div>`:''
+            ?`<div class="day-info">${dp.dist}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${compactPaceDisplay(dp)}</div>`:''}`
+            :dp.pace&&!dp.rest?`<div class="day-info">${compactPaceDisplay(dp)}</div>`:''
         }
         ${dp.detail?`<div class="day-detail">${dp.detail}</div>`:''}
       </div>`;
@@ -6790,10 +6935,10 @@ function renderPlan(race){
         <div class="day-name">${DAYS[d]}</div>
         <div class="day-type" style="color:${col}">${dp.type}${subtypeBadgeHtml}</div>
         ${dp.timeLabel
-          ? `<div class="day-info" style="color:var(--acc);font-weight:700"><svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${dp.pace}/km${dp.dist?' · '+dp.dist:''}</div>`:''}`
+          ? `<div class="day-info" style="color:var(--acc);font-weight:700"><svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${compactPaceDisplay(dp)}${dp.dist?' · '+dp.dist:''}</div>`:''}`
           : dp.dist
-            ? `<div class="day-info">${dp.dist}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${dp.pace}/km</div>`:''}`
-            : dp.pace&&!dp.rest?`<div class="day-info">${dp.pace}/km</div>`:''
+            ? `<div class="day-info">${dp.dist}</div>${dp.pace&&!dp.rest?`<div class="day-info-sub">${compactPaceDisplay(dp)}</div>`:''}`
+            : dp.pace&&!dp.rest?`<div class="day-info">${compactPaceDisplay(dp)}</div>`:''
         }
         ${dp.detail?`<div class="day-detail">${dp.detail}</div>`:''}
         ${dp.isPeak?`<div style="font-size:9.5px;font-weight:800;color:var(--am);margin-top:2px">PICO</div>`:''}
@@ -7004,7 +7149,13 @@ function recalcPlanVo2(planId){
   saveLastTest(lastRealTest.vo2,lastRealTest.vVO2,lastRealTest.methodLabel,lastRealTest.methodType,lastRealTest.profKey);
   if(wzSummaryPlanId===plan.id)wzSaveSummaryStateFromPlan(plan);
   renderSavedList();
-  showToast(`Planilha atualizada com VO2 ${newVo2} — treinos de hoje em diante ainda não concluídos foram recalculados.`);
+  const vo2UpdatedText=document.getElementById('modal-vo2-updated-text');
+  if(vo2UpdatedText){
+    vo2UpdatedText.textContent=`Planilha atualizada com VO2 ${newVo2} — treinos de hoje em diante ainda não concluídos foram recalculados.`;
+    document.getElementById('modal-vo2-updated').style.display='flex';
+  }else{
+    showToast(`Planilha atualizada com VO2 ${newVo2} — treinos de hoje em diante ainda não concluídos foram recalculados.`);
+  }
 }
 window.recalcPlanVo2=recalcPlanVo2;
 
@@ -7033,8 +7184,15 @@ function deletePlan(id){
     if(next){
       wzSaveSummaryStateFromPlan(next);
     }else{
-      wzStaleAfterDelete=true;
+      // Não sobrou nenhuma planilha: limpa TAMBÉM os dados do assistente
+      // (perfil/VO2/distância/objetivo), em vez de deixá-los pré-selecionados
+      // como "Últimos dados selecionados". Evita gerar sem querer uma nova
+      // planilha com um VO2 antigo (ex: "padrão do nível") sem o usuário
+      // conferir/reescolher os dados do zero.
+      wzState={profile:null,vo2:null,usedRealVo2:false,dist:null,obj:null,dur:null};
+      wzStaleAfterDelete=false;
       wzClearSummaryState();
+      renderWzVo2RealNote();
     }
     wzRenderHistory();
   }
@@ -7048,9 +7206,23 @@ function deletePlan(id){
 ══════════════════════════════════════════════════════════ */
 function calcProgress(plan){const done=Object.values(plan.done).filter(Boolean).length;return{done,total:plan.totalWorkouts,pct:Math.round(done/Math.max(1,plan.totalWorkouts)*100)}}
 
-function toggleDone(planId,wIdx,dIdx){
+async function toggleDone(planId,wIdx,dIdx){
   const plan=savedPlans.find(p=>p.id===planId);if(!plan)return;
-  const key=`${wIdx}-${dIdx}`;plan.done[key]=!plan.done[key];
+  const key=`${wIdx}-${dIdx}`;
+  const wasDone=!!plan.done[key];
+  if(wasDone){
+    plan.done[key]=false;
+  }else{
+    // Marcando como feito: tenta buscar o resultado real no intervals.icu
+    // primeiro (se a pessoa tiver a integração configurada) — assim já marca
+    // com a distância/duração real, sem precisar apertar "Sincronizar" à parte.
+    // Se não achar nada (ou não tiver integração), cai no comportamento normal.
+    const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
+    if(apiKey&&athleteId){
+      try{await icuCheckPlanCompletions(plan,apiKey,athleteId);}catch(e){}
+    }
+    if(!plan.done[key])plan.done[key]=true;
+  }
   const isDoneNow=!!plan.done[key];
   const prog=calcProgress(plan);
   /* update progress bar */
@@ -7103,9 +7275,9 @@ function swDayTap(e,planId,wIdx,dIdx){
 // Botão "Marcar como feito" ao lado do "Ver detalhes" — marca/desmarca na
 // hora, sem abrir o modal, e sem mexer em nada da integração com o
 // intervals.icu (só chama a mesma toggleDone já usada em todo o app).
-function swMarkDoneTap(e,planId,wIdx,dIdx,btn){
+async function swMarkDoneTap(e,planId,wIdx,dIdx,btn){
   if(e)e.stopPropagation();
-  toggleDone(planId,wIdx,dIdx);
+  await toggleDone(planId,wIdx,dIdx);
   const plan=savedPlans.find(p=>p.id===planId);if(!plan||!btn)return;
   const isDone=!!plan.done[`${wIdx}-${dIdx}`];
   btn.classList.toggle('is-done',isDone);
@@ -7157,6 +7329,54 @@ function buildLongExplainHTML(plan,wk,dp){
     </div>`;
 }
 
+// Mesma ideia de paceBand(), mas a partir do texto de ritmo já salvo no dia
+// (dp.pace, formato "M:SS") em vez de uma velocidade em km/h — usada na tela
+// "Ver detalhes" pra mostrar a MESMA faixa de ritmo que aparece no
+// intervals.icu/Garmin pra qualquer tipo de treino, sem precisar recalcular
+// nada na geração da planilha.
+function paceBandFromStr(paceStr,tolSec){
+  if(!paceStr||!tolSec)return null;
+  const m=paceStr.match(/^(\d+):(\d{2})$/);
+  if(!m)return null;
+  const base=parseInt(m[1],10)*60+parseInt(m[2],10);
+  const fast=Math.max(1,base-tolSec),slow=base+tolSec;
+  const fmt=s=>{const mi=Math.floor(s/60),ss=Math.round(s%60);return`${mi}:${String(ss).padStart(2,'0')}`};
+  return`${fmt(fast)}/km-${fmt(slow)}/km`;
+}
+// Tolerância (segundos/km) que o EXPORTADOR (garminStepsForDay/paceTarget) usa
+// pra cada tipo de treino — mantida idêntica aos valores usados lá, pra a
+// faixa mostrada no app bater exatamente com o que vai pro relógio.
+function dayPaceTolerance(dp){
+  const t=dp&&dp.type;
+  if(!t)return null;
+  if(t==='Corrida leve'||t==='Rec. ativa'||t==='Corrida base')return 20;
+  if(t==='Rec. leve')return 25;
+  if(t==='Moderado')return 15;
+  if(t==='Longão'||t==='Long run')return 20;
+  if(t==='Longo'){
+    const st=dp.subtype||'';
+    if(!st||st==='Leve')return 20;
+    if(st==='Progressivo'||st==='Final Forte'||st==='MP Progressivo')return 15;
+    return 10; // Ritmo de Prova / Steady State
+  }
+  if(t==='Prova!'||t==='Corrida!')return 5;
+  if(t==='MP Run')return 8;
+  if(t==='Tempo run'||t==='Intervalado')return 8;
+  if(t==='Fartlek'||t==='Fartlek Base'||t==='Fartlek Build')return 10;
+  if(t==='Fartlek Avançado')return 8;
+  return null;
+}
+// Ritmo pra mostrar nos cards compactos (calendário) — faixa min-max igual
+// à modal "Ver detalhes"/intervals.icu. Pra treinos com duas partes de ritmo
+// diferente (Longo Progressivo/Final Forte/MP Progressivo, MP Run) retorna
+// vazio, já que uma faixa só no card ficaria incompleta/confusa — nesses
+// casos o card mostra só o km, e o detalhamento completo fica na modal.
+function compactPaceDisplay(dp){
+  const isSplitPace=(dp.type==='Longo'&&['Progressivo','Final Forte','MP Progressivo'].includes(dp.subtype))||dp.type==='MP Run';
+  if(isSplitPace||!dp.pace)return'';
+  const tol=dayPaceTolerance(dp);
+  return tol?paceBandFromStr(dp.pace,tol):`${dp.pace}/km`;
+}
 function openDayDetailModal(planId,wIdx,dIdx){
   const old=document.getElementById('day-detail-modal');if(old)old.remove();
   const plan=savedPlans.find(p=>p.id===planId);if(!plan)return;
@@ -7166,14 +7386,23 @@ function openDayDetailModal(planId,wIdx,dIdx){
   const col=(dp.type==='Prova!'||dp.type==='Corrida!'?is42?'#a78bfa':'#00ff88':typeColors[dp.type])||'#334455';
   const weekStart=getWeekStartDate(plan,wIdx);
   const dayDate=weekStart?fmtDate(new Date(weekStart.getTime()+dIdx*86400000)):'';
+  const paceTol=dayPaceTolerance(dp);
+  const isSplitPace=(dp.type==='Longo'&&['Progressivo','Final Forte','MP Progressivo'].includes(dp.subtype))||dp.type==='MP Run';
+  const paceDisplay=(isSplitPace)?null:((dp.pace&&paceTol)?paceBandFromStr(dp.pace,paceTol):(dp.pace?`${dp.pace}/km`:null));
   const infoLine=(()=>{
-    if(dp.timeLabel){const paceSecondary=dp.pace?` · ${dp.pace}/km`:'';return`<svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}${paceSecondary}`;}
-    if(dp.pace&&dp.dist)return`${dp.pace}/km · ${dp.dist}`;
-    if(dp.pace)return`${dp.pace}/km`;
+    if(dp.timeLabel){
+      const paceSecondary=paceDisplay?` · ${paceDisplay}`:'';
+      const distDiscreet=dp.dist?` <span style="font-weight:400;color:var(--t3);font-size:0.82em">(${dp.dist})</span>`:'';
+      return`<svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}${paceSecondary}${distDiscreet}`;
+    }
+    if(paceDisplay&&dp.dist)return`${paceDisplay} · ${dp.dist}`;
+    if(paceDisplay)return paceDisplay;
     if(dp.dist)return dp.dist;
     return'';
   })();
   const longExplainHtml=buildLongExplainHTML(plan,wk,dp);
+  const realInfoModal=(plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
+  const realInfoHtml=realInfoModal?`<div style="margin-top:.6rem;padding:8px 10px;background:rgba(0,168,85,0.08);border:1px solid rgba(0,168,85,0.25);border-radius:8px;font-size:12.5px;color:var(--t1)"><svg class="gi" style="vertical-align:-2px"><use href="#i-check_circle"></use></svg> Realizado: <strong>${realInfoModal.dist||'—'}</strong>${realInfoModal.duration?` · ${realInfoModal.duration}`:''}</div>`:'';
   const modal=document.createElement('div');
   modal.id='day-detail-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:210;display:flex;align-items:center;justify-content:center;padding:1rem';
@@ -7182,6 +7411,7 @@ function openDayDetailModal(planId,wIdx,dIdx){
       <div class="modal-title" style="color:${col}">${DAYS[dIdx]}${dayDate?' · '+dayDate:''} — ${dp.type}${dp.subtypeBadge||''}</div>
       ${infoLine?`<div class="modal-sub" style="text-align:left;font-weight:800;color:var(--t2);margin-bottom:.5rem">${infoLine}</div>`:''}
       ${dp.detail?`<div class="modal-sub" style="text-align:left;white-space:pre-line">${dp.detail}</div>`:''}
+      ${realInfoHtml}
       ${longExplainHtml}
       <div class="modal-actions" style="flex-direction:column;gap:10px;margin-top:1.1rem;flex-shrink:0">
         <button class="btn-modal-cancel" style="width:100%;height:48px;font-size:14.5px" onclick="document.getElementById('day-detail-modal').remove()">Voltar</button>
@@ -7370,16 +7600,18 @@ function buildTodayCard(plan){
     </div>`;
   }
 
+  const realInfoTC=(isDone&&plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
   return`<div class="today-card">
     <div class="today-card-eyebrow">${isDone?'<svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO':'TREINO DE HOJE'} · ${todayStr}</div>
     <div class="today-card-title" style="color:${accent}">${plan.name}</div>
     <div class="today-card-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
     <div class="today-card-workout">
       <div class="today-wk-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
-      ${day.pace&&!day.rest?`<div class="today-wk-pace">${day.pace}/km</div>`:''}
+      ${day.pace&&!day.rest?`<div class="today-wk-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="today-wk-detail">${day.detail}</div>`:''}
+      ${realInfoTC?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);font-size:13px;color:var(--t2)">Realizado: ${realInfoTC.dist||'—'}${realInfoTC.duration?` · ${realInfoTC.duration}`:''}</div>`:''}
     </div>
-    ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx});renderSavedList()"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="today-done-label"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
+    ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="today-done-label"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
 }
 
@@ -7426,6 +7658,7 @@ function renderSavedList(){
           </div>
         </div>
         <div class="saved-item-actions">
+          ${(icuGetApiKey()&&icuGetAthleteId())?`<button class="btn-icon" title="Sincronizar com intervals.icu" onclick="event.stopPropagation();icuManualSyncPlan(${plan.id},this)"><svg class="gi"><use href="#i-refresh"></use></svg></button>`:''}
           <button class="btn-icon" title="Remover" onclick="event.stopPropagation();deletePlan(${plan.id})"><svg class="gi"><use href="#i-delete"></use></svg></button>
         </div>
       </div>
@@ -7464,16 +7697,17 @@ function renderSavedList(){
                   if(dp.rest)return'<div class="sw-day-info"></div>';
                   if(dp.timeLabel){
                     // wrap both lines in ONE div so grid column stays intact
-                    const paceSecondary=dp.pace?`<div style="color:var(--t3)">${dp.pace}/km</div>`:'';
+                    const paceSecondary=dp.pace?`<div style="color:var(--t3)">${compactPaceDisplay(dp)}${dp.dist?' · '+dp.dist:''}</div>`:'';
                     return`<div class="sw-day-info"><div style="color:var(--acc);font-weight:700"><svg class="gi"><use href="#i-schedule"></use></svg> ${dp.timeLabel}</div>${paceSecondary}</div>`;
                   }
                   // No timeLabel: show pace · dist in ONE div to avoid grid overflow
-                  if(dp.pace&&dp.dist)return`<div class="sw-day-info">${dp.pace}/km · ${dp.dist}</div>`;
-                  if(dp.pace)return`<div class="sw-day-info">${dp.pace}/km</div>`;
+                  if(dp.pace&&dp.dist)return`<div class="sw-day-info">${compactPaceDisplay(dp)} · ${dp.dist}</div>`;
+                  if(dp.pace)return`<div class="sw-day-info">${compactPaceDisplay(dp)}</div>`;
                   if(dp.dist)return`<div class="sw-day-info">${dp.dist}</div>`;
                   return'<div class="sw-day-info"></div>';
                 })();
-                const swActionsHtml=(dp.detail&&!dp.rest)?`<div class="sw-day-actions"><div class="sw-day-hint" onclick="swDayTap(event,${plan.id},${wIdx},${dIdx})">Ver detalhes</div><button class="sw-mark-btn${isDone?' is-done':''}" onclick="swMarkDoneTap(event,${plan.id},${wIdx},${dIdx},this)"><svg class="gi"><use href="#i-check"></use></svg><span class="sw-mark-btn-label">${isDone?'Desmarcar como feito':'Marcar como feito'}</span></button></div>`:'';
+                const realInfoSw=(isDone&&plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
+                const swActionsHtml=(dp.detail&&!dp.rest)?`<div class="sw-day-actions"><div class="sw-day-hint" onclick="swDayTap(event,${plan.id},${wIdx},${dIdx})">Ver detalhes</div><button class="sw-mark-btn${isDone?' is-done':''}" onclick="swMarkDoneTap(event,${plan.id},${wIdx},${dIdx},this)"><svg class="gi"><use href="#i-check"></use></svg><span class="sw-mark-btn-label">${isDone?(realInfoSw?`feito (${realInfoSw.dist||'—'})`:'Desmarcar como feito'):'Marcar como feito'}</span></button></div>`:'';
                 return`<div class="sw-day${dp.rest?' rest':''}${isDone?' done':''}${isToday?' today':''}" id="swday-${plan.id}-${wIdx}-${dIdx}" ${!dp.rest?`onclick="swDayTap(event,${plan.id},${wIdx},${dIdx})"`:''}><div class="sw-day-name">${DAYS[dIdx]}</div><div class="sw-day-center"><div class="sw-day-date">${dayDate||''}</div><div class="sw-day-type" style="color:${col}">${dp.type}${dp.subtypeBadge||''}</div></div>${swInfoHtml}${swActionsHtml}<div class="sw-check">${isDone?'<svg class="gi"><use href="#i-check"></use></svg>':''}</div></div>`;
               }).join('')}
             </div>
@@ -8075,10 +8309,16 @@ function dayToGarminSteps(day, plan){
   }
 
   if(type==='Fartlek'){
-    const dist=totalDist||10000;
     addWarmup(600);
-    // Alternâncias: 2min rápido + 2min leve × n
-    const fartlekReps=Math.max(3,Math.round((dist-2000)/4000));
+    // Alternâncias: 2min rápido + 2min leve × n — lê o nº de séries do MESMO
+    // texto que aparece no app (day.detail), pra nunca divergir do que é
+    // mostrado na tela. Antes recalculava sozinho a partir de uma distância
+    // estimada solta, o que podia gerar um nº de séries diferente do exibido.
+    let fartlekReps=3;
+    if(day.detail){
+      const rm=day.detail.match(/(\d+)×\(/);
+      if(rm)fartlekReps=Math.max(1,parseInt(rm[1]));
+    }
     const fastStep=garminStep(1,'interval',{type:'time',value:120},
       paceTarget(day.pace||s2p(planN.mod),10),'Fartlek rápido Z3-Z4');
     const slowStep=garminStep(2,'recovery',{type:'time',value:120},
@@ -8113,8 +8353,11 @@ function dayToGarminSteps(day, plan){
   if(type==='Tempo run'){
     const dist=totalDist||12000;
     addWarmup(600);
-    // Segmento principal a tempo pace
-    const mainDist=Math.max(3000,dist-2000);
+    // Segmento principal a tempo pace — desconta a distância real coberta
+    // nos 20min de aquec.+desaq. (por tempo) no ritmo ez, em vez de um valor
+    // fixo (2km), pra o total bater com o km mostrado no app.
+    const warmCoolM=Math.round((planN.ez||8)*1200/3.6);
+    const mainDist=Math.max(3000,dist-warmCoolM);
     steps.push(garminStep(order++,'interval',{type:'distance',value:mainDist},
       paceTarget(day.pace||s2p(planN.tempo||planN.mod),8),'Tempo run Z4 — limiar'));
     addCooldown(600);
@@ -8155,7 +8398,14 @@ function dayToGarminSteps(day, plan){
         paceTarget(day.pace||s2p(planN.ez),20),'Longo Z1-Z2'));
       return steps;
     }
-    const mainDist=Math.max(5000,dist-1000);
+    // Aquecimento (5min) + desaquecimento (5min) são por TEMPO, não distância —
+    // a "distância principal" precisa descontar o quanto a pessoa realmente
+    // cobre nesses 10min no ritmo ez, e não um valor fixo (1km), senão o total
+    // que aparece no intervals.icu/relógio fica maior que o km da planilha
+    // (ex: planilha diz 27km, mas 26km em distância + ~1,5km reais de
+    // aquec./desaq. dava ~27,5km no relógio).
+    const warmCoolM=Math.round((planN.ez||8)*600/3.6);
+    const mainDist=Math.max(5000,dist-warmCoolM);
     steps.push(garminStep(order++,'warmup',{type:'time',value:300},
       paceTarget(s2p(planN.ez),20),'Aquecimento 5min'));
     if(subtype==='Progressivo'||subtype==='Final Forte'||subtype==='MP Progressivo'){
@@ -8177,9 +8427,16 @@ function dayToGarminSteps(day, plan){
 
   if(type==='MP Run'){
     // MP Run: segmento Z2 → segmento pace de prova
+    // O aquecimento e desaquecimento (5min cada) são por TEMPO — antes eram
+    // somados por CIMA da distância cheia da planilha, fazendo o total no
+    // intervals.icu/relógio ficar maior que o km mostrado no app. Agora
+    // desconta a distância real coberta nesses 10min (no ritmo ez) antes de
+    // dividir o restante entre o trecho Z2 e o trecho no pace de prova.
     const dist=totalDist||16000;
-    const mpSeg=Math.round(dist*0.60);
-    const warmSeg=Math.max(2000,dist-mpSeg);
+    const warmCoolM=Math.round((planN.ez||8)*600/3.6);
+    const distAdjusted=Math.max(8000,dist-warmCoolM);
+    const mpSeg=Math.round(distAdjusted*0.60);
+    const warmSeg=Math.max(2000,distAdjusted-mpSeg);
     steps.push(garminStep(order++,'warmup',{type:'time',value:300},
       paceTarget(s2p(planN.ez),20),'Aquecimento 5min'));
     steps.push(garminStep(order++,'active',{type:'distance',value:warmSeg},
@@ -8211,8 +8468,13 @@ function dayToGarminSteps(day, plan){
     // Extrai reps e duração do detail ("Nx(Xs Z5 + 2min Z2)")
     let reps=4, acSec=120;
     if(day.detail){
-      const rm=day.detail.match(/(\d+)×\((\d+)(?:min|s)/i);
-      if(rm){reps=parseInt(rm[1]);const val=parseInt(rm[2]);acSec=day.detail.includes('min')?val*60:val;}
+      // Captura a unidade (min ou s) da PRÓPRIA duração da série, não de
+      // qualquer "min" que apareça em outro lugar do texto (ex: "10min" do
+      // aquecimento) — isso causava um bug grave: uma série de "90s" virava
+      // 90 MINUTOS no arquivo exportado, porque o texto também mencionava
+      // "10min" no aquecimento/desaquecimento.
+      const rm=day.detail.match(/(\d+)×\((\d+)(min|s)\b/i);
+      if(rm){reps=parseInt(rm[1]);const val=parseInt(rm[2]);acSec=/min/i.test(rm[3])?val*60:val;}
     }
     const fastStep=garminStep(1,'interval',{type:'time',value:acSec},
       paceTarget(day.pace||s2p(planN.intv),10),'Fartlek Build Z5');
@@ -9499,9 +9761,175 @@ function icuSaveConfig(cfg){
   if(typeof currentUser!=='undefined'&&currentUser&&typeof fbDb!=='undefined'&&fbDb){
     saveIcuConfigToCloud(currentUser.uid,cfg);
   }
+  icuUpdateHeaderSyncVisibility();
+}
+function icuUpdateHeaderSyncVisibility(){
+  const btn=document.getElementById('icu-header-sync-btn');
+  if(!btn)return;
+  btn.style.display=(icuGetApiKey()&&icuGetAthleteId())?'flex':'none';
+}
+async function icuHeaderSyncTap(btn){
+  if(!wzSummaryPlanId){showToast('Nenhuma planilha atual pra sincronizar.');return;}
+  if(btn)btn.classList.add('spinning');
+  try{
+    const count=await icuAutoCheckAllPlans();
+    showToast(count>0?`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do intervals.icu.`:'Nenhum treino novo concluído encontrado.');
+  }catch(e){
+    showToast('Não foi possível sincronizar agora.');
+  }
+  if(btn)btn.classList.remove('spinning');
 }
 function icuGetApiKey(){ return icuGetConfig().apiKey||''; }
 function icuGetAthleteId(){ return icuGetConfig().athleteId||''; }
+
+const ICU_DAYS_BR=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
+
+// Reconstrói o external_id EXATAMENTE como foi montado no momento do envio
+// (mesma fórmula de buildWorkoutLabel + icuBuildEventItem) — assim dá pra
+// casar uma atividade concluída no intervals.icu com o dia certo da planilha
+// sem precisar ter guardado nenhum ID extra no momento do envio original.
+function icuReconstructExternalId(scheduledAt,dayName,day){
+  const name=buildWorkoutLabel(scheduledAt,dayName,day);
+  const dateStr=scheduledAt.toISOString().slice(0,10)+'T00:00:00';
+  return'vo2max_'+dateStr.slice(0,10).replace(/-/g,'')+'_'+
+    name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,20);
+}
+
+// Busca no intervals.icu quais dias da planilha (ainda não marcados como feitos)
+// já têm uma atividade real registrada — casando pelo external_id reconstruído
+// (via events → paired_event_id nas activities). Quando encontra, marca o dia
+// como feito com os dados reais (distância/duração real). Retorna quantos dias
+// novos foram marcados.
+async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds){
+  if(!usedActivityIds)usedActivityIds=new Set();
+  if(!plan||!plan.startTimestamp)return 0;
+  if(!apiKey||!athleteId)return 0;
+  const firstWeekStart=getWeekStartDate(plan,0);
+  if(!firstWeekStart)return 0;
+  const today=new Date();
+  const oldest=firstWeekStart.toISOString().slice(0,10);
+  const newest=today.toISOString().slice(0,10);
+
+  const pending=[];
+  plan.weeks.forEach((wk,wIdx)=>{
+    wk.days.forEach((day,dIdx)=>{
+      if(day.rest||day.type==='Descanso'||day.type==='Caminhar')return;
+      const key=`${wIdx}-${dIdx}`;
+      if(plan.done[key])return;
+      const weekStart=getWeekStartDate(plan,wIdx);
+      if(!weekStart)return;
+      const scheduledAt=new Date(weekStart);
+      scheduledAt.setDate(weekStart.getDate()+dIdx);
+      if(scheduledAt>today)return;
+      const extId=icuReconstructExternalId(scheduledAt,ICU_DAYS_BR[dIdx],day);
+      const dateStr=scheduledAt.toISOString().slice(0,10);
+      pending.push({wIdx,dIdx,key,extId,dateStr});
+    });
+  });
+  if(pending.length===0)return 0;
+
+  const authHeader='Basic '+btoa('API_KEY:'+apiKey);
+  const athletePath=athleteId||'0';
+  try{
+    const[evRes,actRes]=await Promise.all([
+      fetch(`https://intervals.icu/api/v1/athlete/${encodeURIComponent(athletePath)}/events?oldest=${oldest}&newest=${newest}`,{headers:{'Authorization':authHeader}}),
+      fetch(`https://intervals.icu/api/v1/athlete/${encodeURIComponent(athletePath)}/activities?oldest=${oldest}&newest=${newest}`,{headers:{'Authorization':authHeader}})
+    ]);
+    if(!evRes.ok||!actRes.ok)return 0;
+    const events=await evRes.json();
+    const activities=await actRes.json();
+
+    // Estratégia 1 (bônus): pareamento por ID, se o intervals.icu tiver feito
+    // isso sozinho (não acontece sempre — confirmado em teste real que uma
+    // atividade sincronizada direto do Garmin veio com paired_event_id nulo).
+    const eventIdToExtId={};
+    (events||[]).forEach(ev=>{if(ev.id!=null&&ev.external_id)eventIdToExtId[String(ev.id)]=ev.external_id;});
+    const extIdToActivityById={};
+    (activities||[]).forEach(act=>{
+      if(act.paired_event_id==null)return;
+      const extId=eventIdToExtId[String(act.paired_event_id)];
+      if(extId)extIdToActivityById[extId]=act;
+    });
+
+    // Estratégia 2 (principal, na prática): casa por DATA + tipo "Run" — já
+    // que o pareamento automático por ID não é confiável. Se houver mais de
+    // uma corrida no mesmo dia, pega a de maior duração (mais provável de
+    // ser o treino de verdade, não um teste rápido).
+    const runsByDate={};
+    (activities||[]).forEach(act=>{
+      if(act.type!=='Run'&&act.type!=='VirtualRun')return;
+      const dateStr=(act.start_date_local||'').slice(0,10);
+      if(!dateStr)return;
+      const cur=runsByDate[dateStr];
+      const thisTime=act.moving_time||act.elapsed_time||0;
+      const curTime=cur?(cur.moving_time||cur.elapsed_time||0):-1;
+      if(!cur||thisTime>curTime)runsByDate[dateStr]=act;
+    });
+
+    let markedCount=0;
+    pending.forEach(p=>{
+      const act=extIdToActivityById[p.extId]||runsByDate[p.dateStr];
+      if(!act)return;
+      // Uma mesma atividade real não pode "resolver" mais de um dia/planilha
+      // na mesma checagem — evita que, com duas planilhas sobrepostas na
+      // mesma data, um único treino feito marque as duas como concluídas.
+      if(usedActivityIds.has(act.id))return;
+      usedActivityIds.add(act.id);
+      const distKm=act.distance?Math.round(act.distance/10)/100:null;
+      const durMin=act.moving_time?Math.round(act.moving_time/60):(act.elapsed_time?Math.round(act.elapsed_time/60):null);
+      plan.done[p.key]={real:true,dist:distKm?`${distKm}km`:null,duration:durMin?`${durMin} min`:null,activityId:act.id};
+      markedCount++;
+    });
+    if(markedCount>0)persistAccountPlans();
+    return markedCount;
+  }catch(e){
+    console.warn('[intervals.icu] erro ao checar conclusões',e);
+    return 0;
+  }
+}
+
+// Checa só a planilha ATUAL (a que aparece como "Planilha atual" na tela
+// inicial) — usado ao abrir o app. Planilhas antigas/outras salvas em "Meus
+// Treinos" nunca são tocadas automaticamente; só via o botão manual de
+// sincronizar de cada uma. Silencioso — só re-renderiza se achar algo novo.
+async function icuAutoCheckAllPlans(){
+  const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
+  if(!apiKey||!athleteId)return 0;
+  if(!wzSummaryPlanId)return 0;
+  const plan=savedPlans.find(p=>p.id===wzSummaryPlanId);
+  if(!plan)return 0;
+  let total=0;
+  try{ total=await icuCheckPlanCompletions(plan,apiKey,athleteId); }catch(e){}
+  if(total>0){
+    updateSavedBadge();
+    renderSavedList();
+    renderCalcSummary();
+  }
+  return total;
+}
+
+// Botão manual "Sincronizar com intervals.icu" de uma planilha específica —
+// dá feedback visual (ícone girando) e um toast com o resultado.
+async function icuManualSyncPlan(planId,btn){
+  const plan=savedPlans.find(p=>p.id===planId);if(!plan)return;
+  const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
+  if(!apiKey||!athleteId){showToast('Configure a integração com o intervals.icu primeiro.');return;}
+  if(btn)btn.classList.add('spinning');
+  try{
+    const count=await icuCheckPlanCompletions(plan,apiKey,athleteId);
+    if(count>0){
+      updateSavedBadge();
+      renderSavedList();
+      renderCalcSummary();
+      showToast(`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do intervals.icu.`);
+    }else{
+      showToast('Nenhum treino novo concluído encontrado.');
+    }
+  }catch(e){
+    showToast('Não foi possível sincronizar agora.');
+  }
+  if(btn)btn.classList.remove('spinning');
+}
 
 // Chamado uma vez no login (onAuthStateChanged). Reconcilia local vs nuvem:
 // - Se a nuvem já tem config e o navegador atual não tem (ou está desatualizado
