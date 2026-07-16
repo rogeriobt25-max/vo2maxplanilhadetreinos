@@ -2681,7 +2681,7 @@ function buildTodayMini(plan){
       <div class="cs-today-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
       ${day.pace&&!day.rest?`<div class="cs-today-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="cs-today-detail">${day.detail}</div>`:''}
-      ${realInfo?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);font-size:13px;color:var(--t2)">Realizado: ${realInfo.dist||'—'}${realInfo.duration?` · ${realInfo.duration}`:''}</div>`:''}
+      ${realInfo?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);font-size:13px;color:var(--t2)">Realizado: ${formatRealInfoLine(realInfo)}</div>`:''}
     </div>
     ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="cs-today-done-lbl"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
@@ -7410,7 +7410,7 @@ function openDayDetailModal(planId,wIdx,dIdx){
   })();
   const longExplainHtml=buildLongExplainHTML(plan,wk,dp);
   const realInfoModal=(plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
-  const realInfoHtml=realInfoModal?`<div style="margin-top:.6rem;padding:8px 10px;background:rgba(0,168,85,0.08);border:1px solid rgba(0,168,85,0.25);border-radius:8px;font-size:12.5px;color:var(--t1)"><svg class="gi" style="vertical-align:-2px"><use href="#i-check_circle"></use></svg> Realizado: <strong>${realInfoModal.dist||'—'}</strong>${realInfoModal.duration?` · ${realInfoModal.duration}`:''}</div>`:'';
+  const realInfoHtml=realInfoModal?`<div style="margin-top:.6rem;padding:8px 10px;background:rgba(0,168,85,0.08);border:1px solid rgba(0,168,85,0.25);border-radius:8px;font-size:12.5px;color:var(--t1)"><svg class="gi" style="vertical-align:-2px"><use href="#i-check_circle"></use></svg> Realizado: <strong>${formatRealInfoLine(realInfoModal)}</strong></div>`:'';
   const modal=document.createElement('div');
   modal.id='day-detail-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:210;display:flex;align-items:center;justify-content:center;padding:1rem';
@@ -7617,7 +7617,7 @@ function buildTodayCard(plan){
       <div class="today-wk-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
       ${day.pace&&!day.rest?`<div class="today-wk-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="today-wk-detail">${day.detail}</div>`:''}
-      ${realInfoTC?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);font-size:13px;color:var(--t2)">Realizado: ${realInfoTC.dist||'—'}${realInfoTC.duration?` · ${realInfoTC.duration}`:''}</div>`:''}
+      ${realInfoTC?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);font-size:13px;color:var(--t2)">Realizado: ${formatRealInfoLine(realInfoTC)}</div>`:''}
     </div>
     ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="today-done-label"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
@@ -9796,6 +9796,18 @@ const ICU_DAYS_BR=['Seg','Ter','Qua','Qui','Sex','Sab','Dom'];
 // (mesma fórmula de buildWorkoutLabel + icuBuildEventItem) — assim dá pra
 // casar uma atividade concluída no intervals.icu com o dia certo da planilha
 // sem precisar ter guardado nenhum ID extra no momento do envio original.
+// Monta a linha "Realizado: ..." combinando distância, duração (precisa,
+// M:SS), ritmo médio, FC média e calorias — só inclui o que a atividade
+// realmente tiver disponível.
+function formatRealInfoLine(r){
+  if(!r)return'';
+  const parts=[r.dist||'—'];
+  if(r.duration)parts.push(r.duration);
+  if(r.pace)parts.push(`${r.pace}/km`);
+  if(r.avgHr)parts.push(r.avgHr);
+  if(r.calories)parts.push(r.calories);
+  return parts.join(' · ');
+}
 function icuReconstructExternalId(scheduledAt,dayName,day){
   const name=buildWorkoutLabel(scheduledAt,dayName,day);
   const dateStr=scheduledAt.toISOString().slice(0,10)+'T00:00:00';
@@ -9884,8 +9896,14 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds){
       if(usedActivityIds.has(act.id))return;
       usedActivityIds.add(act.id);
       const distKm=act.distance?Math.round(act.distance/10)/100:null;
-      const durMin=act.moving_time?Math.round(act.moving_time/60):(act.elapsed_time?Math.round(act.elapsed_time/60):null);
-      plan.done[p.key]={real:true,dist:distKm?`${distKm}km`:null,duration:durMin?`${durMin} min`:null,activityId:act.id};
+      const totalSec=act.moving_time||act.elapsed_time||null;
+      const durLabel=totalSec?`${Math.floor(totalSec/60)}:${String(Math.round(totalSec%60)).padStart(2,'0')}`:null;
+      // Ritmo médio calculado a partir de distância+tempo reais (não vem
+      // pronto da API) — mesmo formato M:SS/km usado no resto do app.
+      const paceLabel=(act.distance&&totalSec)?s2p((act.distance/1000)/(totalSec/3600)):null;
+      const calLabel=act.calories?`${Math.round(act.calories)} kcal`:null;
+      const hrLabel=act.average_heartrate?`${Math.round(act.average_heartrate)} bpm`:null;
+      plan.done[p.key]={real:true,dist:distKm?`${distKm}km`:null,duration:durLabel,pace:paceLabel,calories:calLabel,avgHr:hrLabel,activityId:act.id};
       markedCount++;
     });
     if(markedCount>0)persistAccountPlans();
