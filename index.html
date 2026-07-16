@@ -7410,7 +7410,7 @@ function openDayDetailModal(planId,wIdx,dIdx){
   })();
   const longExplainHtml=buildLongExplainHTML(plan,wk,dp);
   const realInfoModal=(plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
-  const realInfoHtml=realInfoModal?`<div style="margin-top:.6rem;padding:10px 12px;background:rgba(106,95,196,0.07);border:1px solid rgba(106,95,196,0.22);border-radius:8px">${formatRealInfoBlock(realInfoModal)}</div>`:'';
+  const realInfoHtml=realInfoModal?`<div style="margin-top:.6rem;padding:10px 12px;background:var(--acc3);border:1px solid var(--acc);border-radius:8px">${formatRealInfoBlock(realInfoModal)}</div>`:'';
   const modal=document.createElement('div');
   modal.id='day-detail-modal';
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:210;display:flex;align-items:center;justify-content:center;padding:1rem';
@@ -9810,7 +9810,7 @@ function formatRealInfoBlock(r){
   const cellsHtml=rows.map(([label,val])=>
     `<div style="min-width:0"><div style="font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.03em;margin-bottom:1px">${label}</div><div style="font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${val}</div></div>`
   ).join('');
-  return`<div style="font-weight:800;color:var(--pu);font-size:13.5px;margin-bottom:6px">Realizado</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px">${cellsHtml}</div>`;
+  return`<div style="font-weight:800;color:var(--acc);font-size:13.5px;margin-bottom:6px">Realizado</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px">${cellsHtml}</div>`;
 }
 function icuReconstructExternalId(scheduledAt,dayName,day){
   const name=buildWorkoutLabel(scheduledAt,dayName,day);
