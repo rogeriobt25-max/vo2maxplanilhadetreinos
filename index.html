@@ -7191,8 +7191,16 @@ function deletePlan(id){
       // conferir/reescolher os dados do zero.
       wzState={profile:null,vo2:null,usedRealVo2:false,dist:null,obj:null,dur:null};
       wzStaleAfterDelete=false;
+      wzBuildingNew=false;
       wzClearSummaryState();
       renderWzVo2RealNote();
+      // Volta a etapa visível do assistente pra 1 — sem isso, se a última
+      // planilha tivesse sido gerada a partir da etapa 3/4/5, essas etapas
+      // ficavam "presas" na tela (escondendo a etapa 1), sem nenhum jeito
+      // de escolher o perfil de novo pra gerar uma planilha nova.
+      for(let i=1;i<=5;i++){const el=document.getElementById('wz-step-'+i);if(el)el.style.display=i===1?'':'none';}
+      const raEl=document.getElementById('result-area');
+      if(raEl){raEl.innerHTML='';raEl.style.display='none';raEl.style.visibility='hidden';}
     }
     wzRenderHistory();
   }
