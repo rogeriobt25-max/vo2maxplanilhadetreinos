@@ -1348,7 +1348,7 @@ details[open] summary::after{transform:rotate(90deg)}
   <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
   <button class="nav-tab on" id="nav-calc" onclick="switchNav('calc')"><svg class="gi"><use href="#i-bolt"></use></svg> <span class="nav-label">Calculadora</span></button>
   <button class="nav-tab" id="nav-saved" onclick="switchNav('saved')"><svg class="gi"><use href="#i-list_alt"></use></svg> <span class="nav-label">Meus Treinos</span> <span class="nav-badge" id="saved-count">0</span></button>
-  <button id="icu-header-sync-btn" onclick="icuHeaderSyncTap(this)" style="display:none;background:none;border:none;color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:0 8px;white-space:nowrap;display:flex;align-items:center;gap:4px"><svg class="gi" style="font-size:13px"><use href="#i-refresh"></use></svg> Sincronizar</button>
+  <button id="icu-header-sync-btn" onclick="icuHeaderSyncTap(this)" style="display:none;background:rgba(0,229,255,0.10);border:1px solid rgba(0,229,255,0.25);border-radius:20px;color:var(--acc);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;padding:6px 12px;white-space:nowrap;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-refresh"></use></svg> Sincronizar</button>
   <div class="auth-bar" id="auth-bar">
     <button class="auth-btn primary" onclick="openAuthModal('login')" id="auth-login-btn"><svg class="gi"><use href="#i-key"></use></svg> Entrar</button>
     <button class="auth-btn" onclick="openAuthModal('register')" id="auth-reg-btn">Criar conta</button>
@@ -7658,7 +7658,7 @@ function renderSavedList(){
           </div>
         </div>
         <div class="saved-item-actions">
-          ${(icuGetApiKey()&&icuGetAthleteId())?`<button class="btn-icon" title="Sincronizar com intervals.icu" onclick="event.stopPropagation();icuManualSyncPlan(${plan.id},this)"><svg class="gi"><use href="#i-refresh"></use></svg></button>`:''}
+          ${(icuGetApiKey()&&icuGetAthleteId())?`<button class="btn-icon" title="Sincronizar com relógio" onclick="event.stopPropagation();icuManualSyncPlan(${plan.id},this)"><svg class="gi"><use href="#i-refresh"></use></svg></button>`:''}
           <button class="btn-icon" title="Remover" onclick="event.stopPropagation();deletePlan(${plan.id})"><svg class="gi"><use href="#i-delete"></use></svg></button>
         </div>
       </div>
@@ -9773,7 +9773,7 @@ async function icuHeaderSyncTap(btn){
   if(btn)btn.classList.add('spinning');
   try{
     const count=await icuAutoCheckAllPlans();
-    showToast(count>0?`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do intervals.icu.`:'Nenhum treino novo concluído encontrado.');
+    showToast(count>0?`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do relógio.`:'Nenhum treino novo concluído encontrado.');
   }catch(e){
     showToast('Não foi possível sincronizar agora.');
   }
@@ -9913,7 +9913,7 @@ async function icuAutoCheckAllPlans(){
 async function icuManualSyncPlan(planId,btn){
   const plan=savedPlans.find(p=>p.id===planId);if(!plan)return;
   const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
-  if(!apiKey||!athleteId){showToast('Configure a integração com o intervals.icu primeiro.');return;}
+  if(!apiKey||!athleteId){showToast('Configure a integração com o relógio primeiro.');return;}
   if(btn)btn.classList.add('spinning');
   try{
     const count=await icuCheckPlanCompletions(plan,apiKey,athleteId);
@@ -9921,7 +9921,7 @@ async function icuManualSyncPlan(planId,btn){
       updateSavedBadge();
       renderSavedList();
       renderCalcSummary();
-      showToast(`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do intervals.icu.`);
+      showToast(`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do relógio.`);
     }else{
       showToast('Nenhum treino novo concluído encontrado.');
     }
