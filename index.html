@@ -2681,7 +2681,7 @@ function buildTodayMini(plan){
       <div class="cs-today-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
       ${day.pace&&!day.rest?`<div class="cs-today-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="cs-today-detail">${day.detail}</div>`:''}
-      ${realInfo?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)">${formatRealInfoBlock(realInfo)}</div>`:''}
+      ${realInfo?`<div style="margin-top:10px;padding:10px 12px;background:var(--acc3);border:1px solid var(--acc);border-radius:8px">${formatRealInfoBlock(realInfo)}</div>`:''}
     </div>
     ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="cs-today-done-lbl"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
@@ -7617,7 +7617,7 @@ function buildTodayCard(plan){
       <div class="today-wk-type" style="color:${col}">${day.type}${day.subtypeBadge||''}${day.dist?` · ${day.dist}`:''}</div>
       ${day.pace&&!day.rest?`<div class="today-wk-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="today-wk-detail">${day.detail}</div>`:''}
-      ${realInfoTC?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)">${formatRealInfoBlock(realInfoTC)}</div>`:''}
+      ${realInfoTC?`<div style="margin-top:10px;padding:10px 12px;background:var(--acc3);border:1px solid var(--acc);border-radius:8px">${formatRealInfoBlock(realInfoTC)}</div>`:''}
     </div>
     ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:`<div class="today-done-label"><svg class="gi"><use href="#i-check_circle"></use></svg> Treino concluído!</div>`}
   </div>`;
