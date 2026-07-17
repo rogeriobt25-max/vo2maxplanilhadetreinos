@@ -7564,7 +7564,7 @@ function openShareModal(planId,wIdx,dIdx){
     distNum:stripUnit((real&&real.dist)?real.dist:(day.dist||'')),
     duration:(real&&real.duration)?real.duration:'',
     paceNum:stripUnit((real&&real.pace)?real.pace:(day.pace||'')),
-    caloriesNum:stripUnit((real&&real.calories)?real.calories:'')
+    avgHrNum:stripUnit((real&&real.avgHr)?real.avgHr:'')
   };
 
   const old=document.getElementById('share-modal');if(old)old.remove();
@@ -7613,10 +7613,10 @@ function renderShareModalBody(){
           <input id="share-f-pace" value="${f.paceNum}" inputmode="numeric" placeholder="0:00" oninput="shareMaskPace(this);shareUpdateField('paceNum',this.value)" style="flex:1;min-width:0;border:none;background:none;padding:7px 4px 7px 9px;font-size:13px;font-family:inherit;color:var(--t1)"/>
           <span style="color:var(--t3);font-size:12px;padding-right:9px">/km</span>
         </div></div>
-      <div><label style="font-size:10.5px;color:var(--t3);text-transform:uppercase">Calorias</label>
+      <div><label style="font-size:10.5px;color:var(--t3);text-transform:uppercase">FC</label>
         <div style="display:flex;align-items:center;border:1px solid var(--bdr2);border-radius:6px;background:var(--s1);overflow:hidden">
-          <input id="share-f-calories" value="${f.caloriesNum}" inputmode="numeric" placeholder="opcional" oninput="shareMaskNumber(this);shareUpdateField('caloriesNum',this.value)" style="flex:1;min-width:0;border:none;background:none;padding:7px 4px 7px 9px;font-size:13px;font-family:inherit;color:var(--t1)"/>
-          <span style="color:var(--t3);font-size:12px;padding-right:9px">kcal</span>
+          <input id="share-f-avghr" value="${f.avgHrNum}" inputmode="numeric" placeholder="opcional" oninput="shareMaskNumber(this);shareUpdateField('avgHrNum',this.value)" style="flex:1;min-width:0;border:none;background:none;padding:7px 4px 7px 9px;font-size:13px;font-family:inherit;color:var(--t1)"/>
+          <span style="color:var(--t3);font-size:12px;padding-right:9px">bpm</span>
         </div></div>
     </div>
     <div style="display:flex;gap:8px">
@@ -7689,62 +7689,60 @@ function shareRedrawCanvas(){
     const cx=W/2;
 
     function finishAfterLogo(){
+      const cols=[['DISTÂNCIA',f.distNum?`${f.distNum} km`:'—']];
+      if(f.duration)cols.push(['TEMPO TOTAL',f.duration]);
+      if(f.paceNum)cols.push(['RITMO MÉDIO',`${f.paceNum}/km`]);
+      if(f.avgHrNum)cols.push(['FC MÉDIA',`${f.avgHrNum} bpm`]);
+
       let y=H*0.80;
-      // título do treino (ex: "Corrida"), centralizado
-      ctx.font='700 60px Inter, Arial, sans-serif';
+      // título do treino (ex: "Corrida"), em negrito — o único elemento
+      // em negrito de toda a imagem
+      ctx.font='700 48px Inter, Arial, sans-serif';
       ctx.fillStyle='rgba(255,255,255,0.95)';
       ctx.fillText(f.type,cx,y);
       y+=W*0.075;
 
-      // colunas: legenda pequena em cima, número grande embaixo (com a
-      // unidade num tamanho menor logo depois) — separadas por uma linha
-      // vertical fina, igual à referência
-      const cols=[['DISTÂNCIA',f.distNum?`${f.distNum} km`:'—']];
-      if(f.duration)cols.push(['TEMPO TOTAL',f.duration]);
-      if(f.paceNum)cols.push(['RITMO MÉDIO',`${f.paceNum}/km`]);
-      if(f.caloriesNum)cols.push(['CALORIAS',`${f.caloriesNum} kcal`]);
-
-      const colGap=cols.length>1?Math.min(W*0.30,(W*0.68)/(cols.length-1)):0;
-      const totalW=colGap*(cols.length-1);
-      const startX=cx-totalW/2;
-      const labelY=y, numY=y+W*0.036;
-
-      cols.forEach(([label,val],i)=>{
-        const x=startX+i*colGap;
-        ctx.font='600 21px Inter, Arial, sans-serif'; ctx.letterSpacing='1px';
-        ctx.fillStyle='#ffffff';
+      function drawStat(x,rowY,label,val){
+        const labelY=rowY, numY=rowY+W*0.032;
+        ctx.font='600 17px Inter, Arial, sans-serif'; ctx.letterSpacing='1px';
+        ctx.fillStyle='rgba(255,255,255,0.75)';
+        ctx.textAlign='center';
         ctx.fillText(label,x,labelY);
         ctx.letterSpacing='0px';
 
-        // separa número + unidade (ex: "6,02" + "km", "7:48" + "/km")
+        // separa número + unidade (ex: "6,02" + "km", "7:48" + "/km") —
+        // números sem negrito, só nítidos (peso médio)
         const m=val.match(/^([\d:,.\-]+)\s*(.*)$/);
         const numPart=m?m[1]:val, unitPart=m?m[2]:'';
-        ctx.font='800 52px Inter, Arial, sans-serif'; ctx.fillStyle='#ffffff';
+        ctx.font='600 34px Inter, Arial, sans-serif';
         const numW=ctx.measureText(numPart).width;
         let unitW=0;
         if(unitPart){
-          ctx.font='600 23px Inter, Arial, sans-serif';
+          ctx.font='500 17px Inter, Arial, sans-serif';
           unitW=ctx.measureText(' '+unitPart).width;
         }
-        const totalTextW=numW+unitW;
-        const textStartX=x-totalTextW/2;
+        const textStartX=x-(numW+unitW)/2;
         ctx.textAlign='left';
-        ctx.font='800 52px Inter, Arial, sans-serif'; ctx.fillStyle='#ffffff';
+        ctx.font='600 34px Inter, Arial, sans-serif'; ctx.fillStyle='#ffffff';
         ctx.fillText(numPart,textStartX,numY);
         if(unitPart){
-          ctx.font='600 23px Inter, Arial, sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
+          ctx.font='500 17px Inter, Arial, sans-serif'; ctx.fillStyle='rgba(255,255,255,0.65)';
           ctx.fillText(' '+unitPart,textStartX+numW,numY);
         }
         ctx.textAlign='center';
+      }
 
-        // linha vertical separadora entre colunas (não antes da primeira)
-        if(i>0){
-          const lineX=x-colGap/2;
-          ctx.save();
-          ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=2;
-          ctx.beginPath(); ctx.moveTo(lineX,numY-W*0.032); ctx.lineTo(lineX,numY+W*0.006);
-          ctx.stroke(); ctx.restore();
-        }
+      // sempre 1 linha só, largura das colunas se ajusta pro número de
+      // dados (até 4: Distância, Tempo, Ritmo, FC) nunca estourar a imagem
+      const colGap=cols.length>1?Math.min(W*0.30,(W*0.80)/(cols.length-1)):0;
+      const startX=cx-(colGap*(cols.length-1))/2;
+      cols.forEach(([label,val],i)=>drawStat(startX+i*colGap,y,label,val));
+      cols.forEach((_,i)=>{
+        if(i===0)return;
+        const lineX=startX+i*colGap-colGap/2;
+        ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(lineX,y-W*0.028); ctx.lineTo(lineX,y+W*0.008);
+        ctx.stroke(); ctx.restore();
       });
     }
 
