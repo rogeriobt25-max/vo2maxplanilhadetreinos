@@ -38,6 +38,7 @@
   --bg:#f4f6f8;--s1:#ffffff;--s2:#f7f9fb;--s3:#eef1f5;
   --bdr:rgba(20,30,45,0.07);--bdr2:rgba(20,30,45,0.10);--bdr-day:rgba(20,30,45,0.32);
   --t1:#1a2733;--t2:#5b6b7c;--t3:#8d99a8;
+  --pure-fg:#000;
   --acc:#0079b3;--acc2:#005f8f;--acc3:rgba(0,121,179,0.10);--acc4:rgba(0,121,179,0.06);
   --gr:#2e9f51;--gr2:rgba(46,159,81,0.10);
   --am:#c97a1f;--am2:rgba(201,122,31,0.10);
@@ -76,6 +77,7 @@
     --bg:var(--dbg);--s1:var(--ds1);--s2:var(--ds2);--s3:var(--ds3);
     --bdr:var(--dbdr);--bdr2:var(--dbdr2);--bdr-day:var(--dbdr-day);
     --t1:var(--dt1);--t2:var(--dt2);--t3:var(--dt3);
+    --pure-fg:#fff;
     --acc:var(--dacc);--acc2:var(--dacc2);--acc3:var(--dacc3);--acc4:var(--dacc4);
     --gr:var(--dgr);--gr2:var(--dgr2);
     --am:var(--dam);--am2:var(--dam2);
@@ -91,6 +93,7 @@ html[data-theme="dark"]{
   --bg:var(--dbg);--s1:var(--ds1);--s2:var(--ds2);--s3:var(--ds3);
   --bdr:var(--dbdr);--bdr2:var(--dbdr2);--bdr-day:var(--dbdr-day);
   --t1:var(--dt1);--t2:var(--dt2);--t3:var(--dt3);
+  --pure-fg:#fff;
   --acc:var(--dacc);--acc2:var(--dacc2);--acc3:var(--dacc3);--acc4:var(--dacc4);
   --gr:var(--dgr);--gr2:var(--dgr2);
   --am:var(--dam);--am2:var(--dam2);
@@ -1302,6 +1305,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <symbol id="i-bolt" viewBox="0 -960 960 960"><path d="M360-360H217q-18 0-26.5-16t2.5-31l338-488q8-11 20-15t24 1q12 5 19 16t5 24l-39 309h176q19 0 27 17t-4 32L388-66q-8 10-20.5 13T344-55q-11-5-17.5-16T322-95l38-265Z"/></symbol>
 <symbol id="i-home" viewBox="0 -960 960 960"><path d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-40 40q-17 0-28.5-11.5T160-200v-360q0-9.35 4-17.85 4-8.5 12-14.15l280-210q7-5 14.5-7.5T480-812q9 0 16.5 2.5T511-802l280 210q8 5.65 12 14.15 4 8.5 4 17.85v360q0 17-11.5 28.5T767-160H560q-17 0-28.5-11.5T520-200v-200h-80v200q0 17-11.5 28.5T400-160H200Z"/></symbol>
 <symbol id="i-refresh" viewBox="0 -960 960 960"><path d="M480-160q-133 0-226.5-93.5T160-480q0-133 93.5-226.5T480-800q85 0 149 34.5T740-671v-99q0-13 8.5-21.5T770-800q13 0 21.5 8.5T800-770v194q0 13-8.5 21.5T770-546H576q-13 0-21.5-8.5T546-576q0-13 8.5-21.5T576-606h138q-38-60-97-97t-137-37q-109 0-184.5 75.5T220-480q0 109 75.5 184.5T480-220q75 0 140-39.5T717-366q5-11 16.5-16.5t22.5-.5q12 5 16 16.5t-1 23.5q-39 84-117.5 133.5T480-160Z"/></symbol>
+<symbol id="i-sync" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></symbol>
 <symbol id="i-share" viewBox="0 -960 960 960"><path d="M480-80q-33 0-56.5-23.5T400-160q0-5 1-10.5t2-9.5L195-373q-14 12-31.5 19t-35.5 7q-33 0-56.5-23.5T48-427q0-33 23.5-56.5T128-507q19 0 36 7.5t31 20.5l208-193q-1-5-2-10.5t-1-9.5q0-33 23.5-56.5T480-772q33 0 56.5 23.5T560-692q0 5-1 10.5t-2 9.5l208 193q14-13 31-20.5t36-7.5q33 0 56.5 23.5T912-427q0 33-23.5 56.5T832-347q-18 0-35.5-7T765-373L557-180q1 4 2 9.5t1 10.5q0 33-23.5 56.5T480-80Zm0-80q6 0 10.5-4.5T495-175l-14-30 14-30q-4.5-4.5-10.5-4.5t-10 4.5L465-235l15 30q4.5 4.5 10 4.5Zm-352-267q7 0 11-4.5t4-10.5q0-6-4-10.5t-11-4.5q-6 0-10.5 4.5T113-442q0 6 4.5 10.5T128-427Zm704 0q6 0 10.5-4.5T847-442q0-6-4.5-10.5T832-457q-7 0-11 4.5t-4 10.5q0 6 4 10.5t11 4.5ZM480-652q6 0 10.5-4.5T495-667q0-6-4.5-10.5T480-682q-6 0-10.5 4.5T465-667q0 6 4.5 10.5T480-652Z"/></symbol>
 <symbol id="i-add_a_photo" viewBox="0 -960 960 960"><path d="M480-260q75 0 127.5-52.5T660-440q0-75-52.5-127.5T480-620q-75 0-127.5 52.5T300-440q0 75 52.5 127.5T480-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h126l74-80h240v80H392l-73 80H160v440h640v-280h80v280q0 33-23.5 56.5T800-120H160Zm640-480v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM480-440Z"/></symbol>
 <symbol id="i-download" viewBox="0 -960 960 960"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></symbol>
@@ -1351,12 +1355,12 @@ details[open] summary::after{transform:rotate(90deg)}
   <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
   <button class="nav-tab on" id="nav-calc" onclick="switchNav('calc')"><svg class="gi"><use href="#i-bolt"></use></svg> <span class="nav-label">Calculadora</span></button>
   <button class="nav-tab" id="nav-saved" onclick="switchNav('saved')"><svg class="gi"><use href="#i-list_alt"></use></svg> <span class="nav-label">Meus Treinos</span> <span class="nav-badge" id="saved-count">0</span></button>
-  <button id="icu-header-sync-btn" onclick="icuHeaderSyncTap(this)" title="Sincronizar com o relógio" style="display:none;background:none;border:none;color:var(--t2);cursor:pointer;font-family:inherit;padding:0;width:36px;height:36px;border-radius:50%;align-items:center;justify-content:center"><svg class="gi" style="font-size:20px"><use href="#i-refresh"></use></svg></button>
   <div class="auth-bar" id="auth-bar">
     <button class="auth-btn primary" onclick="openAuthModal('login')" id="auth-login-btn"><svg class="gi"><use href="#i-key"></use></svg> Entrar</button>
     <button class="auth-btn" onclick="openAuthModal('register')" id="auth-reg-btn">Criar conta</button>
   </div>
   <div class="auth-bar" id="auth-user-bar" style="display:none">
+    <button id="icu-header-sync-btn" onclick="icuHeaderSyncTap(this)" title="Sincronizar com o relógio" style="display:none;background:none;border:none;color:var(--pure-fg);cursor:pointer;font-family:inherit;padding:0;width:36px;height:36px;border-radius:50%;align-items:center;justify-content:center"><svg class="gi" style="font-size:23px;stroke:currentColor;stroke-width:0.4;stroke-linejoin:round"><use href="#i-sync"></use></svg></button>
     <div class="auth-user-chip" onclick="openProfileModal()" style="cursor:pointer">
       <div class="auth-avatar" id="auth-avatar-letter">A</div>
       <span class="auth-name" id="auth-username-label">usuário</span>
