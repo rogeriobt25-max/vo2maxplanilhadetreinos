@@ -1057,6 +1057,10 @@ details[open] summary::after{transform:rotate(90deg)}
 .auth-modal-sub strong{color:var(--t2)}
 .auth-notice{background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.15);border-radius:6px;padding:.75rem 1rem;margin-bottom:1.4rem;font-size:12.5px;color:var(--t2);line-height:1.6}
 .auth-notice strong{color:var(--acc)}
+.auth-google-btn{width:100%;height:44px;border:1px solid var(--bdr2);border-radius:8px;background:var(--s1);color:var(--t1);font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+.auth-google-btn:hover{background:var(--s2)}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--t3);font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--bdr2)}
 .auth-tabs{display:flex;border:1px solid var(--bdr2);border-radius:6px;overflow:hidden;margin-bottom:1.4rem}
 .auth-tab{flex:1;height:36px;border:none;background:transparent;color:var(--t3);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.05em;transition:all .2s}
 .auth-tab.on{background:var(--acc3);color:var(--t1)}
@@ -1380,6 +1384,17 @@ details[open] summary::after{transform:rotate(90deg)}
     <div class="auth-notice">
       <strong><svg class="gi"><use href="#i-lightbulb"></use></svg> Login é 100% opcional.</strong> Sem conta, seus treinos são salvos normalmente neste navegador. Com conta, você pode acessar de qualquer lugar e seus dados ficam protegidos.
     </div>
+
+    <button class="auth-google-btn" onclick="doGoogleLogin()" id="auth-google-btn">
+      <svg width="18" height="18" viewBox="0 0 18 18">
+        <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.08-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.97 10.71c-.18-.54-.28-1.11-.28-1.71s.1-1.17.28-1.71V4.96H.96C.35 6.18 0 7.55 0 9s.35 2.82.96 4.04l3.01-2.33z"/>
+        <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.59-2.59C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+      </svg>
+      <span>Continuar com o Google</span>
+    </button>
+    <div class="auth-divider"><span>ou</span></div>
 
     <div class="auth-tabs">
       <button class="auth-tab on" id="atab-login" onclick="switchAuthTab('login')">Entrar</button>
@@ -2056,6 +2071,39 @@ async function saveIcuConfigToCloud(uid,cfg){
     // pra sempre no documento. mergeFields substitui o campo inteiro.
     await fbDb.collection('users').doc(uid).set({icuConfig:cfg},{mergeFields:['icuConfig']});
   }catch(e){console.warn('Firestore save error (icuConfig)',e)}
+}
+
+/* ── Login com Google ── */
+async function doGoogleLogin(){
+  if(!fbAuth){showToast('Serviço indisponível. Recarregue a página.');return;}
+  const btn=document.getElementById('auth-google-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  try{
+    const provider=new firebase.auth.GoogleAuthProvider();
+    await fbAuth.signInWithPopup(provider);
+    closeAuthModal();
+    // Mesmo motivo do login por e-mail: garante que a tela recarregue do
+    // zero com os dados certos da conta que acabou de entrar.
+    window.location.reload();
+  }catch(e){
+    if(e&&(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request')){
+      // a pessoa só fechou o popup — não é erro de verdade, sem toast
+    }else if(e&&e.code==='auth/account-exists-with-different-credential'){
+      // Já existe conta com esse e-mail criada por senha (não pelo Google).
+      // Leva direto pra aba de login, já com o e-mail preenchido, e explica
+      // o motivo — bem mais claro que um erro genérico.
+      const email=e.email||'';
+      switchAuthTab('login');
+      const emailInput=document.getElementById('login-email');
+      if(emailInput&&email)emailInput.value=email;
+      showAuthErr('login',`Você já tem uma conta com o e-mail ${email||'informado'} usando senha. Entre com sua senha abaixo.`);
+    }else{
+      console.warn('Google sign-in error',e);
+      showToast('Não foi possível entrar com o Google. Tente novamente.');
+    }
+  }finally{
+    if(btn){btn.disabled=false;btn.style.opacity='1';}
+  }
 }
 
 /* ── Login ── */
