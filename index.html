@@ -2869,22 +2869,41 @@ function wzAutoRestoreFromSavedPlans(){
 }
 /* Versão enxuta do card "treino de hoje" (sem o nome da planilha) pra usar
    dentro do resumo compacto da tela inicial. */
+// Mesma ideia de buildUnplannedCardsForToday, mas com as classes cs-today
+// (usadas só no mini-card da tela inicial, visual mais compacto).
+function buildUnplannedMiniCardsForToday(){
+  const todayStr8=new Date().toISOString().slice(0,10);
+  const items=completedLog.filter(e=>e.unplanned && new Date(e.date).toISOString().slice(0,10)===todayStr8);
+  if(!items.length)return'';
+  return items.map(entry=>{
+    const realInfoHtml=formatRealInfoBlock({dist:entry.dist,duration:entry.duration,pace:entry.pace,avgHr:entry.avgHr});
+    return`<div class="cs-today" style="margin-top:10px">
+      <div class="cs-today-eyebrow" style="color:var(--am)"><svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO · NÃO PROGRAMADO</div>
+      <div class="cs-today-workout">
+        <div class="cs-today-type" style="color:var(--t2)">${entry.type}</div>
+        <div style="margin-top:10px;padding:10px 12px;background:var(--am2);border:1px solid var(--am);border-radius:8px">${realInfoHtml}</div>
+        <button onclick="openShareModalFromLog('${entry.id}')" style="margin-top:12px;background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 function buildTodayMini(plan){
   const info=getTodayInfo(plan);
   if(!info)return'';
   const is42=plan.race==='42';
   const is10k=plan.race==='10k';
+  const unplannedMiniHtml=buildUnplannedMiniCardsForToday();
   if(info.status==='future'){
     return`<div class="cs-today">
       <div class="cs-today-eyebrow">TREINO DE HOJE</div>
       <div class="cs-today-body">A planilha começa em <strong>${info.daysToStart} dia${info.daysToStart!==1?'s':''}</strong>.</div>
-    </div>`;
+    </div>`+unplannedMiniHtml;
   }
   if(info.status==='finished'){
     return`<div class="cs-today">
       <div class="cs-today-eyebrow"><svg class="gi"><use href="#i-sports_score"></use></svg> CICLO CONCLUÍDO</div>
       <div class="cs-today-body">Parabéns! Você completou as <strong>${plan.planWeeks} semanas</strong> da planilha.</div>
-    </div>`;
+    </div>`+unplannedMiniHtml;
   }
   const{wIdx,dIdx,week,day}=info;
   const isDone=!!plan.done[`${wIdx}-${dIdx}`];
@@ -2897,7 +2916,7 @@ function buildTodayMini(plan){
       <div class="cs-today-eyebrow">TREINO DE HOJE · ${todayStr}</div>
       <div class="cs-today-meta">Semana ${week.w} de ${plan.planWeeks}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
       <div class="cs-today-body">Descanso <svg class="gi"><use href="#i-bedtime"></use></svg> — dia de recuperação.</div>
-    </div>`;
+    </div>`+unplannedMiniHtml;
   }
   const realInfo=(isDone&&plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
   return`<div class="cs-today">
@@ -2911,7 +2930,7 @@ function buildTodayMini(plan){
       ${isDone?`<button onclick="openShareModal(${plan.id},${wIdx},${dIdx})" style="margin-top:12px;background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>`:''}
     </div>
     ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:''}
-  </div>`;
+  </div>`+unplannedMiniHtml;
 }
 function renderCalcSummary(){
   const box=document.getElementById('calc-summary');
@@ -8643,7 +8662,8 @@ function renderRealizadosList(){
     return`<div class="saved-item" style="cursor:pointer" onclick="openRealizadoDetailModal('${entry.id}')">
       <div class="saved-item-header">
         <div class="saved-item-info">
-          <div class="saved-item-name">${dateLabel} · ${entry.type}${entry.unplanned?` <span style="font-size:10px;font-weight:800;color:var(--am);background:var(--am2);border-radius:4px;padding:2px 6px;margin-left:4px;vertical-align:middle">NÃO PROGRAMADO</span>`:''}</div>
+          <div class="saved-item-name">${dateLabel} · ${entry.type}</div>
+          ${entry.unplanned?`<div style="margin:3px 0"><span style="font-size:10px;font-weight:800;color:var(--am);background:var(--am2);border-radius:4px;padding:2px 6px">NÃO PROGRAMADO</span></div>`:''}
           <div class="saved-item-meta">
             ${metaBits?`<span>${metaBits}</span>`:'<span style="color:var(--t3)">Sem dados detalhados</span>'}
             ${entry.planName?`<span style="color:var(--t3)">${entry.planName}</span>`:''}
@@ -8672,7 +8692,8 @@ function openRealizadoDetailModal(logId){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:210;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
     <div class="modal-box" style="max-width:360px;max-height:85vh;overflow-y:auto;padding:1.7rem 1.4rem;text-align:left;display:flex;flex-direction:column">
-      <div class="modal-title">${dateLabel} — ${entry.type}${entry.unplanned?` <span style="font-size:10px;font-weight:800;color:var(--am);background:var(--am2);border-radius:4px;padding:2px 6px;margin-left:4px;vertical-align:middle">NÃO PROGRAMADO</span>`:''}</div>
+      <div class="modal-title">${dateLabel} — ${entry.type}</div>
+      ${entry.unplanned?`<div style="margin:3px 0 .5rem"><span style="font-size:10px;font-weight:800;color:var(--am);background:var(--am2);border-radius:4px;padding:2px 6px">NÃO PROGRAMADO</span></div>`:''}
       ${entry.planName?`<div class="modal-sub" style="text-align:left;margin-bottom:.5rem">${entry.planName}</div>`:''}
       <div style="margin-top:.6rem;padding:10px 12px;background:var(--acc3);border:1px solid var(--acc);border-radius:8px">${realInfoHtml}</div>
       <div class="modal-actions" style="flex-direction:column;gap:10px;margin-top:1.1rem;flex-shrink:0">
