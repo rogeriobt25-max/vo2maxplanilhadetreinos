@@ -7466,7 +7466,7 @@ async function toggleDone(planId,wIdx,dIdx){
   // com a distância/duração real, sem precisar apertar "Sincronizar" à parte.
   const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
   if(apiKey&&athleteId){
-    try{await icuCheckPlanCompletions(plan,apiKey,athleteId);}catch(e){}
+    try{await icuCheckPlanCompletions(plan,apiKey,athleteId,undefined,true);}catch(e){}
   }
   if(plan.done[key]){
     // achou de verdade via sincronização — já está pronto
@@ -7537,6 +7537,36 @@ function unlogCompletion(planId,wIdx,dIdx){
   const before=completedLog.length;
   completedLog=completedLog.filter(e=>e.id!==id);
   if(completedLog.length!==before)persistCompletedRemoval(id);
+}
+
+// Corrida do intervals.icu que não bateu com nenhum dia programado da
+// planilha (dia de descanso, ou fora do período) — ainda assim vira um
+// registro em "Realizados", só marcado como não programado e sem vínculo
+// com nenhuma planilha/dia específico.
+function logUnplannedCompletion(act,dateStr){
+  if(!currentUser)return;
+  const distKm=act.distance?Math.round(act.distance/10)/100:null;
+  const totalSec=act.moving_time||act.elapsed_time||null;
+  const durLabel=totalSec?fmtDurationHMS(totalSec):null;
+  const paceLabel=(act.distance&&totalSec)?s2p((act.distance/1000)/(totalSec/3600)):null;
+  const hrLabel=act.average_heartrate?`${Math.round(act.average_heartrate)} bpm`:null;
+  // meio-dia local, pra nunca "cair" no dia errado por causa de fuso horário
+  const dateMs=new Date(dateStr+'T12:00:00').getTime();
+  const entry={
+    id:`unplanned-${act.id}`,
+    planId:null, wIdx:null, dIdx:null,
+    date:dateMs,
+    type:'Corrida',
+    unplanned:true,
+    dist:distKm?`${distKm}km`:null,
+    duration:durLabel,
+    pace:paceLabel,
+    avgHr:hrLabel,
+    planName:''
+  };
+  const idx=completedLog.findIndex(e=>e.id===entry.id);
+  if(idx>=0)completedLog[idx]=entry;else completedLog.unshift(entry);
+  persistCompletedEntry(entry);
 }
 
 // Modal "informar dados reais" — aparece quando marca como feito e não achou
@@ -8477,26 +8507,46 @@ function fmtDateFull(d){
   return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 
+// Card(s) de treino(s) extra/não programado(s) feito(s) HOJE — mesmo visual
+// do card "treino concluído" de sempre, só com a etiqueta diferente. Lê
+// direto de completedLog em memória (já atualizado na hora que a checagem
+// encontra algo, sem precisar recarregar nada da nuvem).
+function buildUnplannedCardsForToday(){
+  const todayStr8=new Date().toISOString().slice(0,10);
+  const items=completedLog.filter(e=>e.unplanned && new Date(e.date).toISOString().slice(0,10)===todayStr8);
+  if(!items.length)return'';
+  return items.map(entry=>{
+    const realInfoHtml=formatRealInfoBlock({dist:entry.dist,duration:entry.duration,pace:entry.pace,avgHr:entry.avgHr});
+    return`<div class="today-card" style="margin-top:12px">
+      <div class="today-card-eyebrow" style="color:var(--am)"><svg class="gi"><use href="#i-check_circle"></use></svg> TREINO CONCLUÍDO · NÃO PROGRAMADO</div>
+      <div class="today-card-title" style="color:var(--t2)">${entry.type}</div>
+      <div style="margin-top:10px;padding:10px 12px;background:var(--am2);border:1px solid var(--am);border-radius:8px">${realInfoHtml}</div>
+      <button onclick="openShareModalFromLog('${entry.id}')" style="margin-top:12px;background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>
+    </div>`;
+  }).join('');
+}
+
 function buildTodayCard(plan){
   const info=getTodayInfo(plan);
   if(!info)return'';
   const is42=plan.race==='42';
   const is10k=plan.race==='10k';
   const accent='var(--t2)';
+  const unplannedHtml=buildUnplannedCardsForToday();
 
   if(info.status==='future'){
     return`<div class="today-card">
       <div class="today-card-eyebrow">TREINO DE HOJE</div>
       <div class="today-card-title" style="color:${accent}">${plan.name}</div>
       <div class="today-card-body">A planilha começa em <strong>${info.daysToStart} dia${info.daysToStart!==1?'s':''}</strong>. Prepare-se!</div>
-    </div>`;
+    </div>`+unplannedHtml;
   }
   if(info.status==='finished'){
     return`<div class="today-card">
       <div class="today-card-eyebrow"><svg class="gi"><use href="#i-sports_score"></use></svg> CICLO CONCLUÍDO</div>
       <div class="today-card-title" style="color:var(--t2)">${plan.name}</div>
       <div class="today-card-body">Parabéns! Você completou todas as <strong>${plan.planWeeks} semanas</strong> da planilha.</div>
-    </div>`;
+    </div>`+unplannedHtml;
   }
 
   const {wIdx,dIdx,week,day}=info;
@@ -8513,7 +8563,7 @@ function buildTodayCard(plan){
       <div class="today-card-title" style="color:${accent}">${plan.name}</div>
       <div class="today-card-meta">Semana ${week.w}${week.phaseLabel?` · ${week.phaseLabel}`:''} · ${weekRange}</div>
       <div class="today-card-body" style="color:var(--t2)"><strong style="font-size:16px">Descanso <svg class="gi"><use href="#i-bedtime"></use></svg></strong><br>Hoje é dia de recuperação. O treino de amanhã agradece.</div>
-    </div>`;
+    </div>`+unplannedHtml;
   }
 
   const realInfoTC=(isDone&&plan.done[`${wIdx}-${dIdx}`]&&typeof plan.done[`${wIdx}-${dIdx}`]==='object')?plan.done[`${wIdx}-${dIdx}`]:null;
@@ -8529,7 +8579,7 @@ function buildTodayCard(plan){
       ${isDone?`<button onclick="openShareModal(${plan.id},${wIdx},${dIdx})" style="margin-top:12px;background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>`:''}
     </div>
     ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:''}
-  </div>`;
+  </div>`+unplannedHtml;
 }
 
 // ── Sub-abas de "Meus Treinos": Planilhas x Realizados ──────────────────
@@ -8593,7 +8643,7 @@ function renderRealizadosList(){
     return`<div class="saved-item" style="cursor:pointer" onclick="openRealizadoDetailModal('${entry.id}')">
       <div class="saved-item-header">
         <div class="saved-item-info">
-          <div class="saved-item-name">${dateLabel} · ${entry.type}</div>
+          <div class="saved-item-name">${dateLabel} · ${entry.type}${entry.unplanned?` <span style="font-size:10px;font-weight:800;color:var(--am);background:var(--am2);border-radius:4px;padding:2px 6px;margin-left:4px;vertical-align:middle">NÃO PROGRAMADO</span>`:''}</div>
           <div class="saved-item-meta">
             ${metaBits?`<span>${metaBits}</span>`:'<span style="color:var(--t3)">Sem dados detalhados</span>'}
             ${entry.planName?`<span style="color:var(--t3)">${entry.planName}</span>`:''}
@@ -8622,7 +8672,7 @@ function openRealizadoDetailModal(logId){
   modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:210;display:flex;align-items:center;justify-content:center;padding:1rem';
   modal.innerHTML=`
     <div class="modal-box" style="max-width:360px;max-height:85vh;overflow-y:auto;padding:1.7rem 1.4rem;text-align:left;display:flex;flex-direction:column">
-      <div class="modal-title">${dateLabel} — ${entry.type}</div>
+      <div class="modal-title">${dateLabel} — ${entry.type}${entry.unplanned?` <span style="font-size:10px;font-weight:800;color:var(--am);background:var(--am2);border-radius:4px;padding:2px 6px;margin-left:4px;vertical-align:middle">NÃO PROGRAMADO</span>`:''}</div>
       ${entry.planName?`<div class="modal-sub" style="text-align:left;margin-bottom:.5rem">${entry.planName}</div>`:''}
       <div style="margin-top:.6rem;padding:10px 12px;background:var(--acc3);border:1px solid var(--acc);border-radius:8px">${realInfoHtml}</div>
       <div class="modal-actions" style="flex-direction:column;gap:10px;margin-top:1.1rem;flex-shrink:0">
@@ -10927,7 +10977,7 @@ async function icuHeaderSyncTap(btn){
   if(!wzSummaryPlanId){showToast('Nenhuma planilha atual pra sincronizar.');return;}
   if(btn)btn.classList.add('spinning');
   try{
-    const count=await icuAutoCheckAllPlans();
+    const count=await icuAutoCheckAllPlans(true);
     showToast(count>0?`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do relógio.`:'Nenhum treino novo concluído encontrado.');
   }catch(e){
     showToast('Não foi possível sincronizar agora.');
@@ -10971,7 +11021,7 @@ function icuReconstructExternalId(scheduledAt,dayName,day){
 // (via events → paired_event_id nas activities). Quando encontra, marca o dia
 // como feito com os dados reais (distância/duração real). Retorna quantos dias
 // novos foram marcados.
-async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds){
+async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds,force){
   if(!usedActivityIds)usedActivityIds=new Set();
   if(!plan||!plan.startTimestamp)return 0;
   if(!apiKey||!athleteId)return 0;
@@ -10997,7 +11047,12 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds){
       pending.push({wIdx,dIdx,key,extId,dateStr});
     });
   });
-  if(pending.length===0)return 0;
+  // Sem nada pendente, mesmo assim vale checar — é o que permite também
+  // pegar corrida "extra"/não programada. O limite real do intervals.icu é
+  // 10 chamadas/segundo; mesmo abrindo o app 20x por dia isso é ~40
+  // chamadas/dia, bem longe disso. A mesma trava de 10s contra disparo
+  // duplicado (em icuAutoCheckOnResume) já é proteção suficiente — não
+  // precisa de mais nenhum limite extra aqui.
 
   const authHeader='Basic '+btoa('API_KEY:'+apiKey);
   const athletePath=athleteId||'0';
@@ -11060,7 +11115,24 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds){
       logCompletion(plan,p.wIdx,p.dIdx);
       markedCount++;
     });
+    // ── Corridas "extras" (sem treino programado naquele dia) ──────────
+    // Sobrou alguma corrida no intervalo que não bateu com nenhum dia da
+    // planilha (ex: dia de descanso, ou fora do período programado)? Ainda
+    // assim vira um registro em Realizados, marcado como "não programado"
+    // — sem isso, treinar além do planejado simplesmente não ficava
+    // registrado em lugar nenhum. Reaproveita os dados já buscados acima,
+    // não faz nenhuma chamada extra à API.
+    let unplannedCount=0;
+    Object.keys(runsByDate).forEach(dateStr=>{
+      const act=runsByDate[dateStr];
+      if(usedActivityIds.has(act.id))return;
+      usedActivityIds.add(act.id);
+      logUnplannedCompletion(act,dateStr);
+      unplannedCount++;
+    });
+
     if(markedCount>0)persistAccountPlans();
+    return markedCount+unplannedCount;
     return markedCount;
   }catch(e){
     console.warn('[intervals.icu] erro ao checar conclusões',e);
@@ -11072,18 +11144,18 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds){
 // inicial) — usado ao abrir o app. Planilhas antigas/outras salvas em "Meus
 // Treinos" nunca são tocadas automaticamente; só via o botão manual de
 // sincronizar de cada uma. Silencioso — só re-renderiza se achar algo novo.
-// A própria icuCheckPlanCompletions já pula a chamada à API quando não há
-// nenhum dia pendente (nem chega a fazer fetch) — não precisa de mais
-// nenhuma checagem de "hoje é descanso" aqui em cima, isso só faria perder
-// pendência atrasada sem economizar chamada de verdade.
-async function icuAutoCheckAllPlans(){
+// Sempre checa (mesmo sem nada pendente) — é o que permite também pegar
+// corrida "extra"/não programada. Mesma cadência de sempre: a trava de
+// 10s contra disparo duplicado (em icuAutoCheckOnResume) é proteção mais
+// que suficiente pro limite real do intervals.icu (10 chamadas/segundo).
+async function icuAutoCheckAllPlans(force){
   const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
   if(!apiKey||!athleteId)return 0;
   if(!wzSummaryPlanId)return 0;
   const plan=savedPlans.find(p=>p.id===wzSummaryPlanId);
   if(!plan)return 0;
   let total=0;
-  try{ total=await icuCheckPlanCompletions(plan,apiKey,athleteId); }catch(e){}
+  try{ total=await icuCheckPlanCompletions(plan,apiKey,athleteId,undefined,force); }catch(e){}
   if(total>0){
     updateSavedBadge();
     renderSavedList();
@@ -11101,7 +11173,7 @@ async function icuManualSyncPlan(planId,btn){
   if(!apiKey||!athleteId){showToast('Configure a integração com o relógio primeiro.');return;}
   if(btn)btn.classList.add('spinning');
   try{
-    const count=await icuCheckPlanCompletions(plan,apiKey,athleteId);
+    const count=await icuCheckPlanCompletions(plan,apiKey,athleteId,undefined,true);
     if(count>0){
       updateSavedBadge();
       renderSavedList();
