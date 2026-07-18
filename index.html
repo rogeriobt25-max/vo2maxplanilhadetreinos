@@ -2210,13 +2210,26 @@ window.doRegister=doRegister;
 /* ── Logout ── */
 async function doLogout(){
   if(!confirm('Sair da conta?'))return;
+  const outgoingUid=currentUser?currentUser.uid:null;
   try{ await fbAuth.signOut(); }catch(e){ console.warn('signOut error',e); }
   // Cada limpeza é blindada com try/catch: mesmo se uma falhar, as outras
   // rodam e o reload no final SEMPRE acontece — é o que garante voltar pro
   // início do site (e descartar qualquer planilha gerada e não salva na tela).
   try{ localStorage.removeItem('icu_config'); }catch(e){}
   try{ localStorage.removeItem('icu_config_owner'); }catch(e){}
+  // Chave do último teste é por UID (evita uma conta herdar o resultado que
+  // ficou de outra conta usada antes no mesmo navegador) — limpa a dessa
+  // conta específica, e também as chaves antigas sem UID por segurança.
+  if(outgoingUid){
+    try{ localStorage.removeItem(`${LS_TEST_KEY}_${outgoingUid}`); }catch(e){}
+    try{ localStorage.removeItem(`${LS_REAL_TEST_KEY}_${outgoingUid}`); }catch(e){}
+  }
   try{ localStorage.removeItem('vo2_last_test'); }catch(e){}
+  try{ localStorage.removeItem('vo2_last_real_test'); }catch(e){}
+  // Cache local de "Realizados" também não pode sobreviver ao logout — senão
+  // o próximo uso como visitante (ou outra conta) herdaria o histórico da
+  // conta anterior.
+  try{ localStorage.removeItem('vo2_completed_log'); }catch(e){}
   // "Planilha atual" da tela inicial não pode sobreviver ao logout — senão o
   // próximo login (ou o uso como visitante) reabre já com a planilha da
   // conta anterior marcada como atual.
@@ -2366,6 +2379,7 @@ function initAuth(){
   // Carrega último teste do localStorage enquanto Firebase inicializa
   loadLastTestFromStorage();
   fbAuth.onAuthStateChanged(async(user)=>{
+    const prevUid=currentUser?currentUser.uid:null;
     currentUser=user;
     if(user){
       // Login (ou troca de conta): descarta qualquer planilha "solta" que
@@ -2405,6 +2419,13 @@ function initAuth(){
       wzClearSummaryState();
       completedLog=[];
       completedLogCursor=null;completedLogHasMore=true;
+      lastRealTest=null;lastTestResult=null;
+      renderWzVo2RealNote();
+      if(prevUid){
+        try{localStorage.removeItem(`${LS_TEST_KEY}_${prevUid}`);}catch(e){}
+        try{localStorage.removeItem(`${LS_REAL_TEST_KEY}_${prevUid}`);}catch(e){}
+      }
+      try{localStorage.removeItem('vo2_completed_log');}catch(e){}
     }
     updateAuthUI();
     updateSavedBadge();
@@ -2454,11 +2475,16 @@ var lastRealTest=null; // {vo2, vVO2, methodLabel, methodType, profKey, date}
 /* ── Persistência do último teste ── */
 const LS_TEST_KEY='vo2_last_test';
 const LS_REAL_TEST_KEY='vo2_last_real_test';
+// Com conta logada, guarda numa chave por UID — sem isso, se duas contas
+// diferentes (ex: dois logins Google diferentes) usarem o MESMO navegador,
+// a segunda conta podia herdar o resultado de VO2 que ficou salvo da
+// primeira, achando que era um cache "vazando" entre usuários.
+function userScopedKey(base){ return currentUser?`${base}_${currentUser.uid}`:base; }
 
 function saveLastTest(vo2,vVO2,methodLabel,methodType,profKey){
   const data={vo2,vVO2,methodLabel,methodType,profKey,date:new Date().toLocaleDateString('pt-BR')};
   lastTestResult=data;
-  lsSet(LS_TEST_KEY,JSON.stringify(data));
+  lsSet(userScopedKey(LS_TEST_KEY),JSON.stringify(data));
   // Sincroniza na nuvem se tiver conta
   if(currentUser&&fbDb){
     try{fbDb.collection('users').doc(currentUser.uid).set({lastTest:data},{merge:true});}catch(e){}
@@ -2467,7 +2493,7 @@ function saveLastTest(vo2,vVO2,methodLabel,methodType,profKey){
   // informar" — assim ele nunca é sobrescrito por um cálculo por nível.
   if(methodType!=='profileDefault'){
     lastRealTest=data;
-    lsSet(LS_REAL_TEST_KEY,JSON.stringify(data));
+    lsSet(userScopedKey(LS_REAL_TEST_KEY),JSON.stringify(data));
     if(currentUser&&fbDb){
       try{fbDb.collection('users').doc(currentUser.uid).set({lastRealTest:data},{merge:true});}catch(e){}
     }
@@ -2476,28 +2502,32 @@ function saveLastTest(vo2,vVO2,methodLabel,methodType,profKey){
 
 function loadLastTestFromStorage(){
   try{
-    const rawReal=lsGet(LS_REAL_TEST_KEY);
+    const rawReal=lsGet(userScopedKey(LS_REAL_TEST_KEY));
     if(rawReal)lastRealTest=JSON.parse(rawReal);
   }catch(e){}
   renderWzVo2RealNote();
   try{
-    const raw=lsGet(LS_TEST_KEY);
+    const raw=lsGet(userScopedKey(LS_TEST_KEY));
     if(raw){lastTestResult=JSON.parse(raw);return true;}
   }catch(e){}
   return false;
 }
 
 async function loadLastTestFromCloud(uid,presetData){
+  // Sempre zera antes de checar a nuvem dessa conta — sem isso, uma conta
+  // nova (sem teste nenhum salvo) continuaria mostrando o resultado que
+  // tinha ficado na memória de uma conta anterior usada no mesmo navegador.
+  lastRealTest=null; lastTestResult=null;
   try{
     const data=presetData!==undefined?presetData:await fetchUserDocFromCloud(uid);
     if(data&&data.lastRealTest){
       lastRealTest=data.lastRealTest;
-      try{lsSet(LS_REAL_TEST_KEY,JSON.stringify(lastRealTest));}catch(e){}
+      try{lsSet(userScopedKey(LS_REAL_TEST_KEY),JSON.stringify(lastRealTest));}catch(e){}
     }
     renderWzVo2RealNote();
     if(data&&data.lastTest){
       lastTestResult=data.lastTest;
-      try{lsSet(LS_TEST_KEY,JSON.stringify(lastTestResult));}catch(e){}
+      try{lsSet(userScopedKey(LS_TEST_KEY),JSON.stringify(lastTestResult));}catch(e){}
       return true;
     }
   }catch(e){}
@@ -9784,6 +9814,7 @@ function garminDisconnect(){
   localStorage.removeItem('garmin_token_expiry');
   localStorage.removeItem('garmin_oauth_state');
   localStorage.removeItem('garmin_pending_plan_id');
+  localStorage.removeItem('garmin_pkce_verifier');
 }
 
 // PKCE helpers
@@ -11053,11 +11084,10 @@ async function icuSyncConfigOnLogin(uid,presetData){
     const cloud=await loadIcuConfigFromCloud(uid,presetData);
     const hasLocal=!!(local&&local.apiKey&&local.athleteId);
     const hasCloud=!!(cloud&&cloud.apiKey&&cloud.athleteId);
-    // Só considera a config local "dela" se foi salva sem login (anon/pré-login)
-    // ou pelo próprio uid que está logando agora. Se pertencer a outro uid
-    // (usuário anterior que esqueceu de desconectar/logout no mesmo navegador),
-    // NUNCA reaproveitamos essa chave para esta conta.
-    const localBelongsToThisUser = hasLocal && (localOwner===uid || localOwner==='anon' || !localOwner);
+    // Só considera a config local "dela" se foi salva pelo PRÓPRIO uid que
+    // está logando agora — chave sem dono (ou de outra conta) nunca é
+    // herdada automaticamente, mesmo que pareça "não ter dono".
+    const localBelongsToThisUser = hasLocal && localOwner===uid;
     if(hasCloud){
       // Nuvem é a fonte de verdade entre dispositivos diferentes
       localStorage.setItem('icu_config', JSON.stringify(cloud));
