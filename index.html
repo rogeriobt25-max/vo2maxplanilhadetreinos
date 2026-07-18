@@ -1310,6 +1310,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <symbol id="i-home" viewBox="0 -960 960 960"><path d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-40 40q-17 0-28.5-11.5T160-200v-360q0-9.35 4-17.85 4-8.5 12-14.15l280-210q7-5 14.5-7.5T480-812q9 0 16.5 2.5T511-802l280 210q8 5.65 12 14.15 4 8.5 4 17.85v360q0 17-11.5 28.5T767-160H560q-17 0-28.5-11.5T520-200v-200h-80v200q0 17-11.5 28.5T400-160H200Z"/></symbol>
 <symbol id="i-refresh" viewBox="0 -960 960 960"><path d="M480-160q-133 0-226.5-93.5T160-480q0-133 93.5-226.5T480-800q85 0 149 34.5T740-671v-99q0-13 8.5-21.5T770-800q13 0 21.5 8.5T800-770v194q0 13-8.5 21.5T770-546H576q-13 0-21.5-8.5T546-576q0-13 8.5-21.5T576-606h138q-38-60-97-97t-137-37q-109 0-184.5 75.5T220-480q0 109 75.5 184.5T480-220q75 0 140-39.5T717-366q5-11 16.5-16.5t22.5-.5q12 5 16 16.5t-1 23.5q-39 84-117.5 133.5T480-160Z"/></symbol>
 <symbol id="i-sync" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></symbol>
+<symbol id="i-content_copy" viewBox="0 0 24 24"><path d="M7.5 17V3h11v14zm1-1h9V4h-9zm-4 4V6.616h1V19h9.385v1zm4-4V4z"/></symbol>
 <symbol id="i-share" viewBox="0 -960 960 960"><path d="M480-80q-33 0-56.5-23.5T400-160q0-5 1-10.5t2-9.5L195-373q-14 12-31.5 19t-35.5 7q-33 0-56.5-23.5T48-427q0-33 23.5-56.5T128-507q19 0 36 7.5t31 20.5l208-193q-1-5-2-10.5t-1-9.5q0-33 23.5-56.5T480-772q33 0 56.5 23.5T560-692q0 5-1 10.5t-2 9.5l208 193q14-13 31-20.5t36-7.5q33 0 56.5 23.5T912-427q0 33-23.5 56.5T832-347q-18 0-35.5-7T765-373L557-180q1 4 2 9.5t1 10.5q0 33-23.5 56.5T480-80Zm0-80q6 0 10.5-4.5T495-175l-14-30 14-30q-4.5-4.5-10.5-4.5t-10 4.5L465-235l15 30q4.5 4.5 10 4.5Zm-352-267q7 0 11-4.5t4-10.5q0-6-4-10.5t-11-4.5q-6 0-10.5 4.5T113-442q0 6 4.5 10.5T128-427Zm704 0q6 0 10.5-4.5T847-442q0-6-4.5-10.5T832-457q-7 0-11 4.5t-4 10.5q0 6 4 10.5t11 4.5ZM480-652q6 0 10.5-4.5T495-667q0-6-4.5-10.5T480-682q-6 0-10.5 4.5T465-667q0 6 4.5 10.5T480-652Z"/></symbol>
 <symbol id="i-add_a_photo" viewBox="0 -960 960 960"><path d="M480-260q75 0 127.5-52.5T660-440q0-75-52.5-127.5T480-620q-75 0-127.5 52.5T300-440q0 75 52.5 127.5T480-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h126l74-80h240v80H392l-73 80H160v440h640v-280h80v280q0 33-23.5 56.5T800-120H160Zm640-480v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM480-440Z"/></symbol>
 <symbol id="i-download" viewBox="0 -960 960 960"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></symbol>
@@ -7889,6 +7890,9 @@ function renderShareModalBody(){
         <svg class="gi" style="vertical-align:-2px"><use href="#i-add_a_photo"></use></svg> ${f.photoDataUrl?'Trocar foto':'Adicionar foto (opcional)'}
         <input type="file" accept="image/*" style="display:none" onchange="shareOnPhotoChange(this)"/>
       </label>
+      <button onclick="shareCopyStatsImage()" title="Copia só a logo e os dados, com fundo transparente, pra colar em cima de qualquer foto" style="display:inline-block;padding:8px 14px;border:1px dashed var(--bdr2);border-radius:8px;font-size:12.5px;color:var(--t2);cursor:pointer;font-weight:600;background:none;font-family:inherit;margin-left:6px">
+        <svg class="gi" style="vertical-align:-2px"><use href="#i-content_copy"></use></svg> Copiar dados
+      </button>
       ${f.photoDataUrl?`<button onclick="shareRemovePhoto()" style="background:none;border:none;color:var(--rd);font-size:12px;font-weight:600;cursor:pointer;margin-left:8px;font-family:inherit">remover</button>`:''}
       <div style="font-size:11px;color:var(--t3);margin-top:4px">A foto fica só neste navegador — nunca é enviada nem salva em lugar nenhum.</div>
       ${f.photoDataUrl?`<div style="margin-top:10px">
@@ -7980,6 +7984,143 @@ function shareOnPhotoChange(input){
   reader.readAsDataURL(file);
 }
 
+// Desenha só a logo + título + dados (sem fundo nenhum) — usado tanto no
+// canvas principal (por cima do fundo/foto) quanto na versão transparente
+// pra copiar e colar em cima de qualquer imagem.
+function drawShareOverlayOnCtx(ctx,W,H,f,onDone){
+  ctx.textAlign='center';
+  const cx=W/2;
+
+  function finishAfterLogo(){
+    const cols=[['DISTÂNCIA',f.distNum?`${f.distNum} km`:'—']];
+    if(f.duration)cols.push(['TEMPO TOTAL',f.duration]);
+    if(f.paceNum)cols.push(['RITMO MÉDIO',`${f.paceNum}/km`]);
+    if(f.avgHrNum)cols.push(['FC MÉDIA',`${f.avgHrNum} bpm`]);
+
+    let y=H*0.80;
+
+    // tamanhos base (maiores que antes) — se o conteúdo não couber na
+    // largura da imagem, o fator "scale" abaixo reduz tudo proporcionalmente
+    // (nunca corta/estoura pros lados)
+    const baseTitle=69, baseLabel=28, baseNum=54, baseUnit=26;
+
+    function fonts(scale){
+      return{
+        title:`700 ${baseTitle*scale}px Inter, Arial, sans-serif`,
+        label:`600 ${baseLabel*scale}px Inter, Arial, sans-serif`,
+        num:`600 ${baseNum*scale}px Inter, Arial, sans-serif`,
+        unit:`500 ${baseUnit*scale}px Inter, Arial, sans-serif`
+      };
+    }
+
+    function measureStat(label,val,f2,unitGap){
+      ctx.font=f2.label; ctx.letterSpacing='1px';
+      const labelW=ctx.measureText(label).width;
+      ctx.letterSpacing='0px';
+      const m=val.match(/^([\d:,.\-]+)\s*(.*)$/);
+      const numPart=m?m[1]:val, unitPart=m?m[2]:'';
+      ctx.font=f2.num;
+      const numW=ctx.measureText(numPart).width;
+      let unitW=0;
+      if(unitPart){
+        ctx.font=f2.unit;
+        unitW=ctx.measureText(unitPart).width+unitGap;
+      }
+      return Math.max(labelW, numW+unitW);
+    }
+
+    // acha o maior "scale" (até 1) que ainda cabe dentro da largura
+    // disponível da imagem, testando do tamanho cheio pra baixo
+    const availW=W*0.90;
+    let scale=1;
+    for(let i=0;i<6;i++){
+      const f2=fonts(scale);
+      const unitGap=W*0.010*scale;
+      const maxColW=Math.max(...cols.map(([label,val])=>measureStat(label,val,f2,unitGap)));
+      const colGap=cols.length>1?Math.max(Math.min(W*0.22,(W*0.62)/(cols.length-1)),maxColW+W*0.045):0;
+      const totalW=colGap*(cols.length-1)+maxColW;
+      if(totalW<=availW || scale<=0.72)break;
+      scale=Math.max(0.72, scale*(availW/totalW));
+    }
+
+    const F=fonts(scale);
+    const unitGap=W*0.010*scale;
+
+    // título do treino (ex: "Corrida"), em negrito — o único elemento
+    // em negrito de toda a imagem
+    ctx.font=F.title;
+    ctx.fillStyle='rgba(255,255,255,0.95)';
+    ctx.fillText(f.type,cx,y);
+    y+=W*0.105;
+
+    function drawStat(x,rowY,label,val){
+      const labelY=rowY, numY=rowY+W*0.055;
+      ctx.font=F.label; ctx.letterSpacing='1px';
+      ctx.fillStyle='rgba(255,255,255,0.75)';
+      ctx.textAlign='center';
+      ctx.fillText(label,x,labelY);
+      ctx.letterSpacing='0px';
+
+      // separa número + unidade (ex: "6,02" + "km", "7:48" + "/km") —
+      // números sem negrito, só nítidos (peso médio)
+      const m=val.match(/^([\d:,.\-]+)\s*(.*)$/);
+      const numPart=m?m[1]:val, unitPart=m?m[2]:'';
+      ctx.font=F.num;
+      const numW=ctx.measureText(numPart).width;
+      let unitW=0;
+      if(unitPart){
+        ctx.font=F.unit;
+        unitW=ctx.measureText(unitPart).width+unitGap;
+      }
+      // centraliza o NÚMERO em si sob o rótulo (não o bloco número+unidade
+      // inteiro) — senão a unidade puxa o conjunto pra um lado e o número
+      // fica desalinhado com o texto de cima
+      const textStartX=x-numW/2;
+      ctx.textAlign='left';
+      ctx.font=F.num; ctx.fillStyle='#ffffff';
+      ctx.fillText(numPart,textStartX,numY);
+      if(unitPart){
+        ctx.font=F.unit; ctx.fillStyle='rgba(255,255,255,0.65)';
+        ctx.fillText(unitPart,textStartX+numW+unitGap,numY);
+      }
+      ctx.textAlign='center';
+    }
+
+    // colunas próximas por padrão, mas o espaçamento cresce sozinho se
+    // algum valor for largo demais pro espaço fixo (nunca sobrepõe)
+    const maxColW=cols.length?Math.max(...cols.map(([label,val])=>measureStat(label,val,F,unitGap))):0;
+    const colGap=cols.length>1?Math.max(Math.min(W*0.22,(W*0.62)/(cols.length-1)),maxColW+W*0.045):0;
+    const startX=cx-(colGap*(cols.length-1))/2;
+    cols.forEach(([label,val],i)=>drawStat(startX+i*colGap,y,label,val));
+    // sem risquinhos verticais entre os dados — visual mais limpo
+    if(onDone)onDone();
+  }
+
+  // Logo sempre desenhada por código, com base no canvas final (não na
+  // imagem original) — assim ela nunca é cortada, nem no formato Post
+  // (que recorta o topo/base da imagem de fundo pra virar quadrado).
+  if(!shareLogoImgCache){
+    shareLogoImgCache=new Image();
+    shareLogoImgCache.onload=()=>{ drawLogoAndRest(); };
+    shareLogoImgCache.src=SHARE_LOGO_DATAURL;
+  }else if(shareLogoImgCache.complete){
+    drawLogoAndRest();
+  }else{
+    shareLogoImgCache.onload=()=>{ drawLogoAndRest(); };
+  }
+
+  function drawLogoAndRest(){
+    // Um pouco maior que antes, agora no canto superior DIREITO — mesma
+    // margem/espaçamento que era usado à esquerda, só espelhado.
+    const logoW=W*0.155;
+    const logoH=logoW*(shareLogoImgCache.height/shareLogoImgCache.width);
+    const margin=W*0.033;
+    const logoX=W-logoW-margin, logoY=H*0.029;
+    ctx.drawImage(shareLogoImgCache,logoX,logoY,logoW,logoH);
+    finishAfterLogo();
+  }
+}
+
 function shareRedrawCanvas(){
   const canvas=document.getElementById('share-canvas');if(!canvas||!shareCtx)return;
   const f=shareCtx;
@@ -8008,138 +8149,7 @@ function shareRedrawCanvas(){
     }
   }
 
-  function drawOverlay(){
-    ctx.textAlign='center';
-    const cx=W/2;
-
-    function finishAfterLogo(){
-      const cols=[['DISTÂNCIA',f.distNum?`${f.distNum} km`:'—']];
-      if(f.duration)cols.push(['TEMPO TOTAL',f.duration]);
-      if(f.paceNum)cols.push(['RITMO MÉDIO',`${f.paceNum}/km`]);
-      if(f.avgHrNum)cols.push(['FC MÉDIA',`${f.avgHrNum} bpm`]);
-
-      let y=H*0.80;
-
-      // tamanhos base (maiores que antes) — se o conteúdo não couber na
-      // largura da imagem, o fator "scale" abaixo reduz tudo proporcionalmente
-      // (nunca corta/estoura pros lados)
-      const baseTitle=69, baseLabel=28, baseNum=54, baseUnit=26;
-
-      function fonts(scale){
-        return{
-          title:`700 ${baseTitle*scale}px Inter, Arial, sans-serif`,
-          label:`600 ${baseLabel*scale}px Inter, Arial, sans-serif`,
-          num:`600 ${baseNum*scale}px Inter, Arial, sans-serif`,
-          unit:`500 ${baseUnit*scale}px Inter, Arial, sans-serif`
-        };
-      }
-
-      function measureStat(label,val,f2,unitGap){
-        ctx.font=f2.label; ctx.letterSpacing='1px';
-        const labelW=ctx.measureText(label).width;
-        ctx.letterSpacing='0px';
-        const m=val.match(/^([\d:,.\-]+)\s*(.*)$/);
-        const numPart=m?m[1]:val, unitPart=m?m[2]:'';
-        ctx.font=f2.num;
-        const numW=ctx.measureText(numPart).width;
-        let unitW=0;
-        if(unitPart){
-          ctx.font=f2.unit;
-          unitW=ctx.measureText(unitPart).width+unitGap;
-        }
-        return Math.max(labelW, numW+unitW);
-      }
-
-      // acha o maior "scale" (até 1) que ainda cabe dentro da largura
-      // disponível da imagem, testando do tamanho cheio pra baixo
-      const availW=W*0.90;
-      let scale=1;
-      for(let i=0;i<6;i++){
-        const f2=fonts(scale);
-        const unitGap=W*0.010*scale;
-        const maxColW=Math.max(...cols.map(([label,val])=>measureStat(label,val,f2,unitGap)));
-        const colGap=cols.length>1?Math.max(Math.min(W*0.22,(W*0.62)/(cols.length-1)),maxColW+W*0.045):0;
-        const totalW=colGap*(cols.length-1)+maxColW;
-        if(totalW<=availW || scale<=0.72)break;
-        scale=Math.max(0.72, scale*(availW/totalW));
-      }
-
-      const F=fonts(scale);
-      const unitGap=W*0.010*scale;
-
-      // título do treino (ex: "Corrida"), em negrito — o único elemento
-      // em negrito de toda a imagem
-      ctx.font=F.title;
-      ctx.fillStyle='rgba(255,255,255,0.95)';
-      ctx.fillText(f.type,cx,y);
-      y+=W*0.105;
-
-      function drawStat(x,rowY,label,val){
-        const labelY=rowY, numY=rowY+W*0.055;
-        ctx.font=F.label; ctx.letterSpacing='1px';
-        ctx.fillStyle='rgba(255,255,255,0.75)';
-        ctx.textAlign='center';
-        ctx.fillText(label,x,labelY);
-        ctx.letterSpacing='0px';
-
-        // separa número + unidade (ex: "6,02" + "km", "7:48" + "/km") —
-        // números sem negrito, só nítidos (peso médio)
-        const m=val.match(/^([\d:,.\-]+)\s*(.*)$/);
-        const numPart=m?m[1]:val, unitPart=m?m[2]:'';
-        ctx.font=F.num;
-        const numW=ctx.measureText(numPart).width;
-        let unitW=0;
-        if(unitPart){
-          ctx.font=F.unit;
-          unitW=ctx.measureText(unitPart).width+unitGap;
-        }
-        // centraliza o NÚMERO em si sob o rótulo (não o bloco número+unidade
-        // inteiro) — senão a unidade puxa o conjunto pra um lado e o número
-        // fica desalinhado com o texto de cima
-        const textStartX=x-numW/2;
-        ctx.textAlign='left';
-        ctx.font=F.num; ctx.fillStyle='#ffffff';
-        ctx.fillText(numPart,textStartX,numY);
-        if(unitPart){
-          ctx.font=F.unit; ctx.fillStyle='rgba(255,255,255,0.65)';
-          ctx.fillText(unitPart,textStartX+numW+unitGap,numY);
-        }
-        ctx.textAlign='center';
-      }
-
-      // colunas próximas por padrão, mas o espaçamento cresce sozinho se
-      // algum valor for largo demais pro espaço fixo (nunca sobrepõe)
-      const maxColW=cols.length?Math.max(...cols.map(([label,val])=>measureStat(label,val,F,unitGap))):0;
-      const colGap=cols.length>1?Math.max(Math.min(W*0.22,(W*0.62)/(cols.length-1)),maxColW+W*0.045):0;
-      const startX=cx-(colGap*(cols.length-1))/2;
-      cols.forEach(([label,val],i)=>drawStat(startX+i*colGap,y,label,val));
-      // sem risquinhos verticais entre os dados — visual mais limpo
-    }
-
-    // Logo sempre desenhada por código, com base no canvas final (não na
-    // imagem original) — assim ela nunca é cortada, nem no formato Post
-    // (que recorta o topo/base da imagem de fundo pra virar quadrado).
-    if(!shareLogoImgCache){
-      shareLogoImgCache=new Image();
-      shareLogoImgCache.onload=()=>{ drawLogoAndRest(); };
-      shareLogoImgCache.src=SHARE_LOGO_DATAURL;
-    }else if(shareLogoImgCache.complete){
-      drawLogoAndRest();
-    }else{
-      shareLogoImgCache.onload=()=>{ drawLogoAndRest(); };
-    }
-
-    function drawLogoAndRest(){
-      // Um pouco maior que antes, agora no canto superior DIREITO — mesma
-      // margem/espaçamento que era usado à esquerda, só espelhado.
-      const logoW=W*0.155;
-      const logoH=logoW*(shareLogoImgCache.height/shareLogoImgCache.width);
-      const margin=W*0.033;
-      const logoX=W-logoW-margin, logoY=H*0.029;
-      ctx.drawImage(shareLogoImgCache,logoX,logoY,logoW,logoH);
-      finishAfterLogo();
-    }
-  }
+  function drawOverlay(){ drawShareOverlayOnCtx(ctx,W,H,f); }
 
   // ── Imagem de fundo padrão (tênis + logo), cobrindo a tela como
   // object-fit:cover — usada quando o usuário não anexou foto própria.
@@ -8236,6 +8246,32 @@ function shareDownloadImage(){
     setTimeout(()=>URL.revokeObjectURL(url),2000);
     showToast('Imagem baixada com sucesso!');
   },'image/png');
+}
+
+// Copia só a logo + título + dados, com fundo TRANSPARENTE (sem a foto/fundo
+// padrão) — pra colar em cima de qualquer imagem própria em outro app.
+// Mesmo layout/posições da imagem completa, só sem o que está por baixo.
+async function shareCopyStatsImage(){
+  if(!shareCtx)return;
+  const f=shareCtx;
+  const W=1080, H=f.format==='story'?1920:1080;
+  const off=document.createElement('canvas');
+  off.width=W; off.height=H;
+  const octx=off.getContext('2d');
+  // canvas já nasce transparente — não desenha nenhum fundo aqui
+  drawShareOverlayOnCtx(octx,W,H,f,()=>{
+    off.toBlob(async blob=>{
+      if(!blob){showToast('Não foi possível gerar a imagem.');return;}
+      try{
+        if(!navigator.clipboard||!window.ClipboardItem)throw new Error('Clipboard API indisponível');
+        await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+        showToast('Copiado! Cole em cima de qualquer foto.');
+      }catch(e){
+        console.warn('clipboard copy error',e);
+        showToast('Não foi possível copiar neste navegador. Tente baixar a imagem normal.');
+      }
+    },'image/png');
+  });
 }
 
 async function shareNativeShare(){
@@ -10367,6 +10403,14 @@ document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='visible'){
     shareRedrawIfOpen();
     icuAutoCheckOnResume();
+  }else{
+    // Ao minimizar/trocar de app com a tela de compartilhar aberta, fecha
+    // ela agora — o navegador pode descartar o desenho do canvas em
+    // segundo plano (fica preto/branco/azul do nada ao voltar), e isso é
+    // mais confiável de evitar do que tentar redesenhar depois. Reabrindo
+    // do zero sempre gera a imagem certa, sem risco de tela quebrada.
+    const shareModal=document.getElementById('share-modal');
+    if(shareModal)shareModal.remove();
   }
 });
 window.addEventListener('pageshow',function(){ shareRedrawIfOpen(); icuAutoCheckOnResume(); });
