@@ -36,7 +36,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#f4f6f8;--s1:#ffffff;--s2:#f7f9fb;--s3:#eef1f5;
-  --bdr:rgba(20,30,45,0.16);--bdr2:rgba(20,30,45,0.10);--bdr-day:rgba(20,30,45,0.32);
+  --bdr:rgba(20,30,45,0.26);--bdr2:rgba(20,30,45,0.10);--bdr-day:rgba(20,30,45,0.32);
   --t1:#1a2733;--t2:#5b6b7c;--t3:#8d99a8;
   --pure-fg:#000;
   --acc:#0079b3;--acc2:#005f8f;--acc3:rgba(0,121,179,0.10);--acc4:rgba(0,121,179,0.06);
@@ -58,7 +58,7 @@
 
   /* ── Paleta escura (fonte única — usada tanto no modo automático quanto na escolha manual) ── */
   --dbg:#000000;--ds1:#161616;--ds2:#1e1e1e;--ds3:#262626;
-  --dbdr:rgba(255,255,255,0.20);--dbdr2:rgba(255,255,255,0.13);--dbdr-day:rgba(255,255,255,0.38);
+  --dbdr:rgba(255,255,255,0.30);--dbdr2:rgba(255,255,255,0.13);--dbdr-day:rgba(255,255,255,0.38);
   --dt1:#ffffff;--dt2:#c2cdd6;--dt3:#98a3ae;
   --dacc:#2ab0f0;--dacc2:#5bc6f5;--dacc3:rgba(42,176,240,0.16);--dacc4:rgba(42,176,240,0.10);
   --dgr:#3fc46a;--dgr2:rgba(63,196,106,0.14);
@@ -7559,6 +7559,29 @@ function unlogCompletion(planId,wIdx,dIdx){
   if(completedLog.length!==before)persistCompletedRemoval(id);
 }
 
+// Exclui um registro de "Realizados". Se ele ainda estiver vinculado a uma
+// planilha/dia que existe, desmarca esse dia como concluído lá também —
+// sem isso, o dia continuaria "feito" na planilha mas sem registro nenhum
+// em Realizados, uma inconsistência confusa.
+function deleteRealizadoEntry(logId){
+  const entry=completedLog.find(e=>e.id===logId);if(!entry)return;
+  if(!confirm('Excluir este registro de "Realizados"?'+(entry.planId!=null?' O dia correspondente também será desmarcado como concluído na planilha (se ela ainda existir).':'')))return;
+  if(entry.planId!=null){
+    const plan=savedPlans.find(p=>p.id===entry.planId);
+    if(plan){
+      const key=`${entry.wIdx}-${entry.dIdx}`;
+      plan.done[key]=false;
+      persistAccountPlans();
+      syncTodayViewsForPlanDay(entry.planId);
+    }
+  }
+  completedLog=completedLog.filter(e=>e.id!==logId);
+  persistCompletedRemoval(logId);
+  const modal=document.getElementById('realizado-detail-modal');if(modal)modal.remove();
+  renderRealizadosList();
+  showToast('Registro excluído.');
+}
+
 // Corrida do intervals.icu que não bateu com nenhum dia programado da
 // planilha (dia de descanso, ou fora do período) — ainda assim vira um
 // registro em "Realizados", só marcado como não programado e sem vínculo
@@ -7962,7 +7985,7 @@ function renderShareModalBody(){
       </div>
       <div style="min-width:0"><label style="font-size:9.5px;color:var(--t3);text-transform:uppercase">Ritmo</label>
         <div style="display:flex;align-items:center;border:1px solid var(--bdr2);border-radius:6px;background:var(--s1);overflow:hidden">
-          <input id="share-f-pace" value="${f.paceNum}" inputmode="numeric" placeholder="0:00" oninput="shareMaskPace(this);shareUpdateField('paceNum',this.value)" style="flex:1;width:0;min-width:0;border:none;background:none;padding:6px 2px 6px 7px;font-size:12px;font-family:inherit;color:var(--t1)"/>
+          <input id="share-f-pace" value="${f.paceNum}" inputmode="numeric" placeholder="0:00" oninput="shareMaskPace(this);shareUpdateField('paceNum',this.value)" onblur="padTimeOnBlur(this);shareUpdateField('paceNum',this.value)" style="flex:1;width:0;min-width:0;border:none;background:none;padding:6px 2px 6px 7px;font-size:12px;font-family:inherit;color:var(--t1)"/>
           <span style="color:var(--t3);font-size:10.5px;padding-right:6px;flex-shrink:0">/km</span>
         </div></div>
       <div style="min-width:0"><label style="font-size:9.5px;color:var(--t3);text-transform:uppercase">FC</label>
@@ -8673,6 +8696,7 @@ function renderRealizadosList(){
         </div>
         <div class="saved-item-actions">
           <button class="btn-icon" title="Compartilhar" onclick="event.stopPropagation();openShareModalFromLog('${entry.id}')"><svg class="gi"><use href="#i-share"></use></svg></button>
+          <button class="btn-icon" title="Excluir" onclick="event.stopPropagation();deleteRealizadoEntry('${entry.id}')" style="color:var(--rd)"><svg class="gi"><use href="#i-delete"></use></svg></button>
         </div>
       </div>
       ${planExists?`<div style="padding:0 16px 14px"><button class="btn-open-plan" style="width:100%" onclick="event.stopPropagation();switchSavedSubTab('plans');toggleWeeksPanel(${entry.planId},true);"><svg class="gi"><use href="#i-menu_book"></use></svg> Ver planilha</button></div>`:''}
@@ -8702,6 +8726,7 @@ function openRealizadoDetailModal(logId){
         <button class="btn-modal-ok" style="width:100%;height:48px;font-size:14.5px" onclick="document.getElementById('realizado-detail-modal').remove();openShareModalFromLog('${entry.id}')"><svg class="gi"><use href="#i-share"></use></svg> Compartilhar</button>
         ${planExists?`<button class="btn-modal-cancel" style="width:100%;height:48px;font-size:14.5px" onclick="document.getElementById('realizado-detail-modal').remove();switchSavedSubTab('plans');toggleWeeksPanel(${entry.planId},true);">Ver planilha</button>`:''}
         <button class="btn-modal-cancel" style="width:100%;height:44px;font-size:13.5px" onclick="document.getElementById('realizado-detail-modal').remove()">Fechar</button>
+        <button style="width:100%;height:40px;font-size:13px;background:none;border:none;color:var(--rd);cursor:pointer;font-family:inherit;font-weight:600" onclick="deleteRealizadoEntry('${entry.id}')"><svg class="gi" style="font-size:15px;vertical-align:-2px"><use href="#i-delete"></use></svg> Excluir registro</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
