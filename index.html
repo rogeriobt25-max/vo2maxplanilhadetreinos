@@ -67,9 +67,9 @@
   /* Card de destaque neutro (recordes, "realizado", etc) — fundo sólido +
      faixa lateral na cor de destaque, em vez do antigo fundo translúcido
      azul + borda da mesma cor (que no escuro ficava com efeito "neon"). */
-  --stat-bg:var(--s2);--stat-bdr:var(--bdr2);
+  --stat-bg:var(--bg);--stat-bdr:var(--bdr2);
   --on-acc:#ffffff;
-  --mc-bg:var(--s1);--mc-border:none;--mc-shadow:var(--shadow-card);
+  --mc-bg:var(--bg);--mc-border:none;--mc-shadow:var(--shadow-card);
   --warm:#e8490a;--warm2:#c93d08;--on-warm:#ffffff;
   /* Bottom nav height + safe area */
   --nav-h:62px;
@@ -112,8 +112,8 @@
     --shadow-card:var(--dshadow-card);--shadow-card-hover:var(--dshadow-card-hover);
     --hdr-glass:var(--dhdr-glass);--nav-glass:var(--dnav-glass);
     --shadow-nav:var(--dshadow-nav);--shadow-modal:var(--dshadow-modal);
-    --stat-bg:var(--s1);--stat-bdr:var(--bdr2);--on-acc:var(--don-acc);
-    --mc-bg:var(--s1);--mc-border:none;--mc-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 14px rgba(0,0,0,0.5);
+    --stat-bg:var(--bg);--stat-bdr:var(--bdr2);--on-acc:var(--don-acc);
+    --mc-bg:var(--bg);--mc-border:none;--mc-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 14px rgba(0,0,0,0.5);
     --warm:var(--dwarm);--warm2:var(--dwarm2);--on-warm:var(--don-warm);
   }
 }
@@ -131,8 +131,8 @@ html[data-theme="dark"]{
   --shadow-card:var(--dshadow-card);--shadow-card-hover:var(--dshadow-card-hover);
   --hdr-glass:var(--dhdr-glass);--nav-glass:var(--dnav-glass);
   --shadow-nav:var(--dshadow-nav);--shadow-modal:var(--dshadow-modal);
-  --stat-bg:var(--s1);--stat-bdr:var(--bdr2);--on-acc:var(--don-acc);
-  --mc-bg:var(--s1);--mc-border:none;--mc-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 14px rgba(0,0,0,0.5);
+  --stat-bg:var(--bg);--stat-bdr:var(--bdr2);--on-acc:var(--don-acc);
+  --mc-bg:var(--bg);--mc-border:none;--mc-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 14px rgba(0,0,0,0.5);
   --warm:var(--dwarm);--warm2:var(--dwarm2);--on-warm:var(--don-warm);
 }
 
@@ -356,7 +356,7 @@ body{
 @media(max-width:360px),(max-device-width:360px){.bnav-label{font-size:9px}.bnav-icon{font-size:18px}}
 
 /* HERO */
-.hero{margin-bottom:1.25rem;padding:1.4rem 1.25rem 1.6rem;background:var(--mc-bg);border-radius:var(--rc);border:var(--mc-border);position:relative;overflow:hidden;box-shadow:var(--mc-shadow)}
+.hero{margin-bottom:1.25rem;padding:1.4rem 1.25rem 1.6rem;background:var(--bg);border-radius:0;border:none;border-bottom:1px solid var(--bdr);position:relative;overflow:hidden;box-shadow:none}
 .hero::before{content:'';display:none}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--acc);opacity:.9;border-radius:0 0 var(--rc) var(--rc);pointer-events:none}
 .hero-eyebrow{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--acc);font-weight:800;margin-bottom:12px;display:inline-flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bdr2);border-radius:8px;padding:4px 12px}
@@ -442,7 +442,7 @@ input::placeholder{color:var(--t3)}
 }
 /* Race tabs: wrap and min touch size */
 .race-tab{padding:6px 18px;border-radius:var(--rb);border:1px solid var(--bdr2);background:var(--s2);color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;min-height:38px;display:inline-flex;align-items:center}
-.mc{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:.95rem 1.05rem;position:relative;overflow:hidden;box-shadow:var(--mc-shadow)}
+.mc{background:var(--mc-bg);border:1px solid var(--bdr2);border-radius:var(--r2);padding:.95rem 1.05rem;position:relative;overflow:hidden;box-shadow:none}
 .mc-lbl{font-size:10.5px;color:var(--t3);margin-bottom:6px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
 .mc-val{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
 .mc-unit{font-size:11.5px;color:var(--t2);font-weight:400}
@@ -618,6 +618,11 @@ details[open] summary::after{transform:rotate(90deg)}
 
 .saved-list{display:flex;flex-direction:column;gap:24px}
 .saved-item{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--rc);overflow:hidden;transition:box-shadow .2s,border-color .2s;box-shadow:var(--mc-shadow)}
+/* Realizados usa uma versão "slim" sem card — só uma linha fina separando
+   um treino do outro, mantendo o card de verdade só pras planilhas. */
+.realizado-row{background:var(--bg);border:none;border-bottom:1px solid var(--bdr)}
+.realizado-row:last-child{border-bottom:none}
+.realizado-row .saved-item-header{padding:12px 2px;border-bottom:none}
 .saved-item.current{border:1px solid var(--bdr-day)}
 .saved-item.flash-highlight{animation:savedItemFlash 1.6s ease-out}
 @keyframes savedItemFlash{0%{border-color:var(--acc);box-shadow:none}100%{border-color:var(--bdr);box-shadow:none}}
@@ -1132,7 +1137,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .auth-divider{text-align:center;font-size:12.5px;color:var(--t3);margin:.8rem 0;position:relative}
 .auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--bdr)}
 .auth-divider::before{left:0}.auth-divider::after{right:0}
-.saved-cloud-notice{background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--rc);padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:var(--t2);line-height:1.6;display:flex;align-items:flex-start;gap:10px}
+.saved-cloud-notice{background:var(--bg);border:none;border-bottom:1px solid var(--bdr);box-shadow:none;border-radius:0;padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:var(--t2);line-height:1.6;display:flex;align-items:flex-start;gap:10px}
 .saved-cloud-notice .icon{font-size:18px;flex-shrink:0;margin-top:1px}
 .saved-cloud-btn{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border-radius:6px;border:1px solid var(--bdr2);background:var(--s3);color:var(--acc);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px;transition:all .2s}
 .saved-cloud-btn:hover{filter:brightness(1.15)}
@@ -1193,7 +1198,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .cs-vo2-pointer::after{content:'';position:absolute;top:0;left:50%;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;background:var(--dot-color,#333a42);box-shadow:0 0 0 2px var(--s1)}
 .cs-vo2-txt{font-size:15px;font-weight:700;color:var(--t1)}
 .cs-note{display:flex;align-items:flex-start;gap:6px;font-size:14px;color:var(--t3);line-height:1.45;padding:.75rem 0 0;margin:.75rem 0 0;border-top:1px solid var(--bdr)}
-.cs-today{padding:.95rem 0 0;margin-top:1rem;border-top:1px solid var(--bdr)}
+.cs-today{padding:.95rem 1.2rem 0;margin:1rem -1.2rem 0;background:var(--bg);border-top:1px solid var(--bdr)}
 .cs-today-eyebrow{font-size:14.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--t1);margin-bottom:6px}
 .cs-today-label{font-size:14px;font-weight:700;color:var(--t3);margin-bottom:2px}
 .cs-today-meta{font-size:13px;color:var(--t3);margin-bottom:9px}
@@ -1212,7 +1217,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .cs-vo2zones-btn:active{background:var(--s3)}
 .cs-vo2zones-btn.on{background:var(--s3);border-color:var(--bdr-day);color:var(--acc)}
 .cs-vo2zones-btn .cs-vo2zones-arrow{font-size:11px;transition:transform .2s}
-.vo2zones-panel{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:1.1rem 1.2rem;margin-bottom:1.1rem;box-shadow:var(--mc-shadow);margin-top:-.4rem}
+.vo2zones-panel{background:var(--bg);border:none;border-top:1px solid var(--bdr);border-radius:0;padding:1.1rem 0 0;margin-bottom:1.1rem;box-shadow:none;margin-top:.6rem}
 /* Card de destaque neutro (Recordes Pessoais, Melhores Marcas, "Realizado")
    — fundo sólido neutro, sem nenhuma cor (nem fundo colorido nem borda
    colorida) — cor fica reservada só pra ações/botões preenchidos. */
@@ -1223,7 +1228,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .vo2zones-panel.records-panel-flat{background:none;border:none;box-shadow:none;padding:0;margin-top:.6rem}
 .cs-link:hover{color:var(--acc)}
 .cs-divider{width:1px;height:14px;background:var(--bdr2);flex-shrink:0}
-.wz-step{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:1.2rem 1.3rem;margin-bottom:.75rem;animation:wzFadeIn .28s ease;box-shadow:var(--mc-shadow)}
+.wz-step{background:var(--bg);border:none;border-bottom:1px solid var(--bdr);border-radius:0;padding:1.2rem 0;margin-bottom:.75rem;animation:wzFadeIn .28s ease;box-shadow:none}
 @keyframes wzFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .wz-step-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
 .wz-step-num{width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -3286,7 +3291,7 @@ function buildVo2ZonesContent(vo2,isReal,method){
       <div class="mc"><p class="mc-lbl">Pace no VO₂ máx</p><p class="mc-val">${s2p(vVO2)} <span class="mc-unit">min/km</span></p></div>
       <div class="mc" style="grid-column:1/-1;text-align:center"><p class="mc-lbl">Velocidade VO₂ máx</p><p class="mc-val">${(Math.round(vVO2*10)/10).toFixed(1)} <span class="mc-unit">km/h</span></p></div>
     </div>
-    <div style="background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:.9rem 1.05rem;box-shadow:var(--mc-shadow)">
+    <div style="background:var(--mc-bg);border:1px solid var(--bdr2);border-radius:var(--r2);padding:.9rem 1.05rem;box-shadow:none">
       <div style="font-size:11.5px;font-weight:800;color:var(--t3);letter-spacing:.03em;margin-bottom:2px">ZONAS DE TREINO</div>
       ${rows}
     </div>`;
@@ -9055,7 +9060,7 @@ function renderRealizadosList(){
     const planExists=savedPlans.some(p=>p.id===entry.planId);
     const dateLabel=fmtDateFull(new Date(entry.date));
     const metaBits=[entry.dist,entry.duration,entry.pace?`${entry.pace}/km`:null,entry.avgHr?`FC ${entry.avgHr}`:null].filter(Boolean).join(' · ');
-    return`<div class="saved-item" style="cursor:pointer" onclick="openRealizadoDetailModal('${entry.id}')">
+    return`<div class="realizado-row" style="cursor:pointer" onclick="openRealizadoDetailModal('${entry.id}')">
       <div class="saved-item-header">
         <div class="saved-item-info">
           <div class="saved-item-name">${dateLabel} · ${entry.type}</div>
