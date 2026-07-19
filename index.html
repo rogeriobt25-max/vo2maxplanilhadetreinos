@@ -69,7 +69,8 @@
      azul + borda da mesma cor (que no escuro ficava com efeito "neon"). */
   --stat-bg:var(--s2);--stat-bdr:var(--bdr2);
   --on-acc:#ffffff;
-  --mc-bg:var(--s1);--mc-border:1px solid var(--bdr);--mc-shadow:var(--shadow-card);
+  --mc-bg:var(--s1);--mc-border:none;--mc-shadow:var(--shadow-card);
+  --warm:#e8490a;--warm2:#c93d08;--on-warm:#ffffff;
   /* Bottom nav height + safe area */
   --nav-h:62px;
   --nav-safe:calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
@@ -93,6 +94,7 @@
   --dhdr-glass:rgba(23,28,34,0.88);--dnav-glass:rgba(23,28,34,0.92);
   --dshadow-nav:0 -1px 8px rgba(0,0,0,0.28);--dshadow-modal:0 8px 30px rgba(0,0,0,0.38);
   --don-acc:#04283a;
+  --dwarm:#fc4c02;--dwarm2:#ff7a1a;--don-warm:#2a0f00;
 }
 
 /* Aplica a paleta escura: automaticamente pelo sistema (se a pessoa não fixou "claro" no perfil)... */
@@ -111,7 +113,8 @@
     --hdr-glass:var(--dhdr-glass);--nav-glass:var(--dnav-glass);
     --shadow-nav:var(--dshadow-nav);--shadow-modal:var(--dshadow-modal);
     --stat-bg:var(--s1);--stat-bdr:var(--bdr2);--on-acc:var(--don-acc);
-    --mc-bg:var(--s1);--mc-border:1px solid var(--bdr2);--mc-shadow:0 3px 10px rgba(0,0,0,0.4);
+    --mc-bg:var(--s1);--mc-border:none;--mc-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 14px rgba(0,0,0,0.5);
+    --warm:var(--dwarm);--warm2:var(--dwarm2);--on-warm:var(--don-warm);
   }
 }
 /* ...ou manualmente, se a pessoa fixou "escuro" no perfil (independe do sistema) */
@@ -129,7 +132,8 @@ html[data-theme="dark"]{
   --hdr-glass:var(--dhdr-glass);--nav-glass:var(--dnav-glass);
   --shadow-nav:var(--dshadow-nav);--shadow-modal:var(--dshadow-modal);
   --stat-bg:var(--s1);--stat-bdr:var(--bdr2);--on-acc:var(--don-acc);
-  --mc-bg:var(--s1);--mc-border:1px solid var(--bdr2);--mc-shadow:0 3px 10px rgba(0,0,0,0.4);
+  --mc-bg:var(--s1);--mc-border:none;--mc-shadow:0 0 0 1px rgba(255,255,255,0.10),0 4px 14px rgba(0,0,0,0.5);
+  --warm:var(--dwarm);--warm2:var(--dwarm2);--on-warm:var(--don-warm);
 }
 
 /* ═══════════════════════════════
@@ -352,7 +356,7 @@ body{
 @media(max-width:360px),(max-device-width:360px){.bnav-label{font-size:9px}.bnav-icon{font-size:18px}}
 
 /* HERO */
-.hero{margin-bottom:1.25rem;padding:1.4rem 1.25rem 1.6rem;background:var(--s1);border-radius:var(--rc);border:1px solid var(--bdr);position:relative;overflow:hidden;box-shadow:var(--shadow-card)}
+.hero{margin-bottom:1.25rem;padding:1.4rem 1.25rem 1.6rem;background:var(--mc-bg);border-radius:var(--rc);border:var(--mc-border);position:relative;overflow:hidden;box-shadow:var(--mc-shadow)}
 .hero::before{content:'';display:none}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--acc);opacity:.9;border-radius:0 0 var(--rc) var(--rc);pointer-events:none}
 .hero-eyebrow{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--acc);font-weight:800;margin-bottom:12px;display:inline-flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bdr2);border-radius:8px;padding:4px 12px}
@@ -361,7 +365,7 @@ body{
 .hero p{font-size:13px;color:var(--t2);margin-bottom:0}
 .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
 .hero-stats .hero-stat:last-child{grid-column:1/-1}
-.hero-stat{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--s2);border:1px solid var(--bdr);border-radius:6px;padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--t2)}
+.hero-stat{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:6px;padding:5px 11px;font-size:11.5px;font-weight:700;color:var(--t2)}
 .hero-stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .hero-stat-dot.g{background:var(--gr)}.hero-stat-dot.b{background:var(--acc)}.hero-stat-dot.p{background:var(--pu)}
 .hero-feat-ico{width:17px;height:17px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--t1);margin-top:1px}
@@ -373,7 +377,7 @@ body{
 .mtab.on{background:var(--s3);border-color:var(--bdr-day);color:var(--acc);box-shadow:none}
 
 /* CARD */
-.card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--rc);padding:1.25rem 1.1rem;margin-bottom:.85rem;box-shadow:var(--shadow-card)}
+.card{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--rc);padding:1.25rem 1.1rem;margin-bottom:.85rem;box-shadow:var(--mc-shadow)}
 .sec-lbl{font-size:10.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--acc);margin-bottom:14px}
 
 /* INPUTS */
@@ -410,7 +414,7 @@ input::placeholder{color:var(--t3)}
 .btn-gerar-again:hover{background:rgba(217,119,0,0.25)}
 
 /* RESULT TABS */
-.rtabs{display:flex;background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.rtabs{display:flex;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
 .rtab{flex:1;height:44px;border:none;background:transparent;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;border-right:1px solid var(--bdr);transition:all .2s;font-family:inherit}
 .rtab:last-child{border-right:none}
 .rtab:hover{background:var(--s3);color:var(--acc)}
@@ -418,10 +422,10 @@ input::placeholder{color:var(--t3)}
 
 /* RACE TABS */
 .race-tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
-.race-tab.on-21{background:var(--gr2);color:var(--gr);border-color:rgba(0,255,136,0.35)}
-.race-tab.on-42{background:var(--pu2);color:var(--pu);border-color:rgba(167,139,250,0.35)}
+.race-tab.on-21{background:var(--gr2);color:var(--gr);border-color:rgba(0,255,136,0.2)}
+.race-tab.on-42{background:var(--pu2);color:var(--pu);border-color:rgba(167,139,250,0.2)}
 .race-tab.on-5k{background:var(--s3);color:var(--acc);border-color:var(--bdr-day)}
-.race-tab.on-10k{background:rgba(217,119,0,0.12);color:var(--am);border-color:rgba(217,119,0,0.4)}
+.race-tab.on-10k{background:rgba(217,119,0,0.12);color:var(--am);border-color:rgba(217,119,0,0.2)}
 
 /* Tables: prevent overflow on mobile */
 .zt{width:100%;border-collapse:collapse;table-layout:fixed}
@@ -488,7 +492,7 @@ input::placeholder{color:var(--t3)}
 .time-row span{font-size:14px;color:var(--t2)}
 
 .week-grid{display:flex;flex-direction:column;gap:8px}
-.week-card{border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}
+.week-card{border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);overflow:hidden}
 .week-card.r21{border-color:rgba(0,255,136,0.25)}
 .week-card.r42{border-color:rgba(167,139,250,0.25)}
 .week-card.cb{border-color:rgba(255,184,48,0.2)}
@@ -534,7 +538,7 @@ input::placeholder{color:var(--t3)}
   .btn-exp{width:100%;padding:0 6px;font-size:10px;min-width:0}
 }
 
-.legend-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;padding:9px 12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);font-size:12.5px;color:var(--t2);align-items:center}
+.legend-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem;padding:9px 12px;background:var(--s2);border-radius:var(--r);font-size:12.5px;color:var(--t2);align-items:center}
 .ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .ld{display:flex;align-items:center;gap:5px}
 
@@ -542,7 +546,7 @@ input::placeholder{color:var(--t3)}
 .info-box strong{color:var(--acc)}
 
 /* ── DISTRIBUIÇÃO DE INTENSIDADE ── */
-.intensity-box{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
+.intensity-box{background:var(--s2);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
 .intensity-title{font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--t2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .intensity-bar-wrap{margin-bottom:8px}
 .intensity-bar-bg{height:18px;border-radius:9px;background:var(--s3);overflow:hidden;display:flex;margin-bottom:4px}
@@ -558,10 +562,10 @@ input::placeholder{color:var(--t3)}
 .intensity-alert{display:flex;align-items:flex-start;gap:7px;background:rgba(217,119,0,0.08);border:1px solid rgba(217,119,0,0.2);border-radius:6px;padding:7px 10px;margin-top:8px;font-size:12.5px;color:var(--am);line-height:1.5}
 
 /* ── TAPER PROGRESSIVO ── */
-.taper-prog-box{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
+.taper-prog-box{background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
 .taper-prog-title{font-size:11.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--t2);margin-bottom:10px}
 .taper-weeks-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.taper-week-chip{flex:1;min-width:80px;border:1px solid var(--bdr);border-radius:var(--r);padding:8px 10px;background:var(--s2);text-align:center}
+.taper-week-chip{flex:1;min-width:80px;border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:8px 10px;background:var(--mc-bg);text-align:center}
 .taper-week-chip.active{border-color:var(--bdr2);background:var(--s1)}
 .taper-wk-lbl{font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
 .taper-wk-vol{font-size:15px;font-weight:800;color:var(--t1)}
@@ -589,7 +593,7 @@ summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--t2);list-style
 summary::after{content:'▸';font-size:12.5px;transition:transform .2s;color:var(--t3)}
 details[open] summary::after{transform:rotate(90deg)}
 
-.zps{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--rc);padding:1.2rem;margin-bottom:1rem}
+.zps{background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--rc);padding:1.2rem;margin-bottom:1rem}
 .zpr{display:grid;grid-template-columns:80px 1fr auto;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--bdr)}
 .zpr:last-child{border-bottom:none}
 .zpi{width:80px!important;height:34px!important;font-family:monospace;text-align:center;font-size:13px!important;border-radius:var(--r)!important}
@@ -613,7 +617,8 @@ details[open] summary::after{transform:rotate(90deg)}
 .saved-empty p{font-size:14px;line-height:1.6}
 
 .saved-list{display:flex;flex-direction:column;gap:24px}
-.saved-item{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--rc);overflow:hidden;transition:box-shadow .2s,border-color .2s;box-shadow:var(--shadow-card)}
+.saved-item{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--rc);overflow:hidden;transition:box-shadow .2s,border-color .2s;box-shadow:var(--mc-shadow)}
+.saved-item.current{border:1px solid var(--bdr-day)}
 .saved-item.flash-highlight{animation:savedItemFlash 1.6s ease-out}
 @keyframes savedItemFlash{0%{border-color:var(--acc);box-shadow:none}100%{border-color:var(--bdr);box-shadow:none}}
 .saved-item:hover{border-color:var(--bdr2)}
@@ -645,8 +650,11 @@ details[open] summary::after{transform:rotate(90deg)}
 .btn-icon.expand:hover{border-color:var(--acc);color:var(--acc)}
 
 /* PROGRESS BAR */
-.prog-segbar{width:130px;height:10px;background-color:var(--bdr2);flex:0 0 auto}
-.prog-seg-fill{height:100%;transition:width .4s,background-color .3s}
+.prog-segbar{display:flex;gap:2px;height:10px;flex:0 0 auto}
+.prog-block{flex:1;min-width:3px;height:100%;border-radius:2px;background:var(--bdr2);transition:background-color .3s}
+.prog-block.done{background:var(--gr)}
+.prog-block.partial{background:linear-gradient(90deg,var(--gr) 50%,var(--bdr2) 50%)}
+.prog-block.rest{opacity:.35}
 .prog-wrap{padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
 .prog-bar-bg{flex:1;height:6px;background:var(--bdr2);border-radius:3px;overflow:hidden}
 .prog-bar-fill{height:100%;border-radius:3px;background:var(--t1);transition:width .4s}
@@ -657,7 +665,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .saved-weeks-panel{display:none;padding:12px}
 .saved-weeks-panel.open{display:block}
 
-.sw-week{margin-bottom:10px;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}
+.sw-week{margin-bottom:10px;border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);overflow:hidden}
 .sw-week-header{padding:7px 12px;background:var(--s2);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bdr)}
 .sw-week-lbl{font-size:12.5px;font-weight:800;color:var(--t2)}
 .sw-week-prog{font-size:11.5px;color:var(--t3)}
@@ -689,7 +697,8 @@ details[open] summary::after{transform:rotate(90deg)}
 .sw-mark-btn .gi{font-size:8px}
 .sw-mark-btn.is-done{color:var(--t3)}
 /* TOAST */
-.toast{position:fixed;bottom:calc(var(--nav-safe) + 12px);left:50%;transform:translateX(-50%) translateY(80px);opacity:0;visibility:hidden;background:rgba(15,30,50,0.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:none;border-radius:8px;padding:12px 22px;font-size:14px;font-weight:700;color:#fff;z-index:999;pointer-events:none;box-shadow:none;white-space:nowrap}
+.toast{position:fixed;bottom:calc(var(--nav-safe) + 12px);left:50%;transform:translateX(-50%) translateY(80px);opacity:0;visibility:hidden;background:var(--s2);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--bdr2);border-radius:8px;padding:12px 22px;font-size:14px;font-weight:700;color:var(--t1);z-index:999;pointer-events:none;box-shadow:none;white-space:nowrap}
+.toast.warm{background:linear-gradient(135deg,var(--warm),var(--warm2));border:none;color:var(--on-warm)}
 .toast.show{animation:toastLifecycle 2.8s cubic-bezier(0.34,1.56,0.64,1) forwards}
 @keyframes toastLifecycle{
   0%{opacity:0;visibility:visible;transform:translateX(-50%) translateY(80px)}
@@ -712,16 +721,15 @@ details[open] summary::after{transform:rotate(90deg)}
 .today-done-btn:hover{filter:brightness(1.1);filter:brightness(0.97)}
 .today-done-label{font-size:13px;font-weight:800;color:var(--gr)}
 /* SEMANA ATUAL e DIA DE HOJE na grade */
-.sw-week-today{border-color:var(--acc)!important}
 .sw-week-today .sw-week-header{background:var(--s3)!important}
-.sw-day.today{background:var(--s3);outline:1px solid var(--bdr-day);outline-offset:-1px;border-radius:4px}
+.sw-day.today{background:var(--s3);outline:2px solid var(--acc);outline-offset:-2px;border-radius:4px}
 .sw-day.today .sw-day-date{color:var(--acc)}
 .sw-day.today.done{background:rgba(0,168,85,0.08)!important}
 .sw-day-date{font-size:7px;color:var(--t3);margin-bottom:2px;font-family:monospace;font-weight:700}
 
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto}
-.modal-box{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--rc);padding:1.4rem;width:100%;max-width:380px;margin:auto;box-shadow:var(--shadow-modal)}
+.modal-box{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--rc);padding:1.4rem;width:100%;max-width:380px;margin:auto;box-shadow:var(--shadow-modal)}
 @media(max-width:420px),(max-device-width:420px){
   .modal-box{padding:1.1rem;border-radius:var(--r)}
   .auth-modal-box{padding:1.2rem;border-radius:var(--r)}
@@ -1000,7 +1008,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .onb-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:4px}
 .onb-sub{font-size:13px;color:var(--t3);margin-bottom:1rem;line-height:1.45}
 .onb-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;text-align:left}
-.onb-step{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r)}
+.onb-step{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r)}
 .onb-step-num{width:22px;height:22px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .onb-step-text{flex:1}
 .onb-step-title{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:1px}
@@ -1075,7 +1083,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .cooper-warn-box{background:var(--s1);border:1px solid var(--bdr2);border-radius:var(--rc);padding:1.8rem;width:100%;max-width:420px;text-align:center;margin:auto}
 .cooper-warn-icon{font-size:36px;margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;gap:8px}
 .cooper-warn-title{font-size:17px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:.5rem}
-.cooper-warn-body{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:1.2rem;text-align:left;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.85rem 1rem}
+.cooper-warn-body{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:1.2rem;text-align:left;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.85rem 1rem}
 .cooper-warn-body strong{color:var(--am)}
 .cooper-warn-sub{font-size:12.5px;color:var(--t3);margin-bottom:1.4rem;line-height:1.5}
 .cooper-warn-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -1113,7 +1121,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .prule.ok{background:rgba(0,255,136,0.1);border-color:rgba(0,255,136,0.3);color:var(--gr)}
 .auth-error{font-size:12.5px;color:var(--rd);margin-bottom:.75rem;padding:8px 12px;background:rgba(255,68,102,0.07);border:1px solid rgba(255,68,102,0.2);border-radius:8px;display:none}
 .auth-error.show{display:block}
-.auth-terms{display:flex;align-items:flex-start;gap:9px;margin-bottom:.75rem;margin-top:.4rem;padding:10px 12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r)}
+.auth-terms{display:flex;align-items:flex-start;gap:9px;margin-bottom:.75rem;margin-top:.4rem;padding:10px 12px;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r)}
 .auth-terms input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:var(--acc);cursor:pointer}
 .auth-terms-label{font-size:12.5px;color:var(--t2);line-height:1.5}
 .auth-terms-label button{background:none;border:none;color:var(--acc);font-size:12.5px;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:2px;padding:0}
@@ -1124,7 +1132,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .auth-divider{text-align:center;font-size:12.5px;color:var(--t3);margin:.8rem 0;position:relative}
 .auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--bdr)}
 .auth-divider::before{left:0}.auth-divider::after{right:0}
-.saved-cloud-notice{background:var(--s2);border:1.5px solid var(--bdr);border-radius:var(--rc);padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:var(--t2);line-height:1.6;display:flex;align-items:flex-start;gap:10px}
+.saved-cloud-notice{background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--rc);padding:.75rem 1rem;margin-bottom:1rem;font-size:13px;color:var(--t2);line-height:1.6;display:flex;align-items:flex-start;gap:10px}
 .saved-cloud-notice .icon{font-size:18px;flex-shrink:0;margin-top:1px}
 .saved-cloud-btn{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border-radius:6px;border:1px solid var(--bdr2);background:var(--s3);color:var(--acc);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px;transition:all .2s}
 .saved-cloud-btn:hover{filter:brightness(1.15)}
@@ -1144,7 +1152,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .rec-section{background:var(--s2);border:1px solid var(--bdr2);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
 .rec-section-title{font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rec-card{background:var(--s1);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px}
+.rec-card{background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:6px;padding:8px 10px}
 .rec-card-icon{font-size:16px;margin-bottom:4px}
 .rec-card-title{font-size:11.5px;font-weight:800;color:var(--t1);margin-bottom:3px}
 .rec-card-body{font-size:11.5px;color:var(--t2);line-height:1.55}
@@ -1163,7 +1171,7 @@ details[open] summary::after{transform:rotate(90deg)}
 /* ══════════════════════════════════════════════════
    WIZARD PROGRESSIVO
 ══════════════════════════════════════════════════ */
-.wz-confirmed{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r2);padding:.85rem 1.1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s}
+.wz-confirmed{background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r2);padding:.85rem 1.1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s}
 .wz-confirmed:hover{border-color:var(--acc)}
 .wz-confirmed-num{width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .wz-confirmed-body{flex:1;min-width:0}
@@ -1171,10 +1179,10 @@ details[open] summary::after{transform:rotate(90deg)}
 .wz-confirmed-value{font-size:14px;font-weight:800;color:var(--t1)}
 .wz-confirmed-edit{font-size:11.5px;color:var(--acc);font-weight:700;flex-shrink:0}
 .wz-check-icon{font-size:15px;flex-shrink:0;color:var(--gr)}
-.wz-stale-notice{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--t3);background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.6rem .8rem;margin-bottom:.75rem}
+.wz-stale-notice{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--t3);background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.6rem .8rem;margin-bottom:.75rem}
 
 /* ── CALC SUMMARY (resumo compacto acima do card Planilhas Personalizadas) ── */
-.calc-summary{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r2);padding:1.1rem 1.2rem;margin-bottom:1.1rem;box-shadow:var(--shadow-card)}
+.calc-summary{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:1.1rem 1.2rem;margin-bottom:1.1rem;box-shadow:var(--mc-shadow)}
 .cs-rows{display:flex;flex-direction:column;gap:9px;margin-bottom:2px}
 .cs-row{display:flex;align-items:center;gap:10px}
 .cs-row-plain .cs-txt{font-size:15px;font-weight:700;color:var(--t1)}
@@ -1200,11 +1208,11 @@ details[open] summary::after{transform:rotate(90deg)}
 .cs-greeting{font-size:17px;font-weight:800;color:var(--t1);margin-bottom:12px}
 .cs-actions-discrete{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--bdr)}
 .cs-link{background:none;border:none;color:var(--t2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;padding:4px 2px;display:flex;align-items:center;gap:5px;transition:color .2s}
-.cs-vo2zones-btn{width:100%;margin-top:.7rem;padding:.75rem 1rem;border:1px solid var(--bdr2);border-radius:var(--r2);background:var(--s2);color:var(--t1);font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.cs-vo2zones-btn{width:100%;margin-top:.7rem;padding:.75rem 1rem;border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r2);background:var(--mc-bg);color:var(--t1);font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
 .cs-vo2zones-btn:active{background:var(--s3)}
 .cs-vo2zones-btn.on{background:var(--s3);border-color:var(--bdr-day);color:var(--acc)}
 .cs-vo2zones-btn .cs-vo2zones-arrow{font-size:11px;transition:transform .2s}
-.vo2zones-panel{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r2);padding:1.1rem 1.2rem;margin-bottom:1.1rem;box-shadow:var(--shadow-card);margin-top:-.4rem}
+.vo2zones-panel{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:1.1rem 1.2rem;margin-bottom:1.1rem;box-shadow:var(--mc-shadow);margin-top:-.4rem}
 /* Card de destaque neutro (Recordes Pessoais, Melhores Marcas, "Realizado")
    — fundo sólido neutro, sem nenhuma cor (nem fundo colorido nem borda
    colorida) — cor fica reservada só pra ações/botões preenchidos. */
@@ -1215,7 +1223,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .vo2zones-panel.records-panel-flat{background:none;border:none;box-shadow:none;padding:0;margin-top:.6rem}
 .cs-link:hover{color:var(--acc)}
 .cs-divider{width:1px;height:14px;background:var(--bdr2);flex-shrink:0}
-.wz-step{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r2);padding:1.2rem 1.3rem;margin-bottom:.75rem;animation:wzFadeIn .28s ease;box-shadow:var(--shadow-card)}
+.wz-step{background:var(--mc-bg);border:var(--mc-border);border-radius:var(--r2);padding:1.2rem 1.3rem;margin-bottom:.75rem;animation:wzFadeIn .28s ease;box-shadow:var(--mc-shadow)}
 @keyframes wzFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .wz-step-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
 .wz-step-num{width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -1281,7 +1289,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .mt-bank{width:260px;flex-shrink:0;overflow-y:auto;border-right:1px solid var(--bdr);background:var(--s1);padding:10px}
 .mt-bank-week{margin-bottom:10px}
 .mt-bank-week-lbl{font-size:11.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);padding:4px 2px 6px}
-.mt-card{display:flex;align-items:flex-start;gap:8px;background:var(--s2);border:1px solid var(--bdr);border-left:4px solid var(--acc);border-radius:6px;padding:8px 10px;margin-bottom:6px;cursor:pointer;user-select:none}
+.mt-card{display:flex;align-items:flex-start;gap:8px;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-left:4px solid var(--acc);border-radius:6px;padding:8px 10px;margin-bottom:6px;cursor:pointer;user-select:none}
 .mt-card:active{background:var(--s3)}
 .mt-card.mt-card-selected{border-color:var(--pu);box-shadow:none;background:var(--pu2)}
 .mt-card-pick{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--bdr2);background:var(--s3);color:var(--t2);font-size:15px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -2880,19 +2888,20 @@ function recomecarApp(){
    TOAST
 ══════════════════════════════════════════════════════════ */
 var toastTimer=null;
-function showToast(msg){
+function showToast(msg,variant){
   const t=document.getElementById('toast');
   if(!t)return;
   clearTimeout(toastTimer);
   // Remove a classe e força reflow para poder reiniciar a animação
   // mesmo que um toast anterior ainda esteja visível na tela.
-  t.classList.remove('show');
+  t.classList.remove('show','warm');
   t.textContent=msg;
+  if(variant==='warm')t.classList.add('warm');
   void t.offsetWidth; // força o navegador a "recalcular" antes de reativar a animação
   t.classList.add('show');
   // Timer em JS como reforço (a animação CSS já esconde sozinha em 2.8s,
   // isso aqui garante que a classe some do DOM mesmo em casos extremos).
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2900);
+  toastTimer=setTimeout(()=>t.classList.remove('show','warm'),2900);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -3200,8 +3209,8 @@ function renderCalcSummary(){
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:nowrap">
       <div class="cs-eyebrow" style="margin-bottom:0;flex-shrink:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><svg class="gi"><use href="#i-list_alt"></use></svg> Planilha atual</div>
       ${progHome?`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-top:5px">
-        ${streakHome>=2?`<div style="font-size:11px;font-weight:800;color:var(--t1);white-space:nowrap">🔥 ${streakHome} semanas seguidas</div>`:''}
-        <div class="prog-segbar" id="home-prog-fill-${plan.id}">${buildProgSegments(progHome.pct)}</div>
+        ${streakHome>=2?`<div style="font-size:11px;font-weight:800;color:var(--on-warm);white-space:nowrap;background:var(--warm);padding:3px 10px;border-radius:20px">🔥 ${streakHome} semanas seguidas</div>`:''}
+        <div class="prog-segbar" id="home-prog-fill-${plan.id}" style="width:${progBarWidthPx(plan)}">${buildProgSegments(plan)}</div>
         <span style="font-size:11px;font-weight:700;color:var(--t3);white-space:nowrap"><span id="home-prog-lbl-${plan.id}">${progHome.done}/${progHome.total} treinos</span> <span style="font-size:7px;vertical-align:middle">●</span> <span id="home-prog-pct-${plan.id}">${progHome.pct}%</span></span>
       </div>`:''}
     </div>
@@ -6800,10 +6809,10 @@ function buildPlanUI(race){
   </div></div>
   <div id="plan-legend-export-${race}" style="display:${planBodyDisplay}">
   <div class="legend-bar" id="legend-bar-${race}"><strong style="font-size:12.5px;color:var(--t2)">LEGENDA:</strong><div class="ld"><div class="ldot" style="background:#ffb830"></div>Sáb = Longão <svg class="gi"><use href="#i-info"></use></svg></div><div class="ld"><div class="ldot" style="background:#00aaff"></div>Corrida leve</div><div class="ld"><div class="ldot" style="background:#00cc66"></div>Moderado Z3</div><div class="ld"><div class="ldot" style="background:#ff2244"></div>Intervalado</div><div class="ld"><div class="ldot" style="background:#ff6b00"></div>Tempo run</div><div class="ld"><div class="ldot" style="background:#cc4400"></div>Fartlek</div></div>
-  ${isShort?'':`<div style="font-size:11.5px;color:var(--t3);background:rgba(0,0,0,0.03);border:1px solid var(--bdr);border-radius:6px;padding:7px 12px;margin-bottom:.75rem;line-height:1.6;display:none" id="dias-ativos-${race}">
+  ${isShort?'':`<div style="font-size:11.5px;color:var(--t3);background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:6px;padding:7px 12px;margin-bottom:.75rem;line-height:1.6;display:none" id="dias-ativos-${race}">
   <svg class="gi"><use href="#i-bolt"></use></svg> <strong style="color:var(--t2)">Dias ativos por fase:</strong> ${is42?'Base 3–4 treinos · Build 4–5 treinos · Específica 4–5 treinos · Pico 5 treinos · Taper 3–4 treinos':race==='21'?'21km 12sem: 4 treinos constantes (Base→Específica→Pico→Taper) · 21km 16sem: inicia 3 treinos, evolui para 4 gradualmente':'Base 3–4 treinos · Build 4–5 treinos · Recuo 3 treinos · Taper 3–4 treinos'}. <strong style="color:var(--t2)">SEG</strong>: descanso (iniciante) ou rec.ativa progressiva (inter/avançado) · <strong style="color:var(--t2)">SEX</strong>: descanso pré-longão (leve opcional p/ avançado/improve) · <strong style="color:var(--t2)">DOM</strong> sempre descanso.
   </div>`}
-  <div class="exp-bar-pending" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:1rem;font-size:13px;color:var(--t3);line-height:1.5"><span style="font-size:15px;flex-shrink:0"><svg class="gi"><use href="#i-schedule"></use></svg></span><span>Salve a planilha em <strong style="color:var(--t2)">Meus Treinos</strong> para liberar a opção de enviar os treinos para o relógio via intervals.icu.</span></div>
+  <div class="exp-bar-pending" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--s2);border-radius:var(--r);margin-bottom:1rem;font-size:13px;color:var(--t3);line-height:1.5"><span style="font-size:15px;flex-shrink:0"><svg class="gi"><use href="#i-schedule"></use></svg></span><span>Salve a planilha em <strong style="color:var(--t2)">Meus Treinos</strong> para liberar a opção de enviar os treinos para o relógio via intervals.icu.</span></div>
   <div id="save-bar-${race}" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:1rem">
     <button class="btn-save btn-save-lg" onclick="openSaveModal('${race}')"><svg class="gi"><use href="#i-list_alt"></use></svg> Salvar em Meus Treinos</button>
     <button class="btn-montar" id="btn-montar-${race}" style="display:none" onclick="abrirMontador('${race}')">Montar planilha manualmente</button>
@@ -7747,11 +7756,26 @@ function calcWeekStreak(plan){
 // restante) — número fixo de segmentos (não é 1 por treino; a planilha
 // pode ter dezenas de dias, viraria ilegível). Reaproveitado nos dois
 // lugares que mostram "Planilha atual" (tela inicial e Meus Treinos).
-function buildProgSegments(pct){
-  // Azul com um leve degradê enquanto está progredindo (dá uma sensação de
-  // "brilho" sutil, tipo Strava/Garmin), verde sólido só quando completar 100%.
-  const fill=pct>=100?'var(--gr)':'linear-gradient(90deg,var(--acc),var(--acc2))';
-  return`<div class="prog-seg-fill" style="width:${pct}%;background:${fill}"></div>`;
+// Barra de progresso "esportiva": um bloco por semana da planilha (em vez
+// de um preenchimento único) — verde sólido quando a semana fecha 100%,
+// meio-preenchido enquanto está em andamento, neutro se ainda não começou.
+// Semanas 100% descanso não contam nem quebram nada, só ficam apagadas.
+// A largura da barra cresce com o nº de semanas (min 90px, max 220px) pra
+// cada bloco continuar legível mesmo em planilhas longas (16-20+ semanas),
+// em vez de espremer tudo sempre no mesmo espaço fixo.
+function progBarWidthPx(plan){
+  const n=(plan&&plan.weeks)?plan.weeks.length:0;
+  return Math.min(220,Math.max(90,n*8))+'px';
+}
+function buildProgSegments(plan){
+  if(!plan||!plan.weeks||!plan.weeks.length)return'';
+  return plan.weeks.map((week,wIdx)=>{
+    const trainDays=week.days.filter(d=>!d.rest);
+    if(!trainDays.length)return`<div class="prog-block rest"></div>`;
+    const doneCount=week.days.filter((d,dIdx)=>!d.rest&&!!plan.done[`${wIdx}-${dIdx}`]).length;
+    const cls=doneCount>=trainDays.length?'done':doneCount>0?'partial':'';
+    return`<div class="prog-block ${cls}"></div>`;
+  }).join('');
 }
 
 async function toggleDone(planId,wIdx,dIdx){
@@ -7788,10 +7812,10 @@ function finishToggleDoneUI(planId,wIdx,dIdx){
   const prog=calcProgress(plan);
   /* update progress bar */
   const bar=document.getElementById(`prog-fill-${planId}`);const pct=document.getElementById(`prog-pct-${planId}`);const lbl=document.getElementById(`prog-lbl-${planId}`);
-  if(bar){ if(bar.classList.contains('prog-segbar'))bar.innerHTML=buildProgSegments(prog.pct);else bar.style.width=prog.pct+'%'; }
+  if(bar){ if(bar.classList.contains('prog-segbar')){bar.style.width=progBarWidthPx(plan);bar.innerHTML=buildProgSegments(plan);}else bar.style.width=prog.pct+'%'; }
   if(pct)pct.textContent=prog.pct+'%';if(lbl)lbl.textContent=`${prog.done}/${prog.total} treinos`;
   const homeBar=document.getElementById(`home-prog-fill-${planId}`);const homePct=document.getElementById(`home-prog-pct-${planId}`);const homeLbl=document.getElementById(`home-prog-lbl-${planId}`);
-  if(homeBar)homeBar.innerHTML=buildProgSegments(prog.pct);if(homePct)homePct.textContent=prog.pct+'%';if(homeLbl)homeLbl.textContent=`${prog.done} / ${prog.total} treinos`;
+  if(homeBar){homeBar.style.width=progBarWidthPx(plan);homeBar.innerHTML=buildProgSegments(plan);}if(homePct)homePct.textContent=prog.pct+'%';if(homeLbl)homeLbl.textContent=`${prog.done} / ${prog.total} treinos`;
   /* update week prog */
   const wk=plan.weeks[wIdx];const weekDone=wk.days.filter((d,di)=>!d.rest&&plan.done[`${wIdx}-${di}`]).length;const weekTotal=wk.days.filter(d=>!d.rest).length;const wkLbl=document.getElementById(`wprog-${planId}-${wIdx}`);if(wkLbl)wkLbl.textContent=`${weekDone}/${weekTotal}`;
   /* toggle cell style */
@@ -7850,7 +7874,7 @@ function logCompletion(plan,wIdx,dIdx){
       // Feedback imediato: se esse treino bateu algum recorde, avisa na
       // hora (em vez da pessoa só descobrir depois, abrindo os cards de
       // Recordes/Marcas na tela inicial).
-      showToast(broken.length===1?`🏆 Novo recorde: ${broken[0]}!`:`🏆 Novos recordes: ${broken.join(', ')}!`);
+      showToast(broken.length===1?`🏆 Novo recorde: ${broken[0]}!`:`🏆 Novos recordes: ${broken.join(', ')}!`,'warm');
     }
   }
 }
@@ -9126,26 +9150,25 @@ function buildRecordsGridHtml(items){
       </div>`).join('')}
   </div>`;
 }
-// Cada métrica ganha uma cor própria (só no número/ícone, o card continua
-// neutro) — reaproveitando as mesmas cores que o resto do app já usa pra
-// essas distâncias/conceitos (ex: 10km/21km/42km usam as mesmas cores das
-// abas de distância), pra ficar coerente em vez de arbitrário.
+// Recordes e melhores marcas são "conquista" — usam o laranja de destaque
+// (mesma cor pra todos, em vez de uma cor por métrica), coerente com o
+// resto do app onde laranja = celebração e azul = dado do dia a dia.
 function getPersonalRecordsItems(){
   if(!currentUser)return[];
   const r=personalRecords;
   const items=[];
-  if(r.longestDist)items.push(['Maior distância',r.longestDist.label,r.longestDist.date,'i-straighten',r.longestDist.completedAt,'var(--gr)']);
-  if(r.bestPace)items.push(['Ritmo mais rápido',`${r.bestPace.label}/km`,r.bestPace.date,'i-bolt',r.bestPace.completedAt,'var(--am)']);
-  if(r.longestDuration)items.push(['Treino mais longo',r.longestDuration.label,r.longestDuration.date,'i-schedule',r.longestDuration.completedAt,'var(--acc)']);
+  if(r.longestDist)items.push(['Maior distância',r.longestDist.label,r.longestDist.date,'i-straighten',r.longestDist.completedAt,'var(--warm)']);
+  if(r.bestPace)items.push(['Ritmo mais rápido',`${r.bestPace.label}/km`,r.bestPace.date,'i-bolt',r.bestPace.completedAt,'var(--warm)']);
+  if(r.longestDuration)items.push(['Treino mais longo',r.longestDuration.label,r.longestDuration.date,'i-schedule',r.longestDuration.completedAt,'var(--warm)']);
   return items;
 }
 function getBestMarksItems(){
   if(!currentUser)return[];
   const r=personalRecords;
   const items=[];
-  if(r.km10)items.push(['Melhor 10km',r.km10.label,r.km10.date,'i-track_changes',r.km10.completedAt,'var(--am)']);
-  if(r.halfMara)items.push(['Melhor meia maratona',r.halfMara.label,r.halfMara.date,'i-track_changes',r.halfMara.completedAt,'var(--gr)']);
-  if(r.fullMara)items.push(['Melhor maratona',r.fullMara.label,r.fullMara.date,'i-emoji_events',r.fullMara.completedAt,'var(--pu)']);
+  if(r.km10)items.push(['Melhor 10km',r.km10.label,r.km10.date,'i-track_changes',r.km10.completedAt,'var(--warm)']);
+  if(r.halfMara)items.push(['Melhor meia maratona',r.halfMara.label,r.halfMara.date,'i-track_changes',r.halfMara.completedAt,'var(--warm)']);
+  if(r.fullMara)items.push(['Melhor maratona',r.fullMara.label,r.fullMara.date,'i-emoji_events',r.fullMara.completedAt,'var(--warm)']);
   return items;
 }
 function buildRecordsPanelGrid(){
@@ -9246,7 +9269,7 @@ function renderSavedList(){
     const todayInfo=getTodayInfo(plan);
     const itemIconSvg=is42?trophyIconSvg(24):is10k?medalIconSvg('#2563EB','#1D4ED8',24):medalIconSvg('#F5C518','#B8860B',24);
     const badgeHtml=isCompleted?`<div class="saved-item-badge completed">Concluída</div>`:(isCurrent?`<div class="saved-item-badge current">Planilha atual</div>`:'');
-    html+=`<div class="saved-item${isCompleted?' is-completed':''}" id="saved-item-${plan.id}">
+    html+=`<div class="saved-item${isCompleted?' is-completed':''}${isCurrent?' current':''}" id="saved-item-${plan.id}">
       ${badgeHtml}
       <div class="saved-item-header" onclick="toggleWeeksPanel(${plan.id})">
         <div class="saved-item-info">
@@ -9265,7 +9288,7 @@ function renderSavedList(){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin:10px 16px 0">
-        <div class="prog-segbar" id="prog-fill-${plan.id}">${buildProgSegments(prog.pct)}</div>
+        <div class="prog-segbar" id="prog-fill-${plan.id}" style="width:${progBarWidthPx(plan)}">${buildProgSegments(plan)}</div>
         <span style="font-size:12px;font-weight:700;color:var(--t3)"><span id="prog-lbl-${plan.id}">${prog.done}/${prog.total} treinos</span> <span style="font-size:7px;vertical-align:middle">●</span> <span id="prog-pct-${plan.id}">${prog.pct}%</span></span>
       </div>
       <div style="display:flex;gap:8px;margin:14px 16px 12px;justify-content:center">
@@ -10636,15 +10659,15 @@ function showGarminInstructionModal(count, planName, planId){
       <div style="font-weight:800;color:var(--t1);margin-bottom:10px;font-size:13px;letter-spacing:.04em;text-transform:uppercase">Como copiar para o relógio (cabo USB):</div>
 
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.2rem">
-        ${count>1?`<div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
+        ${count>1?`<div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:8px;padding:10px 12px">
           <div style="width:22px;height:22px;border-radius:50%;background:#0079b3;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
           <div style="font-size:13px">Descompacte o arquivo <code style="background:var(--s3);padding:1px 5px;border-radius:4px">.zip</code> baixado — você verá um arquivo <code style="background:var(--s3);padding:1px 5px;border-radius:4px">.fit</code> para cada treino.</div>
         </div>`:''}
-        <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:8px;padding:10px 12px">
           <div style="width:22px;height:22px;border-radius:50%;background:#0079b3;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${count>1?'2':'1'}</div>
           <div style="font-size:13px">Conecte o relógio Garmin ao computador com o <strong>cabo USB</strong>. Ele aparece como um drive/dispositivo de armazenamento.</div>
         </div>
-        <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:8px;padding:10px 12px">
           <div style="width:22px;height:22px;border-radius:50%;background:#0079b3;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${count>1?'3':'2'}</div>
           <div style="font-size:13px">Abra a pasta do relógio e navegue até <code style="background:var(--s3);padding:1px 5px;border-radius:4px">GARMIN/NewFiles</code> (crie a pasta <code style="background:var(--s3);padding:1px 5px;border-radius:4px">NewFiles</code> se ela não existir).</div>
         </div>
@@ -11098,11 +11121,11 @@ function icuAutoCheckOnResume(){
     <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:1.2rem">Corra 2,4 km o mais rápido possível e anote seu tempo</div>
 
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.2rem">
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Escolha o local</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Pista de atletismo (6 voltas de 400m) ou rua plana de 2,4km medida com GPS. Evite subidas — o percurso deve ser o mais plano possível.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Aqueça por 5–10 minutos</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Caminhada leve e trote suave antes de iniciar. Não comece o teste "frio".</div></div>
       </div>
@@ -11110,7 +11133,7 @@ function icuAutoCheckOnResume(){
         <div style="width:24px;height:24px;border-radius:50%;background:var(--rd);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--rd);margin-bottom:2px">Corra 2,4 km no máximo esforço</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">O resultado é válido <strong>somente se você correr com esforço máximo ou próximo disso</strong>. Tente manter um ritmo forte e constante do início ao fim. Ao cruzar os 2,4 km, pare o cronômetro.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Anote o tempo e insira aqui</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Volte ao app e insira os minutos e segundos nos campos <em>Min</em> e <em>Seg</em>, junto com seu peso e idade. Um GPS no celular ou relógio garante a distância exata.</div></div>
       </div>
@@ -11134,11 +11157,11 @@ function icuAutoCheckOnResume(){
     <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:1.2rem">Corra 3 km o mais rápido possível e anote seu tempo</div>
 
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.2rem">
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Escolha o local</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Pista de atletismo (7,5 voltas de 400m) ou rua plana de 3km medida com GPS. Evite subidas — o percurso deve ser o mais plano possível.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Aqueça por 5–10 minutos</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Caminhada leve e trote suave antes de iniciar. Não comece o teste "frio".</div></div>
       </div>
@@ -11146,7 +11169,7 @@ function icuAutoCheckOnResume(){
         <div style="width:24px;height:24px;border-radius:50%;background:var(--rd);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--rd);margin-bottom:2px">Corra 3 km no máximo esforço</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">O resultado é válido <strong>somente se você correr com esforço máximo ou próximo disso</strong>. Tente manter um ritmo forte e constante do início ao fim. Ao cruzar os 3 km, pare o cronômetro.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Anote o tempo e insira aqui</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Volte ao app e insira os minutos e segundos nos campos <em>Min</em> e <em>Seg</em>. Um GPS no celular ou relógio garante a distância exata.</div></div>
       </div>
@@ -11174,11 +11197,11 @@ function icuAutoCheckOnResume(){
     </div>
 
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.2rem">
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Escolha o local</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Pista de atletismo (4 voltas de 400m) ou rua plana de 1.600m medida com GPS. Evite subidas — o percurso deve ser o mais plano possível.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Aqueça por 5–10 minutos</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Caminhada leve e trote suave antes de iniciar. Não comece o teste "frio".</div></div>
       </div>
@@ -11186,7 +11209,7 @@ function icuAutoCheckOnResume(){
         <div style="width:24px;height:24px;border-radius:50%;background:var(--rd);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--rd);margin-bottom:2px">Corra 1.600m no máximo esforço possível</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">O resultado é válido <strong>somente se você correr com esforço máximo ou próximo disso</strong>. Se estiver começando agora, vale alternar caminhada rápida e corrida leve — o importante é ir no seu limite. Ao cruzar os 1.600m, pare o cronômetro.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Anote o tempo e insira aqui</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Volte ao app e insira os minutos e segundos nos campos <em>Min</em> e <em>Seg</em>. Um GPS no celular ou relógio garante a distância exata.</div></div>
       </div>
@@ -11264,11 +11287,11 @@ function icuAutoCheckOnResume(){
     <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:1.2rem">Siga os passos e anote sua distância ao final</div>
 
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.2rem">
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Escolha o local</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Pista de atletismo (400m), rua plana ou parque. Evite subidas — o terreno deve ser o mais plano possível.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Aqueça por 5–10 minutos</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Caminhada leve e trote suave antes de iniciar. Não comece o teste "frio".</div></div>
       </div>
@@ -11276,7 +11299,7 @@ function icuAutoCheckOnResume(){
         <div style="width:24px;height:24px;border-radius:50%;background:var(--rd);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--rd);margin-bottom:2px">Corra no máximo esforço — 12 minutos</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">O resultado é válido <strong>somente se você correr com esforço máximo ou próximo disso</strong>. Tente manter um ritmo forte e constante do início ao fim. Ao final dos 12 min, pare e anote a distância percorrida.</div></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r);padding:.7rem .9rem">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:.7rem .9rem">
         <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--t1);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</div>
         <div><div style="font-size:13px;font-weight:800;color:var(--t1);margin-bottom:2px">Anote a distância e insira aqui</div><div style="font-size:12.5px;color:var(--t2);line-height:1.5">Volte ao app e insira os metros percorridos no campo <em>Distância (metros)</em>. Um GPS no celular ou relógio facilita muito a medição.</div></div>
       </div>
