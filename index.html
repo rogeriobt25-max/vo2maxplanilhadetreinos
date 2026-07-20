@@ -8732,7 +8732,7 @@ function drawOverlayContent(ctx,W,H,f,onDone){
     // tamanhos base — se o conteúdo não couber na largura da imagem, o
     // fator "scale" abaixo reduz tudo proporcionalmente (nunca corta/
     // estoura pros lados)
-    const baseTitle=72, baseLabel=26, baseNum=50, baseUnit=23;
+    const baseTitle=72, baseLabel=31, baseNum=59, baseUnit=27;
 
     function fonts(scale){
       return{
@@ -8764,7 +8764,7 @@ function drawOverlayContent(ctx,W,H,f,onDone){
     // acha o maior "scale" (até 1) que ainda cabe dentro da largura
     // disponível da imagem, testando do tamanho cheio pra baixo
     const availW=W*0.90;
-    const gap=W*0.052;
+    const gap=W*0.066;
     let scale=1;
     for(let i=0;i<6;i++){
       const f2=fonts(scale);
@@ -8787,7 +8787,7 @@ function drawOverlayContent(ctx,W,H,f,onDone){
     y+=W*0.105;
 
     function drawStat(x,rowY,label,val){
-      const labelY=rowY, numY=rowY+W*0.062;
+      const labelY=rowY, numY=rowY+W*0.07;
       ctx.font=F.label; ctx.letterSpacing='1px';
       ctx.fillStyle='rgba(255,255,255,0.75)';
       ctx.fillText(label,x,labelY);
@@ -8818,7 +8818,7 @@ function drawOverlayContent(ctx,W,H,f,onDone){
     });
 
     // Y onde os números terminam (base da linha de dados)
-    return y+W*0.062;
+    return y+W*0.07;
   }
 
   // Logo sempre desenhada por código, com base no canvas final (não na
@@ -8847,8 +8847,8 @@ function drawOverlayContent(ctx,W,H,f,onDone){
     const gapAboveLogo=H*0.02;
     const marginBottom=H*0.045;
     // deslocamento entre o Y do título e o Y onde os números terminam
-    // (mesmos valores usados dentro de drawStatsBlock: W*0.105 + W*0.062)
-    const titleToStatsEnd=W*0.105+W*0.062;
+    // (mesmos valores usados dentro de drawStatsBlock: W*0.105 + W*0.07)
+    const titleToStatsEnd=W*0.105+W*0.07;
     const titleY=H-marginBottom-logoH0-gapAboveLogo-titleToStatsEnd;
 
     const statsEndY=drawStatsBlock(titleY);
@@ -11273,13 +11273,28 @@ window.addEventListener('pageshow',function(){ shareRedrawIfOpen(); icuAutoCheck
 // toda vez que o app volta a ficar visível, checa de novo sozinho (com um
 // intervalo mínimo entre checagens, pra não ficar batendo na API à toa).
 let _icuLastResumeCheck=0;
+// Reforço único: se essa checagem não achou nada (sem erro), tenta de novo
+// UMA vez só, ~1min depois — cobre o caso comum de o relógio ainda não ter
+// terminado de sincronizar com o intervals.icu (relógio → Garmin/Strava →
+// intervals.icu não é instantâneo). Só dispara de verdade se o app continuar
+// aberto na tela por esse minuto (navegador pode pausar timers em segundo
+// plano); e nunca reagenda a si mesma, então não tem como virar loop.
+let _icuFollowupTimer=null;
 function icuAutoCheckOnResume(){
   if(!currentUser)return; // sincronizar exige login
   const now=Date.now();
   if(now-_icuLastResumeCheck<10000)return; // evita disparo duplicado (visibilitychange + pageshow quase juntos)
   _icuLastResumeCheck=now;
   icuUpdateHeaderSyncVisibility();
-  icuAutoCheckAllPlans();
+  if(_icuFollowupTimer){clearTimeout(_icuFollowupTimer);_icuFollowupTimer=null;}
+  icuAutoCheckAllPlans().then(function(r){
+    if(r&&r.error==null&&r.count===0){
+      _icuFollowupTimer=setTimeout(function(){
+        _icuFollowupTimer=null;
+        if(document.visibilityState==='visible')icuAutoCheckAllPlans();
+      },60000);
+    }
+  });
 }
 
 // ── Puxar pra atualizar (pull-to-refresh) manual ────────────────────────
@@ -11871,12 +11886,30 @@ function icuReconstructExternalId(scheduledAt,dayName,day){
 // (via events → paired_event_id nas activities). Quando encontra, marca o dia
 // como feito com os dados reais (distância/duração real). Retorna quantos dias
 // novos foram marcados.
+// Trava simples contra checagens concorrentes na MESMA planilha — sem isso,
+// duas chamadas rodando quase ao mesmo tempo (ex: tocar em "marcar como
+// feito" bem perto do momento em que a checagem automática de retomada ou o
+// reforço de 1min também dispara) podiam cada uma ler o dia como "ainda
+// pendente" antes da outra escrever sua conclusão, e o mesmo treino do
+// relógio acabava virando o dia programado concluído E, ao mesmo tempo, um
+// registro "não programado" duplicado. Enquanto uma checagem estiver em
+// andamento pra uma planilha, qualquer outra chamada pra ela é ignorada.
+const _icuChecksInFlight=new Set();
 async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds,force){
   if(!usedActivityIds)usedActivityIds=new Set();
-  if(!plan||!plan.startTimestamp)return 0;
-  if(!apiKey||!athleteId)return 0;
+  if(!plan||!plan.startTimestamp)return{count:0,error:null};
+  if(!apiKey||!athleteId)return{count:0,error:null};
+  if(_icuChecksInFlight.has(plan.id))return{count:0,error:null};
+  _icuChecksInFlight.add(plan.id);
+  try{
+    return await icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityIds,force);
+  } finally {
+    _icuChecksInFlight.delete(plan.id);
+  }
+}
+async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityIds,force){
   const firstWeekStart=getWeekStartDate(plan,0);
-  if(!firstWeekStart)return 0;
+  if(!firstWeekStart)return{count:0,error:null};
   const today=new Date();
   const oldest=firstWeekStart.toISOString().slice(0,10);
   const newest=today.toISOString().slice(0,10);
@@ -11894,7 +11927,8 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds,for
       if(scheduledAt>today)return;
       const extId=icuReconstructExternalId(scheduledAt,ICU_DAYS_BR[dIdx],day);
       const dateStr=scheduledAt.toISOString().slice(0,10);
-      pending.push({wIdx,dIdx,key,extId,dateStr});
+      const plannedDistKm=parseDistToKm(day.dist);
+      pending.push({wIdx,dIdx,key,extId,dateStr,plannedDistKm});
     });
   });
   // Sem nada pendente, mesmo assim vale checar — é o que permite também
@@ -11939,14 +11973,12 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds,for
 
     // Estratégia 2 (principal, na prática): casa por DATA + tipo "Run" — já
     // que o pareamento automático por ID não é confiável. Se houver mais de
-    // uma corrida no mesmo dia, pega a de maior duração pra concorrer ao
-    // treino PROGRAMADO daquele dia (mais provável de ser o treino de
-    // verdade, não um teste rápido) — essa escolha já existia antes e não
-    // mudou. A diferença agora: as outras corridas do mesmo dia não são mais
-    // descartadas, viram candidatas a registro "não programado" (ver abaixo).
-    // Atenção: se o treino PROGRAMADO da planilha for, de propósito, mais
-    // curto que uma corrida extra feita no mesmo dia, essa escolha pode
-    // errar qual das duas é "a programada" — limitação conhecida, não nova.
+    // uma corrida no mesmo dia, escolhe a que está mais PRÓXIMA da distância
+    // planejada daquele dia (em vez de sempre a mais longa como antes) —
+    // evita errar quando um treino extra feito no mesmo dia acaba sendo mais
+    // longo que o programado (ex: planilha pedia 20min leve, mas rolou um
+    // treino solto de 40min depois). Sem distância planejada disponível (ex:
+    // perfil Estreante, por tempo), cai de volta no critério de duração.
     const allRunsByDate={};
     (activities||[]).forEach(act=>{
       if(act.type!=='Run'&&act.type!=='VirtualRun')return;
@@ -11970,9 +12002,15 @@ async function icuCheckPlanCompletions(plan,apiKey,athleteId,usedActivityIds,for
           return t==null||t>=plan.id;
         });
         act=candidates.reduce((best,a)=>{
+          if(!best)return a;
+          if(p.plannedDistKm!=null && a.distance && best.distance){
+            const aDiff=Math.abs((a.distance/1000)-p.plannedDistKm);
+            const bDiff=Math.abs((best.distance/1000)-p.plannedDistKm);
+            return aDiff<bDiff?a:best;
+          }
           const at=a.moving_time||a.elapsed_time||0;
-          const bt=best?(best.moving_time||best.elapsed_time||0):-1;
-          return(!best||at>bt)?a:best;
+          const bt=best.moving_time||best.elapsed_time||0;
+          return at>bt?a:best;
         },null);
       }
       if(!act)return;
@@ -12069,14 +12107,21 @@ async function icuManualSyncPlan(planId,btn){
   if(!apiKey||!athleteId){showToast('Configure a integração com o relógio primeiro.');return;}
   if(btn)btn.classList.add('spinning');
   try{
-    const count=await icuCheckPlanCompletions(plan,apiKey,athleteId,undefined,true);
-    if(count>0){
-      updateSavedBadge();
-      renderSavedList();
-      renderCalcSummary();
-      showToast(`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do relógio.`);
-    }else{
-      showToast('Nenhum treino novo concluído encontrado.');
+    const r=await icuCheckPlanCompletions(plan,apiKey,athleteId,undefined,true);
+    if(r&&r.error){
+      showToast(r.error==='auth'
+        ? 'Não foi possível conectar ao intervals.icu — verifique sua API Key e Athlete ID.'
+        : 'Não foi possível conectar ao intervals.icu agora.');
+    } else {
+      const count=r?r.count:0;
+      if(count>0){
+        updateSavedBadge();
+        renderSavedList();
+        renderCalcSummary();
+        showToast(`${count} treino${count!==1?'s':''} atualizado${count!==1?'s':''} a partir do relógio.`);
+      }else{
+        showToast('Nenhum treino novo concluído encontrado.');
+      }
     }
   }catch(e){
     showToast('Não foi possível sincronizar agora.');
