@@ -397,15 +397,15 @@ input::placeholder{color:var(--t3)}
 .tgb.on{background:var(--s3);color:var(--acc);border-color:var(--bdr-day);box-shadow:none}
 
 /* BUTTONS */
-.btn-cta{height:44px;padding:0 1.6rem;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:#fff;transition:all .2s;box-shadow:none;-webkit-appearance:none;font-family:inherit}
+.btn-cta{height:44px;padding:0 1.6rem;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:var(--on-acc);transition:all .2s;box-shadow:none;-webkit-appearance:none;font-family:inherit}
 .btn-cta:active{filter:brightness(0.93);transform:scale(0.97);box-shadow:none}
-.btn-save{height:44px;padding:0 1.4rem;cursor:pointer;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:#fff;transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:7px;-webkit-appearance:none;box-shadow:none}
+.btn-save{height:44px;padding:0 1.4rem;cursor:pointer;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:var(--on-acc);transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:7px;-webkit-appearance:none;box-shadow:none}
 .btn-save:hover{filter:brightness(1.08);box-shadow:var(--shadow-card-hover)}
 .btn-save:active{filter:brightness(0.93);transform:scale(0.97);box-shadow:none}
 .btn-save-lg{width:100%;height:54px;justify-content:center;font-size:14px;border-radius:var(--rb);box-shadow:none}
 
 /* GERAR PLANILHA */
-.btn-gerar{width:100%;height:56px;cursor:pointer;font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:#fff;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:1rem;box-shadow:none;-webkit-appearance:none}
+.btn-gerar{width:100%;height:56px;cursor:pointer;font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:var(--on-acc);transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:1rem;box-shadow:none;-webkit-appearance:none}
 .btn-gerar:active{filter:brightness(0.93);transform:scale(0.97);box-shadow:none}
 .dirty-banner{display:none;align-items:center;gap:10px;background:var(--mc-bg);border:var(--mc-border);box-shadow:var(--mc-shadow);border-radius:var(--r);padding:9px 14px;margin-top:1rem;font-size:13px;color:var(--am);font-weight:600;line-height:1.4}
 .dirty-banner.show{display:flex}
@@ -647,7 +647,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .btn-watch.active{background:var(--s2);border-color:var(--acc)}
 .watch-export-panel{display:none;margin:0 16px 12px}
 .watch-export-panel.open{display:block}
-.btn-open-plan{height:36px;padding:0 16px;min-width:170px;border-radius:var(--rb);border:none;background:var(--acc);color:#fff;cursor:pointer;font-size:11.5px;font-weight:800;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center;gap:5px;white-space:nowrap;transition:all .2s;box-shadow:none}
+.btn-open-plan{height:36px;padding:0 16px;min-width:170px;border-radius:var(--rb);border:none;background:var(--acc);color:var(--on-acc);cursor:pointer;font-size:11.5px;font-weight:800;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center;gap:5px;white-space:nowrap;transition:all .2s;box-shadow:none}
 .btn-open-plan:hover{filter:brightness(1.08);box-shadow:var(--shadow-card-hover)}
 .btn-open-plan:active{filter:brightness(0.93);transform:scale(0.97);box-shadow:none}
 .btn-icon:hover{border-color:var(--rd);color:var(--rd)}
@@ -655,7 +655,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .btn-icon.expand:hover{border-color:var(--acc);color:var(--acc)}
 
 /* PROGRESS BAR */
-.prog-segbar{width:130px;height:10px;background-color:var(--bdr2);flex:0 0 auto;position:relative;overflow:hidden;border-radius:2px}
+.prog-segbar{width:186px;height:10px;background-color:var(--bdr2);flex:0 0 auto;position:relative;overflow:hidden;border-radius:2px}
 .prog-seg-fill{height:100%;transition:width .4s,background-color .3s}
 .prog-seg-ticks{position:absolute;inset:0;pointer-events:none}
 .prog-wrap{padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
@@ -745,7 +745,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .modal-input:focus{border-color:var(--acc)}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end}
 .btn-modal-cancel{padding:8px 18px;border:1px solid var(--bdr2);border-radius:var(--rb);background:transparent;color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn-modal-ok{padding:8px 20px;border:none;border-radius:var(--rb);background:var(--acc);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-modal-ok{padding:8px 20px;border:none;border-radius:var(--rb);background:var(--acc);color:var(--on-acc);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
 
 @media(max-width:360px),(max-device-width:360px){
   .nav-tab{font-size:10.5px;gap:2px;padding:0 2px}
@@ -1017,7 +1017,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .onb-step-title{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:1px}
 .onb-step-desc{font-size:12px;color:var(--t3);line-height:1.4}
 .onb-disclaimer{font-size:11px;color:var(--t3);line-height:1.5;border-top:1px solid var(--bdr);padding-top:9px;margin-bottom:.9rem}
-.onb-btn{width:100%;height:40px;border:none;border-radius:var(--rb);background:var(--acc);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.05em}
+.onb-btn{width:100%;height:40px;border:none;border-radius:var(--rb);background:var(--acc);color:var(--on-acc);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.05em}
 .onb-btn:hover{filter:brightness(1.1)}
 .onb-btn-wrap{padding:.6rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom,0px))}
 
@@ -1040,7 +1040,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .install-banner-text{flex:1;min-width:0}
 .install-banner-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:2px}
 .install-banner-sub{font-size:12.5px;color:rgba(255,255,255,0.55);line-height:1.4}
-.install-banner-btn{height:34px;padding:0 14px;border:none;border-radius:var(--rb);background:var(--acc);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
+.install-banner-btn{height:34px;padding:0 14px;border:none;border-radius:var(--rb);background:var(--acc);color:var(--on-acc);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0}
 .install-banner-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
 
 
@@ -1055,7 +1055,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .lgpd-text strong{color:var(--t1)}
 .lgpd-text a{color:var(--acc);text-decoration:underline;text-underline-offset:2px;cursor:pointer;background:none;border:none;font-size:12.5px;font-family:inherit;padding:0}
 .lgpd-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
-.lgpd-btn-ok{height:36px;padding:0 1.4rem;cursor:pointer;font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:#fff;transition:all .2s;font-family:inherit}
+.lgpd-btn-ok{height:36px;padding:0 1.4rem;cursor:pointer;font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:var(--on-acc);transition:all .2s;font-family:inherit}
 .lgpd-btn-ok:hover{filter:brightness(1.1)}
 .lgpd-btn-more{height:36px;padding:0 1.1rem;cursor:pointer;font-size:12.5px;font-weight:700;background:transparent;border:1px solid var(--bdr2);border-radius:var(--rb);color:var(--t2);transition:all .2s;font-family:inherit}
 .lgpd-btn-more:hover{border-color:var(--acc);color:var(--acc)}
@@ -1090,7 +1090,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .cooper-warn-body strong{color:var(--am)}
 .cooper-warn-sub{font-size:12.5px;color:var(--t3);margin-bottom:1.4rem;line-height:1.5}
 .cooper-warn-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.cooper-warn-btn-ok{height:40px;padding:0 1.6rem;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:#fff;transition:all .2s;font-family:inherit}
+.cooper-warn-btn-ok{height:40px;padding:0 1.6rem;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--rb);color:var(--on-acc);transition:all .2s;font-family:inherit}
 .cooper-warn-btn-ok:hover{filter:brightness(1.12);filter:brightness(0.97)}
 .cooper-warn-btn-skip{height:40px;padding:0 1.4rem;cursor:pointer;font-size:12.5px;font-weight:700;letter-spacing:.05em;background:transparent;border:1px solid var(--bdr2);border-radius:var(--rb);color:var(--t3);transition:all .2s;font-family:inherit}
 .cooper-warn-btn-skip:hover{border-color:var(--t2);color:var(--t2)}
@@ -1129,7 +1129,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .auth-terms-label{font-size:12.5px;color:var(--t2);line-height:1.5}
 .auth-terms-label button{background:none;border:none;color:var(--acc);font-size:12.5px;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:2px;padding:0}
 .auth-terms-label button:hover{color:var(--acc2)}
-.auth-submit{width:100%;height:44px;border:none;border-radius:var(--rb);background:var(--acc);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.08em;margin-top:.5rem;transition:all .2s}
+.auth-submit{width:100%;height:44px;border:none;border-radius:var(--rb);background:var(--acc);color:var(--on-acc);font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.08em;margin-top:.5rem;transition:all .2s}
 .auth-submit:hover{filter:brightness(1.12);filter:brightness(0.97)}
 .auth-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .auth-divider{text-align:center;font-size:12.5px;color:var(--t3);margin:.8rem 0;position:relative}
@@ -1244,7 +1244,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .wz-vo2-input-row{display:flex;gap:10px;align-items:flex-end;margin-top:.5rem}
 .wz-vo2-input-row .ig{flex:1}
 .wz-vo2-input-row input{font-size:22px;font-weight:800;text-align:center;color:var(--acc)}
-.wz-confirm-btn{height:44px;padding:0 1.4rem;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--r2);color:#fff;transition:all .2s;font-family:inherit;flex-shrink:0}
+.wz-confirm-btn{height:44px;padding:0 1.4rem;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--acc);border:none;border-radius:var(--r2);color:var(--on-acc);transition:all .2s;font-family:inherit;flex-shrink:0}
 .wz-confirm-btn:hover{filter:brightness(1.1);filter:brightness(0.97)}
 .wz-saved-vo2-banner{display:flex;align-items:center;gap:12px;background:var(--stat-bg);border:1.5px solid var(--stat-bdr);border-radius:var(--r2);padding:.9rem 1.1rem;margin-bottom:.85rem}
 .wz-saved-vo2-icon{font-size:24px;flex-shrink:0}
@@ -1256,7 +1256,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .wz-saved-btn{height:30px;padding:0 12px;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;transition:all .2s;font-family:inherit;white-space:nowrap;border:1px solid var(--bdr2);background:transparent;color:var(--t3)}
 .wz-saved-btn.keep{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
 .wz-saved-btn:hover{filter:brightness(1.1)}
-.wz-next-btn{width:100%;height:48px;border:none;border-radius:var(--r2);background:var(--acc);color:#fff;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:.06em;margin-top:.85rem;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:none}
+.wz-next-btn{width:100%;height:48px;border:none;border-radius:var(--r2);background:var(--acc);color:var(--on-acc);font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:.06em;margin-top:.85rem;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:none}
 .wz-next-btn:hover{filter:brightness(1.08);box-shadow:var(--shadow-card-hover)}
 .wz-next-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .wz-vo2-option-btn:hover{border-color:var(--bdr-day)!important;background:var(--s3)!important;box-shadow:var(--shadow-card-hover);color:var(--acc)}
@@ -1539,38 +1539,16 @@ details[open] summary::after{transform:rotate(90deg)}
 <!-- ── CALCULADORA ── -->
 <div id="page-calc" class="wrap">
   <div id="calc-summary" class="calc-summary" style="display:none"></div>
-  <div class="hero">
-    <h1 style="text-align:left"><span>Planilhas</span> Personalizadas</h1>
-    <div class="hero-feature-list" style="margin:14px 0 4px;display:flex;flex-direction:column;gap:12px">
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Crie sua planilha personalizada</strong>com base no seu objetivo e perfil de corredor.</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Acompanhe o progresso da sua planilha</strong>e sua evolução ao longo dos treinos.</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Calcule seus ritmos com precisão</strong>utilizando seu VO₂ Máximo (opcional).</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Sincronize os treinos via Intervals.icu</strong>direto para o seu relógio de corrida.<div style="font-size:12.5px;font-style:italic;color:var(--t3);margin-top:2px">Consulte a compatibilidade no site do intervals.icu</div></div>
-      </div>
-    </div>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-dot b"></div>3 métodos de teste</div>
-      <div class="hero-stat"><div class="hero-stat-dot g"></div>5 zonas de treino</div>
-      <div class="hero-stat"><div class="hero-stat-dot p"></div>Planilhas 10km, 21km e 42km</div>
-    </div>
-  </div>
-
   <!-- WIZARD CONTAINER -->
   <div id="wz-wrap">
 
-    <div style="text-align:center;margin:0 0 10px 0">
-      <span style="font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--acc);text-transform:uppercase">Gerar planilha</span>
+    <div id="wz-top-anchor">
+      <div id="wz-cancel-link" style="display:none;text-align:center;margin-bottom:12px">
+        <button onclick="wzCancelBuildingNew()" style="background:none;border:none;padding:0;font-size:12.5px;font-weight:700;color:var(--t3);cursor:pointer;font-family:inherit">← Cancelar e voltar pra planilha atual</button>
+      </div>
+      <div style="text-align:center;margin:0 0 10px 0">
+        <span style="font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--acc);text-transform:uppercase">Gerar planilha</span>
+      </div>
     </div>
 
     <!-- ETAPA 1: Perfil -->
@@ -1764,6 +1742,33 @@ details[open] summary::after{transform:rotate(90deg)}
 
   </div><!-- fim wz-wrap -->
 
+  <div class="hero" id="calc-hero" style="margin-top:1.25rem">
+    <h1 style="text-align:left"><span>Planilhas</span> Personalizadas</h1>
+    <div class="hero-feature-list" style="margin:14px 0 4px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Crie sua planilha personalizada</strong>com base no seu objetivo e perfil de corredor.</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Acompanhe o progresso da sua planilha</strong>e sua evolução ao longo dos treinos.</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Calcule seus ritmos com precisão</strong>utilizando seu VO₂ Máximo (opcional).</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Sincronize os treinos via Intervals.icu</strong>direto para o seu relógio de corrida.<div style="font-size:12.5px;font-style:italic;color:var(--t3);margin-top:2px">Consulte a compatibilidade no site do intervals.icu</div></div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-dot b"></div>3 métodos de teste</div>
+      <div class="hero-stat"><div class="hero-stat-dot g"></div>5 zonas de treino</div>
+      <div class="hero-stat"><div class="hero-stat-dot p"></div>Planilhas 10km, 21km e 42km</div>
+    </div>
+  </div>
+
   <!-- Inputs do motor clássico (calculadora standalone) -->
   <div style="display:none">
     <input type="number" id="dist"/><input type="number" id="idade"/>
@@ -1814,10 +1819,11 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="modal-bg" id="modal-save-success" style="display:none;z-index:850">
   <div class="modal-box" style="max-width:360px;text-align:center">
     <div style="font-size:32px;margin-bottom:10px"><svg class="gi"><use href="#i-check_circle"></use></svg></div>
-    <div class="modal-title" style="margin-bottom:8px">Treino salvo em Meus Treinos</div>
-    <div class="modal-sub" style="margin-bottom:1.3rem">Para sincronizar com o relógio, abra a planilha em <strong style="color:var(--t2)">Meus Treinos</strong> e use a opção de exportar. Na primeira vez que clicar em exportar, você verá um passo a passo de como conectar com o intervals.icu — depois disso a conexão fica configurada e não precisa repetir.</div>
+    <div class="modal-title" style="margin-bottom:8px">Planilha salva!</div>
+    <div class="modal-sub" style="margin-bottom:1.3rem">Já aparece como sua planilha atual na tela inicial. Caso deseje sincronizar com o relógio, abra ela em <strong style="color:var(--t2)">Meus Treinos</strong> e use a opção de exportar — na primeira vez, você verá um passo a passo de como conectar com o relógio.</div>
     <div class="modal-actions" style="flex-direction:column;gap:8px">
-      <button class="btn-modal-ok" style="width:100%" onclick="confirmSaveSuccessGoToSaved()">OK, ir para Meus Treinos</button>
+      <button class="btn-modal-ok" style="width:100%" onclick="closeSaveSuccessModal()">Entendi</button>
+      <button class="btn-modal-cancel" style="width:100%" onclick="confirmSaveSuccessGoToSaved()">Ver em Meus Treinos</button>
     </div>
   </div>
 </div>
@@ -1872,6 +1878,28 @@ details[open] summary::after{transform:rotate(90deg)}
     <div class="modal-actions" style="justify-content:center">
       <button class="btn-modal-cancel" onclick="closeProfileModal()">Fechar</button>
       <button class="btn-modal-ok" style="background:var(--rd)" onclick="closeProfileModal();doLogout()">Sair</button>
+    </div>
+    <div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--bdr)">
+      <button onclick="closeProfileModal();openDeleteAccountModal()" style="background:none;border:none;padding:0;font-size:12px;font-weight:700;color:var(--t3);cursor:pointer;font-family:inherit">Excluir minha conta</button>
+    </div>
+  </div>
+</div>
+
+<div class="cooper-warn-bg" id="delete-account-modal">
+  <div class="cooper-warn-box" style="max-width:400px;text-align:center">
+    <div style="font-size:36px;margin-bottom:.6rem;color:var(--rd)"><svg class="gi" style="font-size:36px"><use href="#i-warning"></use></svg></div>
+    <div class="cooper-warn-title" style="text-align:center;color:var(--rd)">Excluir conta permanentemente?</div>
+    <div style="font-size:13.5px;color:var(--t2);line-height:1.65;margin:.8rem 0 1.2rem;text-align:left">
+      Isso apaga <strong>para sempre</strong> todos os dados vinculados ao e-mail <strong id="delete-account-email" style="word-break:break-all"></strong>: planilhas salvas, histórico de treinos concluídos, recordes pessoais, melhores marcas e configurações da conta.<br><br>
+      Não tem como desfazer, e não fica nada salvo em nenhum lugar depois disso.
+    </div>
+    <div style="text-align:left;margin-bottom:1.2rem">
+      <label style="font-size:12px;font-weight:700;color:var(--t3);display:block;margin-bottom:6px">Pra confirmar, digite EXCLUIR abaixo:</label>
+      <input type="text" id="delete-account-confirm-input" placeholder="EXCLUIR" autocomplete="off" oninput="document.getElementById('delete-account-btn').disabled=(this.value.trim().toUpperCase()!=='EXCLUIR')" style="width:100%">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="wz-yn-btn" style="flex:1;height:44px" onclick="closeDeleteAccountModal()">Cancelar</button>
+      <button id="delete-account-btn" class="btn-modal-ok" style="flex:1;background:var(--rd);opacity:.4;cursor:not-allowed" disabled onclick="confirmDeleteAccount()">Excluir tudo</button>
     </div>
   </div>
 </div>
@@ -2332,6 +2360,63 @@ function openProfileModal(){
 window.openProfileModal=openProfileModal;
 function closeProfileModal(){document.getElementById('modal-profile').style.display='none'}
 window.closeProfileModal=closeProfileModal;
+
+/* ── Excluir conta permanentemente ──────────────────────────────────────
+   Apaga a subcoleção "realizados", o documento principal do usuário
+   (planilhas, recordes, config) e a conta de autenticação em si. Exige
+   digitar "EXCLUIR" pra confirmar — ação irreversível. */
+function openDeleteAccountModal(){
+  if(!currentUser)return;
+  document.getElementById('delete-account-email').textContent=currentUser.email||'';
+  const input=document.getElementById('delete-account-confirm-input');
+  if(input)input.value='';
+  const btn=document.getElementById('delete-account-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='.4';btn.style.cursor='not-allowed';}
+  document.getElementById('delete-account-modal').classList.add('open');
+}
+window.openDeleteAccountModal=openDeleteAccountModal;
+function closeDeleteAccountModal(){
+  document.getElementById('delete-account-modal').classList.remove('open');
+}
+window.closeDeleteAccountModal=closeDeleteAccountModal;
+async function confirmDeleteAccount(){
+  if(!currentUser)return;
+  const input=document.getElementById('delete-account-confirm-input');
+  if(!input||input.value.trim().toUpperCase()!=='EXCLUIR')return;
+  const btn=document.getElementById('delete-account-btn');
+  if(btn){btn.disabled=true;btn.textContent='Excluindo...';}
+  const uid=currentUser.uid;
+  try{
+    // Subcoleção não é apagada automaticamente junto com o documento do
+    // usuário — precisa apagar cada item, em lotes (limite do Firestore é
+    // 500 operações por batch, uso 400 de margem de segurança).
+    const realSnap=await realizadosCollection(uid).get();
+    let docs=realSnap.docs.slice();
+    while(docs.length){
+      const chunk=docs.splice(0,400);
+      const batch=fbDb.batch();
+      chunk.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+    }
+    await fbDb.collection('users').doc(uid).delete();
+    await currentUser.delete();
+  }catch(e){
+    console.warn('Erro ao excluir conta',e);
+    if(btn){btn.disabled=false;btn.textContent='Excluir tudo';}
+    if(e&&e.code==='auth/requires-recent-login'){
+      alert('Por segurança, o Firebase exige um login recente pra excluir a conta. Saia, entre de novo, e tente excluir em seguida.');
+    }else{
+      showToast('Erro ao excluir a conta. Tente novamente.');
+    }
+    return;
+  }
+  // Mesma limpeza local do logout, garantindo que nada da conta apagada
+  // sobreviva no navegador — e recarrega pra voltar ao estado inicial.
+  try{ localStorage.clear(); }catch(e){}
+  window.location.reload();
+}
+window.confirmDeleteAccount=confirmDeleteAccount;
+
 
 function isEffectiveDarkTheme(){
   const forced=document.documentElement.getAttribute('data-theme');
@@ -2841,7 +2926,30 @@ const DAYS=['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
 /* ══════════════════════════════════════════════════════════
    NAV
 ══════════════════════════════════════════════════════════ */
-function switchNav(p){
+// "Nova Planilha" ganha seu próprio destaque na barra de baixo — sem isso,
+// ela nunca ficava "selecionada" (por tecnicamente ser a mesma aba/página
+// que "Início"), o que fazia parecer só uma posição de rolagem dentro do
+// Início, não uma tela separada de verdade.
+function syncCalcNavHighlight(){
+  const pageCalc=document.getElementById('page-calc');
+  const onCalcTab=!!(pageCalc&&pageCalc.style.display!=='none');
+  const bnavRestart=document.getElementById('bnav-restart');
+  const bnavCalc=document.getElementById('bnav-calc');
+  const navCalc=document.getElementById('nav-calc');
+  if(bnavRestart)bnavRestart.classList.toggle('on',onCalcTab&&wzBuildingNew);
+  if(bnavCalc)bnavCalc.classList.toggle('on',onCalcTab&&!wzBuildingNew);
+  if(navCalc)navCalc.classList.toggle('on',onCalcTab&&!wzBuildingNew);
+}
+function switchNav(p,skipScroll){
+  // "Início" precisa realmente levar pra tela inicial — se a pessoa estiver
+  // no meio do assistente de criar planilha (mesma aba 'calc'), sem isso o
+  // clique não fazia nada visível (já estava nessa aba), deixando a
+  // impressão de estar "preso" no assistente mesmo clicando em Início.
+  if(p==='calc'&&wzBuildingNew){
+    wzBuildingNew=false;
+    wzVo2OnlyMode=false;
+    renderCalcSummary();
+  }
   ['calc','saved'].forEach(k=>{
     const navTop=document.getElementById('nav-'+k);
     const navBot=document.getElementById('bnav-'+k);
@@ -2852,8 +2960,10 @@ function switchNav(p){
   });
   if(p==='saved'){renderSavedList();}
   saveNavState(p, p==='calc'?null:undefined);
+  syncCalcNavHighlight();
+  if(skipScroll)return;
   // Scroll to top on tab change
-  window.scrollTo({top:0,behavior:'smooth'});
+  jumpTo(null);
 }
 
 // ── Persistência da posição atual (aba + planilha aberta) ──────────────
@@ -2897,6 +3007,26 @@ function recomecarApp(){
    TOAST
 ══════════════════════════════════════════════════════════ */
 var toastTimer=null;
+// A página inteira tem scroll-behavior:smooth no <html> — então mesmo
+// scrollIntoView/scrollTo com behavior:'auto' saem animados (o navegador
+// prioriza essa configuração global). Pra ter um salto de verdade, sem
+// nenhuma animação, precisa desligar isso na hora, saltar, e religar.
+function jumpTo(target){
+  const html=document.documentElement;
+  const prevBehavior=html.style.scrollBehavior;
+  html.style.scrollBehavior='auto';
+  if(target instanceof Element){
+    target.scrollIntoView({block:'center'});
+  }else{
+    window.scrollTo(0,0);
+  }
+  // Restaura só depois de um tempinho — um requestAnimationFrame sozinho
+  // religava a rolagem suave rápido demais, ainda em cima do saltinho
+  // instantâneo, e a "cauda" dele saía animada (um "escorregão" curto até
+  // o topo). Esse atraso garante que o salto já terminou de vez antes de
+  // religar o comportamento suave pra outras rolagens.
+  setTimeout(()=>{html.style.scrollBehavior=prevBehavior||'smooth';},150);
+}
 function showToast(msg,variant){
   const t=document.getElementById('toast');
   if(!t)return;
@@ -3156,20 +3286,42 @@ function buildStandaloneHomeCard(){
   return`
     ${vo2Block}
     ${vo2Live?`<button class="cs-vo2zones-btn" id="vo2zones-toggle-btn" onclick="toggleVo2ZonesPanel()" style="margin-top:.75rem">
-      <span class="cs-vo2zones-lbl">VO₂ Máx e Zonas</span>
+      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--acc)"><use href="#i-bolt"></use></svg> VO₂ Máx e Zonas</span>
       <span class="cs-vo2zones-arrow">▼</span>
     </button>
     <div id="vo2zones-panel" class="vo2zones-panel records-panel-flat" style="display:none"></div>`:''}
     ${recItems.length?`<button class="cs-vo2zones-btn" id="records-toggle-btn" onclick="toggleRecordsPanel()" style="margin-top:.5rem">
-      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px"><use href="#i-emoji_events"></use></svg> Recordes Pessoais</span>
+      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--warm)"><use href="#i-emoji_events"></use></svg> Recordes Pessoais</span>
       <span class="cs-vo2zones-arrow">▼</span>
     </button>
     <div id="records-panel" class="vo2zones-panel records-panel-flat" style="display:none"></div>`:''}
     ${markItems.length?`<button class="cs-vo2zones-btn" id="marks-toggle-btn" onclick="toggleMarksPanel()" style="margin-top:.5rem">
-      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px"><use href="#i-track_changes"></use></svg> Melhores Marcas</span>
+      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--warm)"><use href="#i-track_changes"></use></svg> Melhores Marcas</span>
       <span class="cs-vo2zones-arrow">▼</span>
     </button>
     <div id="marks-panel" class="vo2zones-panel records-panel-flat" style="display:none"></div>`:''}`;
+}
+// Reposiciona a introdução "Planilhas Personalizadas": ACIMA do assistente
+// só pra quem nunca teve nada no app (primeiríssima vez de verdade — sem
+// isso, cair direto num formulário sem saber o que é o app fica estranho).
+// Pra quem já tem VO2/recordes/planilha, ela vai pra BAIXO — a pessoa já
+// conhece o app, não precisa ler de novo antes de agir.
+// "Já usou o app alguma vez" — tem planilha (ativa ou não), VO2 calculado
+// ou algum recorde/melhor marca registrado. É o único sinal usado pra
+// decidir se a introdução "Planilhas Personalizadas" aparece — mantém a
+// regra simples e num lugar só, em vez de espalhada em vários checks.
+function isReturningUser(){
+  return !!((savedPlans&&savedPlans.length>0)||wzSummaryPlanId!=null||getCurrentSummaryVo2()||getPersonalRecordsItems().length>0||getBestMarksItems().length>0);
+}
+function positionCalcHero(showAbove){
+  const heroEl=document.getElementById('calc-hero');
+  const wzWrapEl=document.getElementById('wz-wrap');
+  if(!heroEl||!wzWrapEl||!wzWrapEl.parentNode)return;
+  if(showAbove){
+    if(heroEl.nextSibling!==wzWrapEl)wzWrapEl.parentNode.insertBefore(heroEl,wzWrapEl);
+  }else{
+    if(wzWrapEl.nextSibling!==heroEl)wzWrapEl.parentNode.insertBefore(heroEl,wzWrapEl.nextSibling);
+  }
 }
 function renderCalcSummary(){
   const box=document.getElementById('calc-summary');
@@ -3189,7 +3341,24 @@ function renderCalcSummary(){
     }else{
       box.style.display='none';box.innerHTML='';
     }
-    if(!wzBuildingNew&&wzWrap)wzWrap.style.display='';
+    // Mostra a intro+assistente automaticamente só quando não há nada mais
+    // pra exibir (primeira vez de verdade, sem plano nem VO2/recordes) ou
+    // quando a pessoa já está no meio de criar uma planilha nova. Se já
+    // existe algo standalone (VO2/recordes) e não está criando nada agora,
+    // fica escondido — só aparece se clicar em "+ Nova planilha" no card.
+    const showWizardArea=wzBuildingNew||!standaloneHtml;
+    if(wzWrap)wzWrap.style.display=showWizardArea?'':'none';
+    // Regra simples: já usou o app alguma vez (tem planilha, VO2 ou
+    // recordes, mesmo sem nada ATIVO agora) → nunca mais vê a introdução,
+    // nem em cima nem embaixo, só o formulário direto com "Cancelar" visível
+    // desde o início. Só quem nunca usou (deslogado, ou conta nova zerada)
+    // vê a introdução, sempre em cima do assistente.
+    const returning=isReturningUser();
+    const heroEl=document.getElementById('calc-hero');
+    if(heroEl)heroEl.style.display=(showWizardArea&&!returning)?'':'none';
+    if(!returning)positionCalcHero(true);
+    const cancelLink=document.getElementById('wz-cancel-link');
+    if(cancelLink)cancelLink.style.display=(showWizardArea&&returning)?'':'none';
     return;
   }
   const plan=savedPlans.find(p=>p.id===wzSummaryPlanId);
@@ -3218,8 +3387,8 @@ function renderCalcSummary(){
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:nowrap">
       <div class="cs-eyebrow" style="margin-bottom:0;flex-shrink:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><svg class="gi"><use href="#i-list_alt"></use></svg> Planilha atual</div>
       ${progHome?`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-top:5px">
-        ${streakHome>=1?`<div onclick="openStreakInfoModal()" style="cursor:pointer;font-size:11px;font-weight:800;color:var(--on-warm);white-space:nowrap;background:var(--warm);padding:3px 10px;border-radius:20px">🔥 ${streakHome} semana${streakHome>1?'s':''} seguida${streakHome>1?'s':''} <svg class="gi" style="font-size:11px;vertical-align:-1px"><use href="#i-info"></use></svg></div>`:''}
-        <div class="prog-segbar" id="home-prog-fill-${plan.id}" style="width:${progBarWidthPx(plan)}">${buildProgSegments(progHome.pct,plan.weeks?plan.weeks.length:0)}</div>
+        ${streakHome>=1?`<div onclick="openStreakInfoModal()" style="cursor:pointer;width:186px;text-align:center;font-size:11px;font-weight:800;color:var(--on-warm);white-space:nowrap;background:var(--warm);padding:3px 10px;border-radius:20px;box-sizing:border-box">🔥 ${streakHome} semana${streakHome>1?'s':''} seguida${streakHome>1?'s':''} <svg class="gi" style="font-size:11px;vertical-align:-1px"><use href="#i-info"></use></svg></div>`:''}
+        <div class="prog-segbar" id="home-prog-fill-${plan.id}">${buildProgSegments(progHome.pct,plan.weeks?plan.weeks.length:0)}</div>
         <span style="font-size:11px;font-weight:700;color:var(--t3);white-space:nowrap"><span id="home-prog-lbl-${plan.id}">${progHome.done}/${progHome.total} treinos</span> <span style="font-size:7px;vertical-align:middle">●</span> <span id="home-prog-pct-${plan.id}">${progHome.pct}%</span></span>
       </div>`:''}
     </div>
@@ -3233,27 +3402,28 @@ function renderCalcSummary(){
     ${plan?buildTodayMini(plan):''}
     <div class="cs-actions-discrete">
       <button class="cs-link" onclick="goToSavedPlan(${wzSummaryPlanId})"><svg class="gi"><use href="#i-menu_book"></use></svg> Abrir planilha</button>
-      <span class="cs-divider"></span>
-      <button class="cs-link" onclick="wzStartNewPlan()">＋ Nova planilha</button>
     </div>
     <button class="cs-vo2zones-btn" id="vo2zones-toggle-btn" onclick="toggleVo2ZonesPanel()">
-      <span class="cs-vo2zones-lbl">VO₂ Máx e Zonas</span>
+      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--acc)"><use href="#i-bolt"></use></svg> VO₂ Máx e Zonas</span>
       <span class="cs-vo2zones-arrow">▼</span>
     </button>
     <div id="vo2zones-panel" class="vo2zones-panel records-panel-flat" style="display:none"></div>
     ${getPersonalRecordsItems().length?`<button class="cs-vo2zones-btn" id="records-toggle-btn" onclick="toggleRecordsPanel()" style="margin-top:.5rem">
-      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px"><use href="#i-emoji_events"></use></svg> Recordes Pessoais</span>
+      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--warm)"><use href="#i-emoji_events"></use></svg> Recordes Pessoais</span>
       <span class="cs-vo2zones-arrow">▼</span>
     </button>
     <div id="records-panel" class="vo2zones-panel records-panel-flat" style="display:none"></div>`:''}
     ${getBestMarksItems().length?`<button class="cs-vo2zones-btn" id="marks-toggle-btn" onclick="toggleMarksPanel()" style="margin-top:.5rem">
-      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px"><use href="#i-track_changes"></use></svg> Melhores Marcas</span>
+      <span class="cs-vo2zones-lbl"><svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--warm)"><use href="#i-track_changes"></use></svg> Melhores Marcas</span>
       <span class="cs-vo2zones-arrow">▼</span>
     </button>
     <div id="marks-panel" class="vo2zones-panel records-panel-flat" style="display:none"></div>`:''}`;
-  box.style.display='';
+  box.style.display=wzBuildingNew?'none':'';
   closeVo2ZonesPanel();
   closeRecordsPanel();closeMarksPanel();
+  const heroEl=document.getElementById('calc-hero');if(heroEl)heroEl.style.display='none';
+  const cancelLink=document.getElementById('wz-cancel-link');if(cancelLink)cancelLink.style.display=wzBuildingNew?'':'none';
+  positionCalcHero(false);
   if(!wzBuildingNew){
     if(wzWrap)wzWrap.style.display='none';
     if(ra){ra.style.display='none';ra.style.visibility='hidden';}
@@ -3325,7 +3495,7 @@ function closeVo2ZonesPanel(){
   if(btn){
     btn.classList.remove('on');
     const arrow=btn.querySelector('.cs-vo2zones-arrow');if(arrow)arrow.textContent='▼';
-    const lbl=btn.querySelector('.cs-vo2zones-lbl');if(lbl)lbl.textContent='VO₂ Máx e Zonas';
+    const lbl=btn.querySelector('.cs-vo2zones-lbl');if(lbl)lbl.innerHTML='<svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--acc)"><use href="#i-bolt"></use></svg> VO₂ Máx e Zonas';
   }
 }
 window.closeVo2ZonesPanel=closeVo2ZonesPanel;
@@ -3349,13 +3519,16 @@ function toggleVo2ZonesPanel(){
   btn.classList.add('on');
   const arrow=btn.querySelector('.cs-vo2zones-arrow');if(arrow)arrow.textContent='▲';
   const lbl=btn.querySelector('.cs-vo2zones-lbl');if(lbl)lbl.textContent='Ocultar';
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 window.toggleVo2ZonesPanel=toggleVo2ZonesPanel;
 
 function wzCalcRealVo2(){
   closeVo2ZonesPanel();
   const snap=wzSummarySnapshot||{};
+  // Troca de aba ANTES de marcar wzBuildingNew=true (mesmo motivo do
+  // wzStartNewPlan — senão se autocancela).
+  switchNav('calc');
   wzBuildingNew=true;
   wzVo2OnlyMode=true;
   wzState={profile:snap.profile||null,vo2:null,usedRealVo2:false,dist:snap.dist||null,obj:snap.obj||null,dur:snap.dur||null};
@@ -3376,6 +3549,7 @@ function wzCalcRealVo2(){
   // Nesse fluxo só faz sentido informar ou calcular o VO2 real — esconde a
   // opção "Gerar sem informar" (padrão por nível), que não se aplica aqui.
   const optEst=document.getElementById('wz-opt-est');if(optEst)optEst.style.display='none';
+  renderCalcSummary();
   // Rola até a etapa do cálculo (e não pro topo da página), pra usuário não se perder.
   setTimeout(()=>{const step2=document.getElementById('wz-step-2');if(step2)step2.scrollIntoView({behavior:'smooth',block:'start'});},50);
 }
@@ -3406,24 +3580,19 @@ function wzFinishVo2OnlyUpdate(){
   if(ra){ra.innerHTML='';ra.style.display='none';ra.style.visibility='hidden';}
   const optEst=document.getElementById('wz-opt-est');if(optEst)optEst.style.display='flex';
   renderCalcSummary();
-  window.scrollTo({top:0,behavior:'smooth'});
-  // Se já existe uma planilha atual e o VO2 novo é diferente do que foi
-  // usado pra gerá-la, oferece atualizar na hora — reaproveita o mesmo
-  // confirm() e a mesma lógica de recálculo de recalcPlanVo2 (só recalcula
-  // treinos futuros ainda não feitos). Se o usuário cancelar, o VO2 novo
-  // continua salvo mesmo assim — o aviso "VO2 real disponível, atualizar
-  // planilha?" no card da planilha aparece depois, permitindo atualizar a
-  // qualquer momento.
-  if(wzSummaryPlanId!=null){
-    const planToOffer=savedPlans.find(p=>p.id===wzSummaryPlanId);
-    if(planToOffer&&planNeedsVo2Refresh(planToOffer))recalcPlanVo2(planToOffer.id);
-  }
+  syncCalcNavHighlight();
+  jumpTo(null);
 }
 /* Botão "+ Nova planilha": abre o wizard do zero pra montar outra planilha,
    SEM apagar o resumo da planilha atual — ela só é substituída quando a nova
    for de fato gerada e salva (ver wzSaveSummaryState). */
 function wzStartNewPlan(){
   closeVo2ZonesPanel();
+  // Troca de aba ANTES de marcar wzBuildingNew=true — switchNav('calc')
+  // sai do modo de criação quando já está nele (pro botão "Início"
+  // funcionar), então precisa rodar com o estado ainda antigo, senão
+  // cancelava a própria criação que estamos prestes a começar.
+  switchNav('calc');
   wzBuildingNew=true;
   wzVo2OnlyMode=false;
   const optEst=document.getElementById('wz-opt-est');if(optEst)optEst.style.display='flex';
@@ -3437,12 +3606,31 @@ function wzStartNewPlan(){
   if(ra){ra.innerHTML='';ra.style.display='none';ra.style.visibility='hidden';}
   const t21=document.getElementById('rtab-21');const t42=document.getElementById('rtab-42');const t10k=document.getElementById('rtab-10k');
   if(t21)t21.style.display='';if(t42)t42.style.display='';if(t10k)t10k.style.display='';
-  document.getElementById('wz-step-1').scrollIntoView({behavior:'smooth',block:'start'});
+  renderCalcSummary();
+  syncCalcNavHighlight();
+  // Rola direto pro Passo 1 (não pro topo da página) — pula a introdução
+  // quando ela estiver posicionada em cima, em vez de reordenar a tela.
+  setTimeout(()=>{const anchor=document.getElementById('wz-top-anchor');if(anchor)jumpTo(anchor);},50);
 }
+// Desiste de criar uma planilha nova e volta a mostrar a "Planilha atual"
+// (sem mexer em nada que já estava salvo — só sai do modo de criação).
+function wzCancelBuildingNew(){
+  wzBuildingNew=false;
+  wzVo2OnlyMode=false;
+  renderCalcSummary();
+  syncCalcNavHighlight();
+  jumpTo(null);
+}
+window.wzCancelBuildingNew=wzCancelBuildingNew;
 /* Botão "Ver planilha": vai pra Meus Treinos, destaca o card e já abre
    a planilha direto (painel expandido, rolando até o dia de hoje). */
 function goToSavedPlan(planId){
-  switchNav('saved');
+  switchNav('saved',true);
+  // Não salta pra lugar nenhum aqui ainda — deixa só o salto de dentro de
+  // toggleWeeksPanel acontecer (direto pro dia de hoje). Saltar primeiro
+  // pro topo e só depois pro dia de hoje, mesmo os dois sendo instantâneos,
+  // ainda dava a sensação de "dois movimentos" por acontecerem em momentos
+  // separados — agora é um salto só, direto pro destino final.
   setTimeout(()=>{
     const card=document.getElementById(`saved-item-${planId}`);
     if(card){
@@ -3450,7 +3638,7 @@ function goToSavedPlan(planId){
       setTimeout(()=>card.classList.remove('flash-highlight'),1600);
     }
     toggleWeeksPanel(planId,true);
-  },200);
+  },50);
 }
 
 /* ── Ir para uma etapa específica (edit) ── */
@@ -3614,6 +3802,12 @@ function wzUseProfileEstimate(){
   wzState.vo2=vo2;wzState.usedRealVo2=false;
   vo2G=vo2;vVO2G=vo2/3.5;
   customPaces={};usingCustom=false;
+  // Sem isso, um VO2 "por estimativa de perfil" (pulou o teste) nunca ficava
+  // salvo em lastTestResult — então, se a planilha fosse apagada depois, a
+  // tela inicial standalone ficava sem nada pra mostrar, mesmo a pessoa já
+  // tendo "gerado" um VO2 alguma vez. Testes reais/manuais já salvavam
+  // (via saveLastTest em wzFinishTest); faltava esse caminho.
+  saveLastTest(vo2,vo2/3.5,'Padrão por nível (sem informar)','profileDefault',wzState.profile||'inter');
   const ra=document.getElementById('result-area');
   if(ra){ra.style.visibility='hidden';ra.style.display='none';}
   renderResults(vo2,null,'Padrão por nível (sem informar)','profileDefault','N');
@@ -3869,12 +4063,6 @@ function wzFinishTest(vo2,vVO2calc,label,type){
   const calcConfirm=document.getElementById('wz-calc-confirm');
   if(calcConfirm){
     calcConfirm.style.display='';
-    // Se já existe uma planilha atual que aceita recálculo e o VO2 mudou,
-    // oferece atualizar ela direto — sem isso, a pessoa só via "Continuar"
-    // pro fluxo de criar uma planilha NOVA, mesmo quando só queria
-    // atualizar o VO2 da que já tem.
-    const curPlan=(typeof wzSummaryPlanId!=='undefined'&&wzSummaryPlanId)?savedPlans.find(p=>p.id===wzSummaryPlanId):null;
-    const offerUpdate=curPlan&&planSupportsVo2Recalc(curPlan)&&Math.round(vo2*10)/10!==curPlan.vo2;
     calcConfirm.innerHTML=`<div class="stat-card" style="padding:.9rem 1.1rem;display:flex;align-items:center;gap:12px;margin-bottom:.75rem">
       <span style="font-size:24px;color:var(--gr)"><svg class="gi"><use href="#i-check_circle"></use></svg></span>
       <div style="flex:1">
@@ -3883,23 +4071,20 @@ function wzFinishTest(vo2,vVO2calc,label,type){
         <div style="font-size:11.5px;color:var(--t3);margin-top:2px">${label}</div>
       </div>
     </div>
-    ${offerUpdate?`<div style="display:flex;gap:8px;margin-bottom:.75rem">
-      <button class="wz-confirm-btn" style="flex:1" onclick="recalcPlanVo2(${curPlan.id});wzCancelNewPlanAfterVo2Update();">Atualizar planilha atual</button>
-      <button class="wz-yn-btn" style="flex:1;height:44px" onclick="wzAdvanceTo3()">Criar planilha nova</button>
-    </div>`:`<div style="text-align:right;margin-bottom:.75rem"><button class="wz-confirm-btn" onclick="wzAdvanceTo3()">Continuar →</button></div>`}`;
+    <div style="text-align:right;margin-bottom:.75rem"><button class="wz-confirm-btn" onclick="wzAdvanceTo3()">Continuar →</button></div>`;
     document.getElementById('wz-step-2').scrollIntoView({behavior:'smooth',block:'start'});
+    // Pergunta na hora do cálculo (não espera "Continuar") — se a pessoa
+    // sair da tela sem clicar em Continuar, o painel inicial já ficaria com
+    // o VO2 novo mesmo assim (via saveLastTest acima), então perguntar já
+    // aqui evita perder esse momento de decidir sobre a planilha também.
+    const curPlan=(typeof wzSummaryPlanId!=='undefined'&&wzSummaryPlanId)?savedPlans.find(p=>p.id===wzSummaryPlanId):null;
+    if(curPlan&&wzState.usedRealVo2&&planSupportsVo2Recalc(curPlan)&&Math.round(vo2*10)/10!==curPlan.vo2){
+      openVo2UpdateModal(curPlan.id,Math.round(vo2*10)/10,curPlan.vo2);
+    }
   } else {
     wzAdvanceTo3();
   }
 }
-// Depois de atualizar a planilha atual com o VO2 novo (em vez de seguir
-// criando uma planilha nova), fecha o fluxo do assistente e volta pra tela
-// inicial já mostrando a planilha atualizada.
-function wzCancelNewPlanAfterVo2Update(){
-  wzBuildingNew=false;
-  renderCalcSummary();
-}
-window.wzCancelNewPlanAfterVo2Update=wzCancelNewPlanAfterVo2Update;
 
 function wzBackToTestPicker(){
   const formArea=document.getElementById('wz-inline-test-form');
@@ -3928,14 +4113,11 @@ function wzUpdateVo2Btn(){
 function wzConfirmVo2(){
   const v=parseFloat(document.getElementById('wz-vo2-val').value);
   if(!v||v<20||v>90){showToast('Informe um valor entre 20 e 90 ml/kg/min.');return;}
-  wzState.vo2=v;wzState.usedRealVo2=true;
-  vo2G=v;vVO2G=v/3.5;
-  customPaces={};usingCustom=false;
-  saveLastTest(v,v/3.5,'Inserido manualmente','physiological',wzState.profile||'inter');
-  const ra=document.getElementById('result-area');
-  if(ra){ra.style.visibility='hidden';ra.style.display='none';}
-  renderResults(v,null,'Inserido manualmente','physiological');
-  wzAdvanceTo3();
+  // Reaproveita wzFinishTest (mesmo caminho dos testes calculados) — antes
+  // esse fluxo manual pulava direto pra frente sem nunca oferecer
+  // "Atualizar planilha atual", mesmo quando o VO2 digitado era diferente
+  // do que a planilha ativa já usava.
+  wzFinishTest(v,v/3.5,'Inserido manualmente','physiological');
 }
 
 function wzAdvanceTo3(){
@@ -4305,6 +4487,41 @@ function closeStreakInfoModal(){
   document.getElementById('streak-info-modal').classList.remove('open');
 }
 window.closeStreakInfoModal=closeStreakInfoModal;
+// Modal "quer atualizar a planilha com esse VO2 novo?" — dispara na hora do
+// cálculo (não espera "Continuar"), pra nunca deixar passar o caso da
+// pessoa sair da tela sem decidir. Mostra o valor novo já colorido pelo
+// nível de aptidão (mesma paleta/rótulo — "Excelente", "Bom" etc. — usada
+// no resto do app), pra ficar visualmente claro e bonito, não só um
+// confirm() genérico do navegador.
+function openVo2UpdateModal(planId,newVo2,oldVo2){
+  const fit=getFit(newVo2,'N');
+  const el=document.getElementById('vo2-update-modal');
+  if(!el)return;
+  el.dataset.planId=planId;
+  el.querySelector('.vo2um-value').textContent=`${newVo2}`;
+  el.querySelector('.vo2um-badge').textContent=fit.l;
+  el.querySelector('.vo2um-badge').style.background=fit.bg;
+  el.querySelector('.vo2um-badge').style.color=fit.c;
+  el.querySelector('.vo2um-old').textContent=`Planilha atual está com ${oldVo2} ml/kg/min`;
+  el.classList.add('open');
+}
+window.openVo2UpdateModal=openVo2UpdateModal;
+function closeVo2UpdateModal(){
+  document.getElementById('vo2-update-modal').classList.remove('open');
+  // O VO2 novo já foi salvo (saveLastTest) antes do modal abrir — mesmo
+  // dizendo "não" pra planilha, a tela inicial e o VO2/Zonas já devem
+  // refletir esse valor imediatamente, sem esperar clicar em "Continuar".
+  if(typeof renderCalcSummary==='function')renderCalcSummary();
+}
+window.closeVo2UpdateModal=closeVo2UpdateModal;
+function confirmVo2UpdateModal(){
+  const el=document.getElementById('vo2-update-modal');
+  const planId=Number(el.dataset.planId);
+  el.classList.remove('open');
+  recalcPlanVo2(planId,true);
+  if(typeof renderCalcSummary==='function')renderCalcSummary();
+}
+window.confirmVo2UpdateModal=confirmVo2UpdateModal;
 function closeCooperHowModal(){
   document.getElementById('cooper-how-modal').classList.remove('open');
 }
@@ -7567,6 +7784,7 @@ function confirmSave(){
   updateSavedBadge();
   persistAccountPlans();
   wzSaveSummaryState(plan.id);
+  jumpTo(null);
   closeModal();
   showSaveSuccessModal(plan.id);
 }
@@ -7576,20 +7794,32 @@ function showSaveSuccessModal(planId){
   const m=document.getElementById('modal-save-success');
   if(m)m.style.display='flex';
 }
+// Fecha o modal sem navegar pra lugar nenhum — fica na tela inicial, que já
+// mostra a planilha recém-criada como "Planilha atual", com o botão "Abrir
+// planilha" ali pra quem quiser ir mais fundo. Ir pro "Meus Treinos" virou
+// opcional, não obrigatório.
+function closeSaveSuccessModal(){
+  const m=document.getElementById('modal-save-success');
+  if(m)m.style.display='none';
+  pendingSavedPlanId=null;
+}
+window.closeSaveSuccessModal=closeSaveSuccessModal;
 function confirmSaveSuccessGoToSaved(){
   const planId=pendingSavedPlanId;
   const m=document.getElementById('modal-save-success');
   if(m)m.style.display='none';
+  // Vai igual clicar no "Meus Treinos" normal da barra de baixo — direto
+  // pro topo, sem tentar focar/descer até o card específico (isso ainda
+  // dava uma leve sensação de movimento). Só realça o card, sem rolar até ele.
   switchNav('saved');
   if(planId!=null){
     setTimeout(()=>{
       const card=document.getElementById(`saved-item-${planId}`);
       if(card){
-        card.scrollIntoView({behavior:'smooth',block:'center'});
         card.classList.add('flash-highlight');
         setTimeout(()=>card.classList.remove('flash-highlight'),1600);
       }
-    },200);
+    },50);
   }
   pendingSavedPlanId=null;
 }
@@ -7627,13 +7857,13 @@ function planNeedsVo2Refresh(plan){
   const newVo2=Math.round(lastRealTest.vo2*10)/10;
   return newVo2!==plan.vo2;
 }
-function recalcPlanVo2(planId){
+function recalcPlanVo2(planId,skipConfirm){
   const plan=savedPlans.find(p=>p.id===planId);
   if(!plan||!planSupportsVo2Recalc(plan))return;
   if(!lastRealTest||!lastRealTest.vo2){showToast('Nenhum teste real de VO2 encontrado ainda.');return;}
   const newVo2=Math.round(lastRealTest.vo2*10)/10;
   if(newVo2===plan.vo2){showToast('Esta planilha já está com o VO2 mais recente.');return;}
-  if(!confirm(`Atualizar esta planilha com o VO2 real (${newVo2})?\n\nSó os treinos de hoje em diante que ainda NÃO foram concluídos serão recalculados. Dias já passados e treinos já marcados como feitos (mesmo de dias futuros) são mantidos como estão. Treinos já enviados pro relógio NÃO são alterados automaticamente.`))return;
+  if(!skipConfirm&&!confirm(`Atualizar esta planilha com o VO2 real (${newVo2})?\n\nSó os treinos de hoje em diante que ainda NÃO foram concluídos serão recalculados. Dias já passados e treinos já marcados como feitos (mesmo de dias futuros) são mantidos como estão. Treinos já enviados pro relógio NÃO são alterados automaticamente.`))return;
   const prof=PROFILES[plan.profKey]||PROFILES.inter;
   const vVO2new=lastRealTest.vVO2||(lastRealTest.vo2/3.5);
   const pf=prof.paces;
@@ -7806,18 +8036,25 @@ function calcWeekStreak(plan){
 // 100%. Ganhou marcações finas por cima indicando onde cada semana termina
 // — dá pra ver "quanto é 1 semana" sem virar blocos individuais de novo
 // (o streak já cobre a leitura de consistência semana a semana).
-// Largura da barra: fixa em planilhas curtas, cresce um pouco em planilhas
-// longas só o suficiente pra cada marcação de semana continuar legível.
-function progBarWidthPx(plan){
-  const n=(plan&&plan.weeks)?plan.weeks.length:0;
-  return Math.max(130,Math.min(170,n*9))+'px';
-}
+// Largura da barra é fixa (170px, via CSS) — pensada pro pior caso (~20
+// semanas) e nunca muda, pra ficar sempre alinhada com o selo de streak
+// ao lado, que usa essa mesma largura fixa.
 function buildProgSegments(pct,weekCount){
   const fill=pct>=100?'var(--gr)':'linear-gradient(90deg,var(--acc),var(--acc2))';
   let ticksHtml='';
   if(weekCount>1){
-    const stepPct=100/weekCount;
-    ticksHtml=`<div class="prog-seg-ticks" style="background-image:repeating-linear-gradient(to right,rgba(255,255,255,.3) 0,rgba(255,255,255,.3) 1px,transparent 1px,transparent ${stepPct}%)"></div>`;
+    // Marca só as divisas INTERNAS entre semanas (nunca nas pontas 0%/100%)
+    // — evitava um traço cortado pela borda arredondada bem no início da
+    // barra, deixando aquele primeiro pedaço com espessura diferente dos
+    // demais. Com posições exatas (em vez de padrão repetido), toda marca
+    // fica com a mesma espessura de 1px, sem artefato nas pontas.
+    const stops=['transparent 0%'];
+    for(let i=1;i<weekCount;i++){
+      const pos=100*i/weekCount;
+      stops.push(`transparent ${pos}%`,`rgba(255,255,255,.3) ${pos}%`,`rgba(255,255,255,.3) calc(${pos}% + 1px)`,`transparent calc(${pos}% + 1px)`);
+    }
+    stops.push('transparent 100%');
+    ticksHtml=`<div class="prog-seg-ticks" style="background-image:linear-gradient(to right,${stops.join(',')})"></div>`;
   }
   return`<div class="prog-seg-fill" style="width:${pct}%;background:${fill}"></div>${ticksHtml}`;
 }
@@ -7856,10 +8093,10 @@ function finishToggleDoneUI(planId,wIdx,dIdx){
   const prog=calcProgress(plan);
   /* update progress bar */
   const bar=document.getElementById(`prog-fill-${planId}`);const pct=document.getElementById(`prog-pct-${planId}`);const lbl=document.getElementById(`prog-lbl-${planId}`);
-  if(bar){ if(bar.classList.contains('prog-segbar')){bar.style.width=progBarWidthPx(plan);bar.innerHTML=buildProgSegments(prog.pct,plan.weeks?plan.weeks.length:0);}else bar.style.width=prog.pct+'%'; }
+  if(bar){ if(bar.classList.contains('prog-segbar'))bar.innerHTML=buildProgSegments(prog.pct,plan.weeks?plan.weeks.length:0);else bar.style.width=prog.pct+'%'; }
   if(pct)pct.textContent=prog.pct+'%';if(lbl)lbl.textContent=`${prog.done}/${prog.total} treinos`;
   const homeBar=document.getElementById(`home-prog-fill-${planId}`);const homePct=document.getElementById(`home-prog-pct-${planId}`);const homeLbl=document.getElementById(`home-prog-lbl-${planId}`);
-  if(homeBar){homeBar.style.width=progBarWidthPx(plan);homeBar.innerHTML=buildProgSegments(prog.pct,plan.weeks?plan.weeks.length:0);}if(homePct)homePct.textContent=prog.pct+'%';if(homeLbl)homeLbl.textContent=`${prog.done} / ${prog.total} treinos`;
+  if(homeBar)homeBar.innerHTML=buildProgSegments(prog.pct,plan.weeks?plan.weeks.length:0);if(homePct)homePct.textContent=prog.pct+'%';if(homeLbl)homeLbl.textContent=`${prog.done} / ${prog.total} treinos`;
   /* update week prog */
   const wk=plan.weeks[wIdx];const weekDone=wk.days.filter((d,di)=>!d.rest&&plan.done[`${wIdx}-${di}`]).length;const weekTotal=wk.days.filter(d=>!d.rest).length;const wkLbl=document.getElementById(`wprog-${planId}-${wIdx}`);if(wkLbl)wkLbl.textContent=`${weekDone}/${weekTotal}`;
   /* toggle cell style */
@@ -8025,7 +8262,7 @@ function openManualCompletionModal(planId,wIdx,dIdx){
     </div>
     <div style="display:flex;gap:8px">
       <button onclick="skipManualCompletion(${planId},${wIdx},${dIdx})" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--bdr2);background:none;color:var(--t2);font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Pular</button>
-      <button onclick="confirmManualCompletion(${planId},${wIdx},${dIdx})" style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--acc);color:#fff;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">Salvar</button>
+      <button onclick="confirmManualCompletion(${planId},${wIdx},${dIdx})" style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">Salvar</button>
     </div>
   </div>`;
   document.body.appendChild(modal);
@@ -8375,7 +8612,7 @@ function renderShareModalBody(){
         </div></div>
     </div>
     <div style="display:flex;gap:8px">
-      <button onclick="shareDownloadImage()" style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--acc);color:#fff;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit"><svg class="gi" style="vertical-align:-2px"><use href="#i-download"></use></svg> Baixar imagem</button>
+      <button onclick="shareDownloadImage()" style="flex:1;padding:11px;border-radius:8px;border:none;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit"><svg class="gi" style="vertical-align:-2px"><use href="#i-download"></use></svg> Baixar imagem</button>
       <button onclick="shareNativeShare()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--bdr2);background:none;color:var(--t2);font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit"><svg class="gi" style="vertical-align:-2px"><use href="#i-share"></use></svg> Compartilhar</button>
     </div>`;
   shareRedrawCanvas();
@@ -8884,32 +9121,6 @@ function openWatchExportModal(planId){
   modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 }
 
-function autoScrollToToday(){
-  // Após renderSavedList, abre o plano ativo e rola até o dia de hoje
-  const activePlan=savedPlans.find(p=>{const i=getTodayInfo(p);return i&&i.status==='active';})
-    ||savedPlans.find(p=>{const i=getTodayInfo(p);return i&&i.status==='future';})
-    ||savedPlans[0];
-  if(!activePlan)return;
-  // Abre o painel do plano ativo
-  toggleWeeksPanel(activePlan.id,true);
-  // Aguarda o DOM atualizar e rola até o dia de hoje
-  setTimeout(()=>{
-    const todayInfo=getTodayInfo(activePlan);
-    let target=null;
-    if(todayInfo&&todayInfo.status==='active'){
-      target=document.getElementById(`swday-${activePlan.id}-${todayInfo.wIdx}-${todayInfo.dIdx}`);
-      if(!target){
-        // fallback: rola até a semana atual
-        const weekEls=document.querySelectorAll(`#swpanel-${activePlan.id} .sw-week`);
-        if(weekEls[todayInfo.wIdx])target=weekEls[todayInfo.wIdx];
-      }
-    }
-    if(target){
-      target.scrollIntoView({behavior:'smooth',block:'center'});
-    }
-  },120);
-}
-
 /* ══════════════════════════════════════════════════════════
    TREINO DE HOJE
 ══════════════════════════════════════════════════════════ */
@@ -9186,7 +9397,8 @@ function buildRecordsGridHtml(items){
   if(!items.length)return`<div style="text-align:center;color:var(--t3);font-size:14px;padding:.5rem 0">Nenhum recorde ainda — conclua um treino informando tempo ou pace pra começar a registrar.</div>`;
   return`<div style="display:flex;gap:10px;flex-wrap:wrap">
     ${items.map(([label,value,date,icon,completedAt,color])=>`
-      <div class="stat-card" style="flex:1;min-width:140px;padding:10px 12px">
+      <div class="stat-card" style="flex:1;min-width:140px;padding:10px 12px 14px;position:relative;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:${color}"></div>
         <div style="width:26px;height:26px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;margin-bottom:6px"><svg class="gi" style="font-size:14px;color:#fff"><use href="#${icon}"></use></svg></div>
         <div style="font-size:10.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">${label}</div>
         <div style="font-size:20px;font-weight:800;color:${color};margin-top:4px">${value}</div>
@@ -9256,7 +9468,7 @@ function closeAccordionSection(kind){
   if(btn){
     btn.classList.remove('on');
     const arrow=btn.querySelector('.cs-vo2zones-arrow');if(arrow)arrow.textContent='▼';
-    const lbl=btn.querySelector('.cs-vo2zones-lbl');if(lbl)lbl.innerHTML=`<svg class="gi" style="vertical-align:-3px;margin-right:4px"><use href="#${m.icon}"></use></svg> ${m.label}`;
+    const lbl=btn.querySelector('.cs-vo2zones-lbl');if(lbl)lbl.innerHTML=`<svg class="gi" style="vertical-align:-3px;margin-right:4px;color:var(--warm)"><use href="#${m.icon}"></use></svg> ${m.label}`;
   }
 }
 function toggleAccordionSection(kind){
@@ -9272,7 +9484,7 @@ function toggleAccordionSection(kind){
   btn.classList.add('on');
   const arrow=btn.querySelector('.cs-vo2zones-arrow');if(arrow)arrow.textContent='▲';
   const lbl=btn.querySelector('.cs-vo2zones-lbl');if(lbl)lbl.textContent='Ocultar';
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function closeRecordsPanel(){closeAccordionSection('records');}
 window.closeRecordsPanel=closeRecordsPanel;
@@ -9333,7 +9545,7 @@ function renderSavedList(){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin:10px 16px 0">
-        <div class="prog-segbar" id="prog-fill-${plan.id}" style="width:${progBarWidthPx(plan)}">${buildProgSegments(prog.pct,plan.weeks?plan.weeks.length:0)}</div>
+        <div class="prog-segbar" id="prog-fill-${plan.id}">${buildProgSegments(prog.pct,plan.weeks?plan.weeks.length:0)}</div>
         <span style="font-size:12px;font-weight:700;color:var(--t3)"><span id="prog-lbl-${plan.id}">${prog.done}/${prog.total} treinos</span> <span style="font-size:7px;vertical-align:middle">●</span> <span id="prog-pct-${plan.id}">${prog.pct}%</span></span>
       </div>
       <div style="display:flex;gap:8px;margin:14px 16px 12px;justify-content:center">
@@ -10860,7 +11072,6 @@ window.toggleDone=toggleDone;
 window.swDayTap=swDayTap;
 window.toggleWeeksPanel=toggleWeeksPanel;
 window.openWatchExportModal=openWatchExportModal;
-window.autoScrollToToday=autoScrollToToday;
 window.showRetestArea=showRetestArea;
 window.deletePlan=deletePlan;
 window.exportSavedXLSX=exportSavedXLSX;
@@ -11325,6 +11536,22 @@ function icuAutoCheckOnResume(){
 </div>
 
 <!-- COOPER HOW-TO MODAL -->
+<div class="cooper-warn-bg" id="vo2-update-modal">
+  <div class="cooper-warn-box" style="max-width:400px;text-align:center">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:10px">Novo VO₂ Máx calculado</div>
+    <div style="display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:8px">
+      <span class="vo2um-value" style="font-size:44px;font-weight:900;color:var(--acc)">—</span>
+      <span style="font-size:14px;color:var(--t3);font-weight:600">ml/kg/min</span>
+    </div>
+    <span class="vo2um-badge" style="display:inline-block;font-size:12px;font-weight:800;padding:3px 12px;border-radius:20px;margin-bottom:14px"></span>
+    <div class="vo2um-old" style="font-size:12.5px;color:var(--t3);margin-bottom:1.2rem"></div>
+    <div style="font-size:13.5px;color:var(--t2);line-height:1.6;margin-bottom:1.3rem">Quer atualizar sua planilha atual com esse VO₂? Só os treinos de hoje em diante ainda não concluídos são recalculados.</div>
+    <div style="display:flex;gap:8px">
+      <button class="wz-yn-btn" style="flex:1;height:44px" onclick="closeVo2UpdateModal()">Agora não</button>
+      <button class="wz-confirm-btn" style="flex:1" onclick="confirmVo2UpdateModal()">Atualizar planilha</button>
+    </div>
+  </div>
+</div>
 <div class="cooper-warn-bg" id="streak-info-modal">
   <div class="cooper-warn-box" style="max-width:400px;text-align:left">
     <div style="text-align:center;font-size:36px;margin-bottom:.4rem">🔥</div>
@@ -11509,9 +11736,9 @@ function icuAutoCheckOnResume(){
     <div class="bnav-icon"><svg class="gi"><use href="#i-home"></use></svg></div>
     <span class="bnav-label">Início</span>
   </button>
-  <button class="bnav-tab" id="bnav-restart" onclick="recomecarApp()">
-    <div class="bnav-icon"><svg class="gi"><use href="#i-refresh"></use></svg></div>
-    <span class="bnav-label">Recomeçar</span>
+  <button class="bnav-tab" id="bnav-restart" onclick="wzStartNewPlan()">
+    <div class="bnav-icon" style="font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">＋</div>
+    <span class="bnav-label">Nova Planilha</span>
   </button>
   <button class="bnav-tab" id="bnav-saved" onclick="switchNav('saved')">
     <div class="bnav-icon"><svg class="gi"><use href="#i-list_alt"></use></svg></div>
@@ -13208,6 +13435,7 @@ function montadorConfirmSave(){
   updateSavedBadge();
   persistAccountPlans();
   wzSaveSummaryState(plan.id);
+  jumpTo(null);
   fecharMontador();
   renderSavedList();
   showSaveSuccessModal(plan.id);
