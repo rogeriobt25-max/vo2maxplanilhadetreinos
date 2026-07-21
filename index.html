@@ -11996,6 +11996,12 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
   // duplicado (em icuAutoCheckOnResume) já é proteção suficiente — não
   // precisa de mais nenhum limite extra aqui.
 
+  // ── DIAGNÓSTICO TEMPORÁRIO (não muda nenhum comportamento) ──
+  console.log('[icu-diag] checagem iniciada:',{
+    planId:plan.id, diasPendentes:pending.map(p=>({dia:p.key,data:p.dateStr})),
+    doneSnapshot:JSON.parse(JSON.stringify(plan.done))
+  });
+
   const authHeader='Basic '+btoa('API_KEY:'+apiKey);
   const athletePath=athleteId||'0';
   try{
@@ -12073,6 +12079,14 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
         },null);
       }
       if(!act)return;
+      // ── DIAGNÓSTICO TEMPORÁRIO (não muda nenhum comportamento) ──
+      console.log('[icu-diag] dia marcado:',{
+        dia:p.key, dataEsperada:p.dateStr, extIdEsperado:p.extId,
+        viaEstrategia1_porId:!!extIdToActivityById[p.extId],
+        atividadeId:act.id, dataDaAtividade:act.start_date_local,
+        distanciaAtividade:act.distance, duracaoAtividade:act.moving_time||act.elapsed_time,
+        jaEstavaMarcadoAntes:!!plan.done[p.key]
+      });
       // Uma mesma atividade real não pode "resolver" mais de um dia/planilha
       // na mesma checagem — evita que, com duas planilhas sobrepostas na
       // mesma data, um único treino feito marque as duas como concluídas.
@@ -12118,6 +12132,8 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
         // dia programado (dessa ou de outra planilha), não cria um "não
         // programado" duplicado pra ela.
         if(completedLog.some(e=>e.activityId===act.id))return;
+        // ── DIAGNÓSTICO TEMPORÁRIO (não muda nenhum comportamento) ──
+        console.log('[icu-diag] criando registro NÃO PROGRAMADO:',{atividadeId:act.id,data:dateStr,distancia:act.distance});
         logUnplannedCompletion(act,dateStr);
         unplannedCount++;
       });
