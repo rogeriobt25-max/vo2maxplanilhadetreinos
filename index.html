@@ -1357,6 +1357,9 @@ details[open] summary::after{transform:rotate(90deg)}
 
 <div class="app-nav">
   <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
+  <div style="flex:1;display:flex;justify-content:center;min-width:0;overflow:hidden">
+    <button id="header-install-btn" onclick="headerInstallTap()" style="display:none;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--bdr2);background:var(--s2);color:var(--t1);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"><svg class="gi" style="font-size:15px"><use href="#i-smartphone"></use></svg> Instalar app</button>
+  </div>
   <div class="auth-bar" id="auth-loading-bar" style="gap:8px;align-items:center">
     <div style="width:100px;height:34px;border-radius:8px;background:var(--s2);opacity:.5;animation:authLoadingPulse 1.1s ease-in-out infinite"></div>
   </div>
@@ -9290,6 +9293,24 @@ function switchSavedSubTab(tab){
 // depois de marcar/desmarcar um treino com a aba já aberta. Logado: busca
 // só os 15 mais recentes no Firestore. Offline: usa a cópia local completa,
 // paginando só a exibição.
+// Autocorreção: pode ter ficado salvo, de ANTES desse ajuste de concorrência,
+// um registro "não programado" duplicado de um treino que já está vinculado
+// a um dia programado (mesmo activityId nos dois). Isso remove esses
+// duplicados sozinho, sempre que a lista de Realizados carrega ou uma
+// sincronização roda — não depende da pessoa excluir manualmente, e corrige
+// instâncias antigas do bug que já estavam gravadas no banco.
+function icuCleanupStrayUnplanned(){
+  const realActivityIds=new Set(
+    completedLog.filter(e=>e.planId!=null && e.activityId!=null).map(e=>e.activityId)
+  );
+  if(!realActivityIds.size)return;
+  const stray=completedLog.filter(e=>e.planId==null && e.activityId!=null && realActivityIds.has(e.activityId));
+  stray.forEach(e=>{
+    completedLog=completedLog.filter(x=>x.id!==e.id);
+    persistCompletedRemoval(e.id);
+  });
+}
+
 async function resetAndLoadRealizados(){
   completedLogCursor=null;completedLogHasMore=true;completedLogShownOffline=completedLogPageSize;
   if(currentUser){
@@ -9300,6 +9321,7 @@ async function resetAndLoadRealizados(){
   }else{
     completedLog=loadCompletedLogLocal();
   }
+  icuCleanupStrayUnplanned();
   renderRealizadosList();
 }
 async function loadMoreRealizados(){
@@ -11149,13 +11171,29 @@ function closeOnboarding(){
   lsSet('vo2_onboarding_done','1');
 }
 /* ── PWA INSTALL BANNER ── */
+// IMPORTANTE — quando publicar na Play Store: troca PLAY_STORE_URL abaixo
+// pela URL da ficha do app (ex: 'https://play.google.com/store/apps/details?id=...').
+// A partir do momento que essa constante tiver um valor, o botão do header
+// passa a abrir a Play Store direto, em vez do popup de instalação do PWA —
+// não precisa mexer em mais nada.
+var PLAY_STORE_URL=null;
 var _deferredInstallPrompt=null;
 function initInstallBanner(){
+  // Se já está rodando instalado (aberto a partir do ícone na tela inicial),
+  // não faz sentido mostrar nenhum botão de instalar — nem o banner, nem o
+  // do header.
+  var alreadyInstalled=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+  if(alreadyInstalled)return;
   // Capture the beforeinstallprompt event
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
     _deferredInstallPrompt=e;
-    // Only show if user hasn't dismissed before
+    // Botão fixo do header: fica visível sempre que a instalação for
+    // possível, mesmo que a pessoa já tenha dispensado o popup — ele é a
+    // forma "silenciosa" de instalar depois, sem interromper ninguém.
+    var headerBtn=document.getElementById('header-install-btn');
+    if(headerBtn)headerBtn.style.display='inline-flex';
+    // Only show the dismissible popup if user hasn't dismissed before
     if(!lsGet('vo2_install_dismissed')){
       setTimeout(function(){
         var banner=document.getElementById('install-banner');
@@ -11178,13 +11216,33 @@ function initInstallBanner(){
       }
     });
   }
-  // Hide banner once app is installed
+  // Hide banner AND header button once app is installed
   window.addEventListener('appinstalled',function(){
     var banner=document.getElementById('install-banner');
     if(banner)banner.classList.remove('show');
+    var headerBtn=document.getElementById('header-install-btn');
+    if(headerBtn)headerBtn.style.display='none';
     lsSet('vo2_install_dismissed','1');
   });
 }
+// Clique no botão do header — mesmo prompt nativo do popup (efeito idêntico
+// ao instalar por lá). Quando PLAY_STORE_URL estiver preenchida (publicado
+// na loja), passa a abrir a ficha da Play Store em vez do prompt do PWA.
+function headerInstallTap(){
+  if(PLAY_STORE_URL){ window.open(PLAY_STORE_URL,'_blank'); return; }
+  if(_deferredInstallPrompt){
+    _deferredInstallPrompt.prompt();
+    _deferredInstallPrompt.userChoice.then(function(r){
+      if(r.outcome==='accepted'){
+        showToast('App instalado com sucesso!');
+        var headerBtn=document.getElementById('header-install-btn');
+        if(headerBtn)headerBtn.style.display='none';
+      }
+      _deferredInstallPrompt=null;
+    });
+  }
+}
+window.headerInstallTap=headerInstallTap;
 function dismissInstallBanner(){
   var banner=document.getElementById('install-banner');
   if(banner)banner.classList.remove('show');
@@ -11954,6 +12012,7 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
     }
     const events=await evRes.json();
     const activitiesRaw=await actRes.json();
+    icuCleanupStrayUnplanned();
     // Atividades excluídas em Realizados de propósito (decisão definitiva
     // da pessoa) nunca mais entram em nenhuma das duas checagens abaixo —
     // nem como treino programado, nem como "não programado".
