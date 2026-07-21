@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "br.com.vo2runmax.twa",
+        "sha256_cert_fingerprints": ["BC:6A:D4:D7:68:DB:5D:84:15:A8:E7:04:6F:2E:DE:F7:2F:A5:53:0B:ED:78:F7:87:EC:86:78:B9:F8:1E:E6:A8"]
+      }
+    }]
