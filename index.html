@@ -256,6 +256,13 @@ body{
   object-fit:contain;
 }
 .app-logo.app-logo-hidden{display:none}
+.header-install-btn{display:none;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--bdr2);background:var(--s2);color:var(--t1);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;max-width:100%;overflow:hidden;box-sizing:border-box}
+.header-install-btn .gi{font-size:15px;flex-shrink:0}
+.header-install-btn-label{overflow:hidden;text-overflow:ellipsis}
+@media(max-width:440px){
+  .header-install-btn{padding:0 9px;gap:0}
+  .header-install-btn-label{display:none}
+}
 
 /* ── APP LOGO in login/auth modal ── */
 .auth-modal-logo{
@@ -1358,7 +1365,7 @@ details[open] summary::after{transform:rotate(90deg)}
 <div class="app-nav">
   <img class="app-logo" id="app-logo" src="logo.png" alt="VO2 RunMax" onerror="this.classList.add('app-logo-hidden')"/>
   <div style="flex:1;display:flex;justify-content:center;min-width:0;overflow:hidden">
-    <button id="header-install-btn" onclick="headerInstallTap()" style="display:none;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--bdr2);background:var(--s2);color:var(--t1);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap"><svg class="gi" style="font-size:15px"><use href="#i-smartphone"></use></svg> Instalar app</button>
+    <button id="header-install-btn" class="header-install-btn" onclick="headerInstallTap()"><svg class="gi"><use href="#i-smartphone"></use></svg> <span class="header-install-btn-label">Instalar app</span></button>
   </div>
   <div class="auth-bar" id="auth-loading-bar" style="gap:8px;align-items:center">
     <div style="width:100px;height:34px;border-radius:8px;background:var(--s2);opacity:.5;animation:authLoadingPulse 1.1s ease-in-out infinite"></div>
@@ -9303,6 +9310,14 @@ function icuCleanupStrayUnplanned(){
   const realActivityIds=new Set(
     completedLog.filter(e=>e.planId!=null && e.activityId!=null).map(e=>e.activityId)
   );
+  // Mesma robustez do dedup principal: soma os vínculos que vêm direto das
+  // planilhas salvas (carregam por completo, sem paginação), não só do
+  // cache de Realizados (que só tem os 15 mais recentes).
+  savedPlans.forEach(pl=>{
+    Object.values(pl.done||{}).forEach(d=>{
+      if(d&&typeof d==='object'&&d.activityId!=null)realActivityIds.add(d.activityId);
+    });
+  });
   if(!realActivityIds.size)return;
   const stray=completedLog.filter(e=>e.planId==null && e.activityId!=null && realActivityIds.has(e.activityId));
   stray.forEach(e=>{
@@ -11996,12 +12011,6 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
   // duplicado (em icuAutoCheckOnResume) já é proteção suficiente — não
   // precisa de mais nenhum limite extra aqui.
 
-  // ── DIAGNÓSTICO TEMPORÁRIO (não muda nenhum comportamento) ──
-  console.log('[icu-diag] checagem iniciada:',{
-    planId:plan.id, diasPendentes:pending.map(p=>({dia:p.key,data:p.dateStr})),
-    doneSnapshot:JSON.parse(JSON.stringify(plan.done))
-  });
-
   const authHeader='Basic '+btoa('API_KEY:'+apiKey);
   const athletePath=athleteId||'0';
   try{
@@ -12079,14 +12088,6 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
         },null);
       }
       if(!act)return;
-      // ── DIAGNÓSTICO TEMPORÁRIO (não muda nenhum comportamento) ──
-      console.log('[icu-diag] dia marcado:',{
-        dia:p.key, dataEsperada:p.dateStr, extIdEsperado:p.extId,
-        viaEstrategia1_porId:!!extIdToActivityById[p.extId],
-        atividadeId:act.id, dataDaAtividade:act.start_date_local,
-        distanciaAtividade:act.distance, duracaoAtividade:act.moving_time||act.elapsed_time,
-        jaEstavaMarcadoAntes:!!plan.done[p.key]
-      });
       // Uma mesma atividade real não pode "resolver" mais de um dia/planilha
       // na mesma checagem — evita que, com duas planilhas sobrepostas na
       // mesma data, um único treino feito marque as duas como concluídas.
@@ -12130,10 +12131,14 @@ async function icuCheckPlanCompletionsInner(plan,apiKey,athleteId,usedActivityId
         usedActivityIds.add(act.id);
         // Se essa atividade já está registrada em Realizados vinculada a um
         // dia programado (dessa ou de outra planilha), não cria um "não
-        // programado" duplicado pra ela.
-        if(completedLog.some(e=>e.activityId===act.id))return;
-        // ── DIAGNÓSTICO TEMPORÁRIO (não muda nenhum comportamento) ──
-        console.log('[icu-diag] criando registro NÃO PROGRAMADO:',{atividadeId:act.id,data:dateStr,distancia:act.distance});
+        // programado" duplicado pra ela. Checa tanto o cache de Realizados
+        // (completedLog — só carrega os 15 mais recentes, pode não ter o
+        // registro se a pessoa testou/mexeu bastante) quanto os dados de
+        // "done" de todas as planilhas salvas (essas carregam por completo,
+        // sem paginação, e são a fonte mais confiável desse vínculo).
+        const alreadyLinked=completedLog.some(e=>e.activityId===act.id) ||
+          savedPlans.some(pl=>Object.values(pl.done||{}).some(d=>d&&typeof d==='object'&&d.activityId===act.id));
+        if(alreadyLinked)return;
         logUnplannedCompletion(act,dateStr);
         unplannedCount++;
       });

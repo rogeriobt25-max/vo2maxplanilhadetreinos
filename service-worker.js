@@ -1,5 +1,5 @@
 /* VO2 Máx — Service Worker v1.1 */
-const CACHE_NAME = 'vo2max-v33';
+const CACHE_NAME = 'vo2max-v34';
 
 /* Arquivos a cachear na instalação */
 const PRECACHE = [
