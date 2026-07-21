@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "VO2 RunMax",
   "short_name": "VO2 RunMax",
   "description": "Calcule seu VO2 Máx e gere planilhas de treino para meia-maratona e maratona.",
