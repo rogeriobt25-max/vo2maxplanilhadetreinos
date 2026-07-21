@@ -1699,19 +1699,19 @@ details[open] summary::after{transform:rotate(90deg)}
     <div class="hero-feature-list" style="margin:14px 0 4px;display:flex;flex-direction:column;gap:12px">
       <div style="display:flex;align-items:flex-start;gap:10px">
         <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Crie sua planilha personalizada</strong> com base no seu objetivo e perfil de corredor.</div>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Crie sua planilha personalizada</strong>com base no seu objetivo e perfil de corredor.</div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px">
         <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Acompanhe o progresso da sua planilha</strong> e sua evolução ao longo dos treinos.</div>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Acompanhe o progresso da sua planilha</strong>e sua evolução ao longo dos treinos.</div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px">
         <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Calcule seus ritmos com precisão</strong> utilizando seu VO₂ Máximo (opcional).</div>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Calcule seus ritmos com precisão</strong>utilizando seu VO₂ Máximo (opcional).</div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px">
         <span class="hero-feat-ico"><svg class="gi"><use href="#i-check"></use></svg></span>
-        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Sincronize os treinos via Intervals.icu</strong> direto para o seu relógio de corrida.<div style="font-size:12.5px;font-style:italic;color:var(--t3);margin-top:2px">Consulte a compatibilidade no site do intervals.icu</div></div>
+        <div style="font-size:14px;line-height:1.5;color:var(--t2)"><strong style="color:var(--t1);display:block">Sincronize os treinos via Intervals.icu</strong>direto para o seu relógio de corrida.<div style="font-size:12.5px;font-style:italic;color:var(--t3);margin-top:2px">Consulte a compatibilidade no site do intervals.icu</div></div>
       </div>
     </div>
     <div class="hero-stats">
@@ -3207,9 +3207,17 @@ function buildTodayMini(plan){
       ${day.pace&&!day.rest?`<div class="cs-today-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="cs-today-detail">${day.detail}</div>`:''}
       ${realInfo?`<div class="stat-card" style="margin-top:10px;padding:10px 12px">${formatRealInfoBlock(realInfo)}</div>`:''}
-      ${isDone?`<button onclick="openShareModal(${plan.id},${wIdx},${dIdx})" style="margin-top:12px;background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>`:''}
+      ${isDone?`<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="openShareModal(${plan.id},${wIdx},${dIdx})" style="background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>
+        <button onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)" style="background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-cancel"></use></svg> Desmarcar como feito</button>
+      </div>`:''}
     </div>
-    ${!isDone?`<button class="cs-today-done" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:''}
+    ${!isDone?`<div>
+      <button onclick="startLiveWorkout(${plan.id},${wIdx},${dIdx})" style="width:100%;min-height:38px;padding:0 1.1rem;border:none;border-radius:6px;background:var(--acc);color:var(--on-acc);font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:inline-flex;align-items:center;justify-content:center;gap:6px"><svg class="gi"><use href="#i-directions_run"></use></svg> Iniciar Treino</button>
+      <div style="text-align:center;margin-top:8px">
+        <button onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderCalcSummary)" style="background:none;border:none;padding:4px;color:var(--gr);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Concluir treino manualmente</button>
+      </div>
+    </div>`:''}
   </div>`+unplannedMiniHtml;
 }
 // Anel/gauge do VO2 Máx — extraído pra função própria pra poder ser
@@ -8045,7 +8053,13 @@ async function toggleDone(planId,wIdx,dIdx){
     return;
   }
   // Não achou nada automático (sem integração, ou sem atividade correspondente)
-  // — pergunta se a pessoa quer informar os dados reais do treino.
+  // — confirma que a pessoa realmente quer concluir manualmente (sem ter
+  // rastreado nada) antes de abrir a modal pra digitar os dados.
+  const choice=await lwConfirmModal(
+    'Concluir sem sincronizar',
+    'Não encontramos nenhum treino real sincronizado do intervals.icu para este dia. Deseja mesmo concluir manualmente, sem iniciar o Treino ao Vivo?',
+    'Concluir manualmente','Cancelar');
+  if(choice!=='a')return;
   openManualCompletionModal(planId,wIdx,dIdx);
 }
 
@@ -9081,6 +9095,7 @@ function openDayDetailModal(planId,wIdx,dIdx){
       ${realInfoHtml}
       ${longExplainHtml}
       <div class="modal-actions" style="flex-direction:column;gap:10px;margin-top:1.1rem;flex-shrink:0">
+        <button style="width:100%;height:48px;font-size:14.5px;border-radius:10px;border:none;background:var(--acc);color:var(--on-acc);font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px" onclick="document.getElementById('day-detail-modal').remove();startLiveWorkout(${planId},${wIdx},${dIdx})"><svg class="gi"><use href="#i-directions_run"></use></svg> Iniciar Treino</button>
         <button class="btn-modal-cancel" style="width:100%;height:48px;font-size:14.5px" onclick="document.getElementById('day-detail-modal').remove()">Voltar</button>
       </div>
     </div>`;
@@ -9277,9 +9292,13 @@ function buildTodayCard(plan){
       ${day.pace&&!day.rest?`<div class="today-wk-pace">${compactPaceDisplay(day)}</div>`:''}
       ${day.detail?`<div class="today-wk-detail">${day.detail}</div>`:''}
       ${realInfoTC?`<div class="stat-card" style="margin-top:10px;padding:10px 12px">${formatRealInfoBlock(realInfoTC)}</div>`:''}
-      ${isDone?`<button onclick="openShareModal(${plan.id},${wIdx},${dIdx})" style="margin-top:12px;background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>`:''}
+      ${isDone?`<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="openShareModal(${plan.id},${wIdx},${dIdx})" style="background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-share"></use></svg> Compartilhar</button>
+        <button onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)" style="background:none;border:1px solid var(--bdr2);border-radius:20px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--t3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><svg class="gi" style="font-size:14px"><use href="#i-cancel"></use></svg> Desmarcar como feito</button>
+      </div>`:''}
     </div>
-    ${!isDone?`<button class="today-done-btn" onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)"><svg class="gi"><use href="#i-check"></use></svg> Concluir treino</button>`:''}
+    ${!isDone?`<button onclick="startLiveWorkout(${plan.id},${wIdx},${dIdx})" style="width:100%;height:46px;border-radius:10px;border:none;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px"><svg class="gi"><use href="#i-directions_run"></use></svg> Iniciar Treino</button>`:''}
+    ${!isDone?`<div style="text-align:center;margin-top:8px"><button onclick="toggleDone(${plan.id},${wIdx},${dIdx}).then(renderSavedList)" style="background:none;border:none;padding:4px;color:var(--gr);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Concluir treino manualmente</button></div>`:''}
   </div>`+unplannedHtml;
 }
 
@@ -13628,6 +13647,919 @@ window.montadorAddWeek=montadorAddWeek;
 window.montadorRemoveCell=montadorRemoveCell;
 window.montadorAbrirSaveModal=montadorAbrirSaveModal;
 window.montadorConfirmSave=montadorConfirmSave;
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   TREINO AO VIVO — GPS + voz (usa os mesmos steps já gerados
+   para o intervals.icu, via dayToGarminSteps). Sem mapa, sem
+   traçado salvo — só métricas numéricas acumuladas.
+══════════════════════════════════════════════════════════ */
+
+const LW_ICON_PAUSE='<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+const LW_ICON_PLAY='<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+
+let LW=null; // estado do treino ao vivo em andamento (null = nenhum treino ativo)
+
+// ── Geometria / distância ──
+function lwHaversine(lat1,lon1,lat2,lon2){
+  const R=6371000;
+  const toRad=x=>x*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+// ── Converte os steps (formato Garmin/intervals.icu, já usados em
+//    dayToGarminSteps) num array linear de etapas de execução,
+//    "desenrolando" os RepeatGroupDTO (ex: 6×tiro) em passos individuais
+//    com contexto de repetição (pra falar "tiro 3 de 6"). ──
+function lwFlattenSteps(rawSteps){
+  const flat=[];
+  (rawSteps||[]).forEach(st=>{
+    if(st.type==='RepeatGroupDTO'){
+      const total=st.numberOfIterations||1;
+      for(let i=1;i<=total;i++){
+        (st.workoutSteps||[]).forEach(inner=>{
+          flat.push(lwMakeFlatStep(inner,i,total));
+        });
+      }
+    } else {
+      flat.push(lwMakeFlatStep(st,null,null));
+    }
+  });
+  return flat;
+}
+function lwMakeFlatStep(st,repIdx,repTotal){
+  const kind=(st.stepType&&st.stepType.stepTypeKey)||'active';
+  const endType=(st.endCondition&&st.endCondition.conditionTypeKey)||'time';
+  const endValue=(st.endCondition&&st.endCondition.conditionValue)||0;
+  let paceMinMps=null,paceMaxMps=null;
+  if(st.targetType&&st.targetType.workoutTargetTypeKey==='pace.zone'){
+    paceMinMps=st.targetValueOne; paceMaxMps=st.targetValueTwo;
+  }
+  return{kind,endType,endValue,paceMinMps,paceMaxMps,label:st.description||lwKindLabel(kind),repIdx,repTotal};
+}
+function lwKindLabel(kind){
+  return{warmup:'Aquecimento',cooldown:'Desaquecimento',interval:'Tiro',recovery:'Recuperação',active:'Corrida'}[kind]||'Etapa';
+}
+// Gera uma zona de ritmo (mais lento/mais rápido) em torno de um pace único
+// — usado no modo "treino livre" (sem etapas oficiais), pra também dar pra
+// ativar o alerta de ritmo fora da faixa nesses casos.
+function lwPaceZoneMps(paceStr,toleranceSec){
+  const mps=paceToMps(paceStr); if(!mps)return null;
+  const baseSec=1000/mps, tol=toleranceSec||15;
+  const slowSec=baseSec+tol, fastSec=Math.max(60,baseSec-tol);
+  return{paceMinMps:1000/slowSec,paceMaxMps:1000/fastSec};
+}
+
+// ── Formatação ──
+function lwFmtPaceSecPerKm(sec){
+  if(!isFinite(sec)||sec<=0)return'--:--';
+  const m=Math.floor(sec/60), s=Math.round(sec%60);
+  return`${m}:${String(s).padStart(2,'0')}`;
+}
+function lwFmtDurationDisplay(sec){
+  sec=Math.max(0,Math.round(sec));
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function lwFmtDurationStorage(sec){
+  sec=Math.round(sec);
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${m}:${String(s).padStart(2,'0')}`;
+}
+function lwFmtDurationSpoken(sec){
+  sec=Math.round(sec);
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  const parts=[];
+  if(h>0)parts.push(`${h} hora${h>1?'s':''}`);
+  if(m>0)parts.push(`${m} minuto${m>1?'s':''}`);
+  if(s>0&&h===0)parts.push(`${s} segundo${s>1?'s':''}`);
+  return parts.length?parts.join(' e '):'menos de um minuto';
+}
+
+// ── Modal de confirmação genérica (2 botões nomeados) ──
+// Usada em vez do confirm() nativo quando os textos dos botões importam
+// (o confirm() do navegador não deixa trocar "OK/Cancelar"). Retorna uma
+// Promise: 'a' (botão principal), 'b' (botão secundário) ou null (fechou
+// clicando fora — tratado pelo chamador como "não, não faz nada").
+function lwConfirmModal(title,message,btnALabel,btnBLabel){
+  return new Promise(resolve=>{
+    const old=document.getElementById('lw-confirm-modal'); if(old)old.remove();
+    const div=document.createElement('div');
+    div.id='lw-confirm-modal';
+    div.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px';
+    div.innerHTML=`
+      <div style="background:var(--bg);border-radius:16px;padding:22px 20px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.35)">
+        <div style="font-size:16px;font-weight:800;color:var(--t1);margin-bottom:8px">${title}</div>
+        <div style="font-size:13.5px;color:var(--t2);line-height:1.5;margin-bottom:18px">${message}</div>
+        <button id="lw-confirm-a" style="width:100%;height:46px;border-radius:10px;border:none;background:var(--acc);color:var(--on-acc);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;margin-bottom:10px">${btnALabel}</button>
+        <button id="lw-confirm-b" style="width:100%;height:46px;border-radius:10px;border:1px solid var(--bdr2);background:none;color:var(--t2);font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">${btnBLabel}</button>
+      </div>`;
+    document.body.appendChild(div);
+    const cleanup=result=>{ div.remove(); resolve(result); };
+    div.querySelector('#lw-confirm-a').onclick=()=>cleanup('a');
+    div.querySelector('#lw-confirm-b').onclick=()=>cleanup('b');
+    div.addEventListener('click',e=>{ if(e.target===div)cleanup(null); });
+  });
+}
+
+// ── Voz ──
+// onEnd (opcional) roda quando a fala termina de tocar — usado pra só
+// "soltar" o cronômetro da etapa depois que o áudio de aviso acabou.
+// Tem uma salvaguarda por timeout: se o evento 'onend' não disparar (ex:
+// navegador pausou o áudio em segundo plano), garante que o treino não
+// fique travado esperando pra sempre.
+function lwSpeak(text,onEnd){
+  if(!('speechSynthesis'in window)){ if(onEnd)onEnd(); return; }
+  try{
+    window.speechSynthesis.cancel(); // corta qualquer fala pendente — evita acumular avisos quando as etapas são puladas rápido (senão fica falando etapa antiga depois de já ter saído da tela)
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='pt-BR'; u.rate=1;
+    if(onEnd){
+      let fired=false;
+      const fire=()=>{ if(fired)return; fired=true; onEnd(); };
+      u.onend=fire; u.onerror=fire;
+      // margem bem folgada — o onend real deve disparar antes disso na
+      // grande maioria dos casos; isso aqui é só rede de segurança pro caso
+      // raro do áudio travar de vez (ex: app em segundo plano). Se ficar
+      // curto demais, corta a fala real no meio da frase — por isso a folga.
+      setTimeout(fire,Math.min(20000,Math.max(2500,text.length*110+1500)));
+    }
+    window.speechSynthesis.speak(u);
+  }catch(e){ if(onEnd)onEnd(); }
+}
+// Fala natural de um ritmo em segundos/km — "6 minutos e 27 segundos"
+function lwSpokenPace(sec){
+  const m=Math.floor(sec/60), s=Math.round(sec%60);
+  return`${m} minuto${m!==1?'s':''}${s>0?` e ${s} segundo${s!==1?'s':''}`:''}`;
+}
+// Monta o trecho falado com ritmo-alvo + duração/distância da etapa
+function lwStepSpokenDetail(step){
+  const parts=[];
+  if(step.paceMinMps&&step.paceMaxMps){
+    const fastSec=1000/step.paceMaxMps, slowSec=1000/step.paceMinMps;
+    parts.push(`ritmo entre ${lwSpokenPace(fastSec)} e ${lwSpokenPace(slowSec)} por quilômetro`);
+  }
+  if(step.endType==='time'){
+    const min=Math.round(step.endValue/60);
+    parts.push(`durante ${min} minuto${min!==1?'s':''}`);
+  }else if(step.endType==='distance'){
+    const distTxt=step.endValue>=1000?`${(step.endValue/1000).toFixed(step.endValue%1000===0?0:2)} quilômetros`:`${Math.round(step.endValue)} metros`;
+    parts.push(`por ${distTxt}`);
+  }
+  return parts.join(', ');
+}
+// Fala o aviso da nova etapa; só depois que essa fala termina é que
+// lwActivateStep solta o cronômetro (ver "gen" — protege contra a pessoa
+// pulando de novo antes da fala anterior acabar).
+function lwAnnounceStepStart(step,gen){
+  let txt;
+  if(step.repIdx){
+    const roleTxt=step.kind==='recovery'?'recuperação':'tiro';
+    txt=`Atenção: início d${step.kind==='recovery'?'a':'o'} ${roleTxt} ${step.repIdx} de ${step.repTotal}.`;
+  }else{
+    txt=`Atenção: início da etapa de ${lwKindLabel(step.kind).toLowerCase()}.`;
+  }
+  const detail=lwStepSpokenDetail(step);
+  if(detail)txt+=` ${detail}.`;
+  lwSpeak(txt,()=>lwActivateStep(gen));
+}
+// Só roda quando a fala de aviso da etapa termina (ou pela salvaguarda de
+// timeout) — aí sim zera o relógio da etapa e avisa "Iniciando agora".
+// Confere "gen" pra não ativar uma etapa que já ficou velha (ex: a pessoa
+// apertou "Pular etapa" de novo antes da fala anterior acabar).
+function lwActivateStep(gen){
+  if(!LW||gen!==LW.stepGen)return;
+  LW.segStartDistM=LW.totalDistM;
+  LW.segStartElapsedMs=lwElapsedMs();
+  LW.stepPending=false;
+  LW.lastBeepKey=null;
+  LW.paceOutOfZoneSince=null; LW.paceOutOfZoneDir=null; LW.lastPaceAlertAt=null;
+  lwUpdateUI();
+  lwSpeak('Iniciando agora.');
+}
+
+
+// ── Wake lock (mantém a tela ligada — melhor esforço; não há suporte
+//    confiável a rastreamento em segundo plano real em navegador/PWA) ──
+async function lwRequestWakeLock(){
+  try{
+    if('wakeLock'in navigator){
+      LW.wakeLock=await navigator.wakeLock.request('screen');
+    }
+  }catch(e){}
+}
+function lwReleaseWakeLock(){
+  try{ if(LW&&LW.wakeLock){LW.wakeLock.release();LW.wakeLock=null;} }catch(e){}
+}
+// Detecta quando o app ficou em segundo plano (troca de app, tela travada
+// etc.) — não existe API de geolocalização em segundo plano em PWA/navegador
+// (isso exigiria um app nativo com permissão "Always"/ACCESS_BACKGROUND_LOCATION
+// + foreground service), então o melhor que dá pra fazer aqui é: reconectar o
+// GPS e o wake lock assim que o app volta a ficar visível, e avisar a pessoa
+// com transparência se um trecho pode ter ficado sem registro de distância
+// (o tempo do treino continua contando certinho, baseado em relógio — só a
+// distância desse intervalo específico é que pode ter ficado incompleta).
+document.addEventListener('visibilitychange',()=>{
+  if(!LW)return;
+  if(document.visibilityState==='hidden'){
+    LW.hiddenAt=Date.now();
+  }else if(document.visibilityState==='visible'&&LW.status==='running'){
+    if(LW.hiddenAt){
+      const gapSec=Math.round((Date.now()-LW.hiddenAt)/1000);
+      LW.hiddenAt=null;
+      lwStopGPS();
+      LW.lastGoodPoint=null; // evita contar o "salto" pro ponto atual como deslocamento
+      lwStartGPS();
+      if(gapSec>=8){
+        showToast(`O app ficou ${gapSec}s em segundo plano — parte da distância desse período pode não ter sido registrada.`);
+      }
+    }
+    if(!LW.wakeLock)lwRequestWakeLock();
+    if(LW.audioCtx&&LW.audioCtx.state==='suspended'){try{LW.audioCtx.resume();}catch(e){}}
+    lwUpdateUI();
+  }
+});
+window.addEventListener('beforeunload',(e)=>{
+  if(LW&&LW.status==='running'){e.preventDefault();e.returnValue='';}
+});
+
+// ── GPS ──
+function lwStartGPS(){
+  LW.watchId=navigator.geolocation.watchPosition(lwOnPosition,lwOnGeoError,{enableHighAccuracy:true,maximumAge:2000,timeout:15000});
+}
+function lwStopGPS(){
+  if(LW&&LW.watchId!=null){navigator.geolocation.clearWatch(LW.watchId);LW.watchId=null;}
+}
+function lwOnGeoError(err){
+  if(!err||!LW)return;
+  if(err.code===1){ // PERMISSION_DENIED — esse é definitivo, mostra na hora
+    showToast('Localização bloqueada para este site. Ative a permissão de localização nas configurações do navegador — o app retoma o GPS sozinho assim que você permitir.');
+    lwWatchGeoPermissionChange();
+    lwShowGpsBanner('Permissão de localização negada para este site. Ative nas configurações do navegador (não dá pra ligar por aqui) e toque em "Tentar de novo".');
+  }else if(err.code===2){ // POSITION_UNAVAILABLE
+    // Esse erro também aparece nos primeiros segundos com o GPS "esquentando"
+    // (partida fria, indoors) MESMO com o GPS ligado — então só mostra o
+    // banner se persistir 8s seguidos sem nenhum fix bom, pra não dar alarme
+    // falso logo no início ou por uma falha passageira.
+    if(!LW.geoUnavailableSince)LW.geoUnavailableSince=Date.now();
+    if(Date.now()-LW.geoUnavailableSince>=8000){
+      lwShowGpsBanner('GPS desligado no celular (ou sem sinal). Vá em Ajustes > Localização do aparelho e ative — nenhum site consegue ligar isso sozinho — depois toque em "Tentar de novo".');
+    }
+  }
+  // code===3 (TIMEOUT) é comum e passageiro (sinal fraco momentâneo) — o
+  // watchPosition segue tentando sozinho, não precisa de banner pra isso.
+}
+// Navegador NÃO mostra o pedido de permissão de novo sozinho depois que a
+// pessoa nega uma vez — isso é bloqueio de segurança do próprio navegador,
+// nenhum site consegue forçar. O que dá pra fazer (e isso aqui faz): ficar
+// de olho via Permissions API, e assim que a pessoa for lá e liberar
+// manualmente (nas configurações do site), o app detecta sozinho e retoma o
+// GPS na hora — sem precisar reiniciar o treino.
+function lwWatchGeoPermissionChange(){
+  if(!LW||!('permissions'in navigator)||LW.geoPermWatching)return;
+  LW.geoPermWatching=true;
+  navigator.permissions.query({name:'geolocation'}).then(status=>{
+    status.onchange=()=>{
+      LW&&(LW.geoPermWatching=false);
+      if(status.state==='granted'&&LW&&LW.status==='running'){
+        showToast('Localização liberada — retomando o GPS.');
+        LW.lastGoodPoint=null;
+        lwStartGPS();
+      }
+    };
+  }).catch(()=>{ if(LW)LW.geoPermWatching=false; });
+}
+// ── Aviso fixo de GPS na tela ──
+// Um toast sozinho passa batido fácil (a pessoa tá correndo, não olhando o
+// celular toda hora) — por isso, além do toast, mantém um aviso FIXO na
+// tela até a pessoa resolver, igual Strava/apps de corrida fazem: ou tenta
+// ativar de novo, ou escolhe conscientemente continuar sem GPS (e nesse
+// caso é avisada que não vai medir distância nem pace).
+function lwShowGpsBanner(msg){
+  if(!LW||LW.gpsDismissed)return;
+  const el=document.getElementById('lw-gps-banner'); if(!el)return;
+  const msgEl=document.getElementById('lw-gps-banner-msg'); if(msgEl)msgEl.textContent=msg;
+  el.style.display='flex';
+}
+function lwHideGpsBanner(){
+  const el=document.getElementById('lw-gps-banner'); if(el)el.style.display='none';
+}
+function lwGpsBannerActivate(){
+  if(!LW)return;
+  LW.gpsDismissed=false;
+  LW.geoUnavailableSince=null;
+  LW.lastGoodPoint=null;
+  lwStopGPS();
+  lwStartGPS();
+  showToast('Tentando pegar o sinal de GPS de novo... Se o problema persistir, verifique se a localização está ligada nas configurações do celular.');
+}
+function lwGpsBannerDismiss(){
+  if(!LW)return;
+  LW.gpsDismissed=true;
+  lwHideGpsBanner();
+  showToast('Continuando sem GPS — distância e pace não serão medidos.');
+  lwSpeak('Atenção: sem GPS ativo, a distância e o ritmo não serão medidos neste treino.');
+}
+function lwOnPosition(pos){
+  if(!LW||LW.status!=='running')return;
+  LW.gpsDismissed=false; // sinal voltou — se cair de novo depois, pode avisar de novo
+  LW.geoUnavailableSince=null;
+  lwHideGpsBanner();
+  const{latitude:lat,longitude:lng,accuracy:acc}=pos.coords;
+  const t=pos.timestamp||Date.now();
+  if(acc!=null&&acc>40)return; // fix ruim demais — ignora (economiza processamento e evita ruído)
+  if(!LW.lastGoodPoint){LW.lastGoodPoint={lat,lng,t};return;}
+  const dt=(t-LW.lastGoodPoint.t)/1000;
+  if(dt<=0)return;
+  const d=lwHaversine(LW.lastGoodPoint.lat,LW.lastGoodPoint.lng,lat,lng);
+  const spd=d/dt;
+  if(spd>9){LW.lastGoodPoint={lat,lng,t};return;} // salto de GPS improvável (~32km/h) — descarta
+  if(d<2){ if(dt>6)LW.lastGoodPoint={lat,lng,t}; return; } // ruído/parado — não acumula
+  LW.totalDistM+=d;
+  LW.lastGoodPoint={lat,lng,t};
+  LW.recentSamples.push({t,distM:LW.totalDistM});
+  const cutoff=t-45000;
+  while(LW.recentSamples.length>1&&LW.recentSamples[0].t<cutoff)LW.recentSamples.shift();
+}
+function lwCurrentPaceSecPerKm(){
+  if(!LW||LW.recentSamples.length<2)return null;
+  const first=LW.recentSamples[0], last=LW.recentSamples[LW.recentSamples.length-1];
+  const dm=last.distM-first.distM, dt=(last.t-first.t)/1000;
+  if(dm<15||dt<8)return null;
+  return dt/(dm/1000);
+}
+// Como lwCurrentPaceSecPerKm() exige alguns metros percorridos na janela
+// recente pra calcular, ele fica null se a pessoa estiver parada — e "null"
+// não é a mesma coisa que "dentro do ritmo"! Esse aqui cobre esse buraco:
+// se já passou tempo suficiente na etapa e a distância percorrida continua
+// perto de zero, trata como "extremamente lento" (retorna Infinity), que cai
+// certinho no lado "acima do ritmo" do alerta.
+function lwEffectivePaceSecPerKm(){
+  const rolling=lwCurrentPaceSecPerKm();
+  if(rolling!=null)return rolling;
+  if(!LW||LW.stepPending)return null;
+  const stepElapsedSec=(lwElapsedMs()-LW.segStartElapsedMs)/1000;
+  if(stepElapsedSec<8)return null; // ainda é cedo demais pra dizer algo nessa etapa
+  const stepDistM=LW.totalDistM-LW.segStartDistM;
+  if(stepDistM<3)return Infinity; // parado (ou quase) — conta como "infinitamente lento"
+  return stepElapsedSec/(stepDistM/1000);
+}
+
+// ── Cronômetro (independente da frequência dos fixes de GPS — 1x/s) ──
+function lwElapsedMs(){
+  if(!LW)return 0;
+  const now=LW.status==='paused'?LW.pausedAt:Date.now();
+  return now-LW.startedAt-LW.pausedAccumMs;
+}
+function lwStartTimer(){
+  LW.timerId=setInterval(()=>{
+    if(!LW||LW.status!=='running')return;
+    lwCheckStepCompletion();
+    lwCheckPaceAlert();
+    lwUpdateUI();
+  },1000);
+}
+function lwStopTimer(){ if(LW&&LW.timerId){clearInterval(LW.timerId);LW.timerId=null;} }
+
+// ── Trava de tela por toque ──
+// Depois de LW_LOCK_DELAY_MS sem nenhum toque (rodando OU pausado — a
+// pessoa pode ter pausado e guardado o celular), trava a tela com uma
+// camada por cima bloqueando os botões (Pausar/Pular/Cancelar), pra evitar
+// toque sem querer no bolso/braçadeira. Um toque só avisa; dois toques
+// seguidos destravam. Roda num timer próprio, separado do timer principal,
+// porque precisa continuar contando mesmo com o treino pausado.
+const LW_LOCK_DELAY_MS=25000, LW_DOUBLE_TAP_MS=600;
+function lwStartLockWatcher(){
+  LW.lockTimerId=setInterval(()=>{
+    if(!LW||LW.touchLock.active)return;
+    if(Date.now()-LW.touchLock.lastActivityAt>=LW_LOCK_DELAY_MS)lwLockTouch();
+  },400);
+}
+function lwStopLockWatcher(){ if(LW&&LW.lockTimerId){clearInterval(LW.lockTimerId);LW.lockTimerId=null;} }
+function lwRegisterActivity(){ if(LW)LW.touchLock.lastActivityAt=Date.now(); }
+function lwLockTouch(){
+  if(!LW)return;
+  LW.touchLock.active=true;
+  const el=document.getElementById('lw-touch-lock'); if(el)el.style.display='flex';
+}
+function lwUnlockTouch(){
+  if(!LW)return;
+  LW.touchLock.active=false;
+  LW.touchLock.lastTapAt=0;
+  LW.touchLock.lastActivityAt=Date.now();
+  const el=document.getElementById('lw-touch-lock'); if(el)el.style.display='none';
+  showToast('Tela destravada.');
+}
+function lwHandleLockTap(){
+  if(!LW)return;
+  const now=Date.now();
+  if(now-(LW.touchLock.lastTapAt||0)<LW_DOUBLE_TAP_MS){
+    lwUnlockTouch();
+  }else{
+    LW.touchLock.lastTapAt=now;
+    showToast('Toque mais uma vez para destravar a tela.');
+  }
+}
+
+// ── "Keep-alive" de áudio: um tom praticamente inaudível (volume quase
+// zero) tocando o treino inteiro. Navegadores tendem a desacelerar MENOS os
+// timers de uma aba em segundo plano quando ela está com áudio ativo — isso
+// ajuda o bipe dos "últimos 5s" a não ser engolido quando a pessoa troca de
+// aba. Não é garantia 100% (o navegador decide por conta própria), mas
+// ajuda bastante nesse cenário.
+function lwStartKeepAlive(){
+  try{
+    if(!LW.audioCtx)return;
+    const osc=LW.audioCtx.createOscillator(),gain=LW.audioCtx.createGain();
+    gain.gain.value=0.00001;
+    osc.frequency.value=20;
+    osc.connect(gain);gain.connect(LW.audioCtx.destination);
+    osc.start();
+    LW.keepAliveOsc=osc;
+  }catch(e){}
+}
+function lwStopKeepAlive(){
+  try{ if(LW&&LW.keepAliveOsc){LW.keepAliveOsc.stop();LW.keepAliveOsc=null;} }catch(e){}
+}
+
+// ── Bipes de aviso ──
+function lwBeep(freq,durMs){
+  try{
+    const ctx=LW.audioCtx||(LW.audioCtx=new(window.AudioContext||window.webkitAudioContext)());
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.frequency.value=freq||880;
+    osc.connect(gain);gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.16,ctx.currentTime);
+    osc.start();
+    osc.stop(ctx.currentTime+(durMs||110)/1000);
+  }catch(e){}
+}
+// Bipe duplo, grave — propositalmente diferente do bipe agudo de fim de
+// etapa, pra dar pra distinguir de ouvido qual dos dois alertas é.
+function lwPaceAlertBeep(){
+  lwBeep(600,140);
+  setTimeout(()=>{ if(LW)lwBeep(600,140); },230);
+}
+
+// ── Alerta de ritmo fora da faixa ──
+// Zona-alvo da etapa (paceMinMps=mais lento, paceMaxMps=mais rápido), em
+// segundos por km. Retorna null se a etapa não tiver ritmo-alvo definido.
+function lwGetPaceZone(step){
+  if(!step||!step.paceMinMps||!step.paceMaxMps)return null;
+  return{slowSec:1000/step.paceMinMps,fastSec:1000/step.paceMaxMps};
+}
+// Só avisa (bipe + voz) se ficar fora da faixa (com tolerância de 5s/km pra
+// cada lado) por mais de 20s seguidos — evita ficar irritando com oscilação
+// normal do GPS/corrida. O indicador visual na tela (lw-pace-indicator) é
+// atualizado à parte, na hora, sem essa espera — só o som é que espera 20s.
+// Some sozinho quando volta pra dentro da faixa, e pode ser desligado pelo
+// botão da tela (só esse alerta — não mexe em mais nada).
+// Some sozinho quando volta pra dentro da faixa, e pode ser desligado pelo
+// botão da tela (só esse alerta — não mexe em mais nada). Enquanto continuar
+// fora do ritmo, repete o aviso a cada 20s (não é só uma vez) — até voltar
+// pra dentro da faixa ou a etapa acabar.
+function lwCheckPaceAlert(){
+  if(!LW.paceAlertsEnabled||LW.stepPending)return;
+  const step=LW.steps[LW.stepIdx]; if(!step)return;
+  const zone=lwGetPaceZone(step); if(!zone)return;
+  const curSec=lwEffectivePaceSecPerKm();
+  if(curSec==null){ LW.paceOutOfZoneSince=null; LW.paceOutOfZoneDir=null; LW.lastPaceAlertAt=null; return; } // amostra ainda curta demais pra confiar
+  const tol=5;
+  let dir=null;
+  if(curSec>zone.slowSec+tol)dir='slow';       // ritmo acima do alvo = mais lento que o previsto (ou parado)
+  else if(curSec<zone.fastSec-tol)dir='fast';  // ritmo abaixo do alvo = mais rápido que o previsto
+  if(!dir){
+    LW.paceOutOfZoneSince=null; LW.paceOutOfZoneDir=null; LW.lastPaceAlertAt=null;
+    return;
+  }
+  if(LW.paceOutOfZoneDir!==dir){
+    LW.paceOutOfZoneDir=dir; LW.paceOutOfZoneSince=Date.now(); LW.lastPaceAlertAt=null;
+    return;
+  }
+  const sinceRef=LW.lastPaceAlertAt||LW.paceOutOfZoneSince; // 1º aviso conta do início; os próximos, do último aviso
+  if(Date.now()-sinceRef>=20000){
+    LW.lastPaceAlertAt=Date.now();
+    lwPaceAlertBeep();
+    lwSpeak(dir==='slow'?'Ritmo lento.':'Ritmo rápido.');
+  }
+}
+function lwTogglePaceAlerts(){
+  if(!LW)return;
+  LW.paceAlertsEnabled=!LW.paceAlertsEnabled;
+  LW.paceOutOfZoneSince=null; LW.paceOutOfZoneDir=null; LW.lastPaceAlertAt=null;
+  try{localStorage.setItem('vo2-lw-pace-alerts',LW.paceAlertsEnabled?'1':'0');}catch(e){}
+  showToast(LW.paceAlertsEnabled?'Alerta de ritmo ligado.':'Alerta de ritmo desligado.');
+  lwUpdateUI();
+}
+
+// ── Motor de etapas ──
+function lwCheckStepCompletion(){
+  if(LW.stepPending)return; // ainda esperando a fala da etapa terminar — cronômetro não está rodando pra valer ainda
+  const step=LW.steps[LW.stepIdx]; if(!step||step.freeMode)return;
+  const elapsedStepMs=lwElapsedMs()-LW.segStartElapsedMs;
+  const distStepM=LW.totalDistM-LW.segStartDistM;
+  if(step.endType==='time'){
+    const remaining=step.endValue-elapsedStepMs/1000;
+    const remInt=Math.ceil(remaining);
+    if(remInt<=5&&remInt>=1){
+      const beepKey=`${LW.stepIdx}-${remInt}`;
+      if(LW.lastBeepKey!==beepKey){
+        LW.lastBeepKey=beepKey;
+        lwBeep(remInt===1?1250:900,110);
+      }
+    }
+  }
+  let done=false;
+  if(step.endType==='time')done=elapsedStepMs/1000>=step.endValue;
+  else if(step.endType==='distance')done=distStepM>=step.endValue;
+  if(done)lwCompleteCurrentStep();
+}
+function lwCompleteCurrentStep(){
+  const step=LW.steps[LW.stepIdx];
+  const distStepM=LW.totalDistM-LW.segStartDistM;
+  const timeStepSec=(lwElapsedMs()-LW.segStartElapsedMs)/1000;
+  const paceSec=distStepM>0?timeStepSec/(distStepM/1000):null;
+  LW.stepHistory.push({label:step.label,distM:distStepM,timeSec:timeStepSec,paceSec});
+  const distTxt=distStepM>=1000?`${(distStepM/1000).toFixed(2)} quilômetros`:`${Math.round(distStepM)} metros`;
+  const paceTxt=paceSec?`, ritmo médio de ${lwFmtPaceSecPerKm(paceSec)} por quilômetro`:'';
+  const doneMsg=`Etapa concluída: ${step.label}. Distância: ${distTxt}${paceTxt}.`;
+
+  LW.stepIdx++;
+  LW.stepPending=true; // trava o cronômetro/checagem até a fala da próxima etapa terminar
+  LW.stepGen=(LW.stepGen||0)+1;
+  const myGen=LW.stepGen;
+  lwUpdateUI();
+
+  if(LW.stepIdx>=LW.steps.length){
+    lwSpeak(doneMsg,()=>{
+      if(!LW||myGen!==LW.stepGen)return;
+      lwSpeak('Treino completo! Todas as etapas foram concluídas.');
+      lwUpdateUI();
+    });
+    return;
+  }
+  // só fala "início da próxima etapa" depois que "etapa concluída" terminar de tocar
+  lwSpeak(doneMsg,()=>lwAnnounceStepStart(LW.steps[LW.stepIdx],myGen));
+}
+
+// ── Início / pausa / retomada / fim ──
+async function startLiveWorkout(planId,wIdx,dIdx){
+  if(!requireLoginFor('Crie uma conta grátis para acompanhar seus treinos ao vivo.'))return;
+  if(LW&&(LW.status==='running'||LW.status==='paused')){lwShowOverlay();return;}
+  const plan=savedPlans.find(p=>p.id===planId); if(!plan)return;
+  const wk=plan.weeks[wIdx]; if(!wk)return;
+  const day=wk.days[dIdx]; if(!day||day.rest)return;
+
+  // Mesma checagem que "Concluir treino" já faz com o intervals.icu: se
+  // esse dia já tem uma atividade real sincronizada (ex: veio do relógio),
+  // pergunta antes de simplesmente marcar como concluído sozinho — a pessoa
+  // pode querer mesmo assim rastrear ao vivo (ex: testando, ou o relógio
+  // pegou um treino errado) e sobrescrever esse registro ao finalizar.
+  const key=`${wIdx}-${dIdx}`;
+  let allowOverwrite=false;
+  if(!plan.done[key]){
+    const apiKey=icuGetApiKey(),athleteId=icuGetAthleteId();
+    if(apiKey&&athleteId){
+      try{
+        const r=await icuCheckPlanCompletions(plan,apiKey,athleteId,undefined,true);
+        if(r&&r.error){
+          showToast(r.error==='auth'
+            ? 'Não foi possível conectar ao intervals.icu — verifique sua API Key e Athlete ID.'
+            : 'Não foi possível conectar ao intervals.icu agora.');
+        }
+      }catch(e){}
+    }
+  }
+  if(plan.done[key]){
+    const choice=await lwConfirmModal(
+      'Treino já registrado',
+      'Encontramos um treino realizado no relógio (intervals.icu) para este dia.',
+      'Vincular com o relógio','Iniciar mesmo assim');
+    if(choice!=='b'){
+      finishToggleDoneUI(planId,wIdx,dIdx);
+      showToast('Vinculado ao treino já realizado.');
+      return;
+    }
+    allowOverwrite=true;
+  }
+
+  if(!('geolocation'in navigator)){showToast('Seu navegador não suporta GPS.');return;}
+
+  let rawSteps=null;
+  try{rawSteps=dayToGarminSteps(day,plan);}catch(e){rawSteps=null;}
+  let steps=lwFlattenSteps(rawSteps);
+  if(!steps.length){
+    const fallbackZone=day.pace?lwPaceZoneMps(day.pace,15):null;
+    steps=[{kind:'active',endType:'time',endValue:36000,paceMinMps:fallbackZone?fallbackZone.paceMinMps:null,paceMaxMps:fallbackZone?fallbackZone.paceMaxMps:null,label:day.type||'Corrida',repIdx:null,repTotal:null,freeMode:true}];
+  }
+
+  LW={
+    planId,wIdx,dIdx,day,plan,
+    steps,stepIdx:0,
+    status:'running',
+    startedAt:Date.now(),pausedAt:null,pausedAccumMs:0,
+    totalDistM:0,lastGoodPoint:null,recentSamples:[],
+    segStartDistM:0,segStartElapsedMs:0,
+    watchId:null,timerId:null,wakeLock:null,
+    stepHistory:[],lastBeepKey:null,audioCtx:null,
+    stepPending:true,stepGen:0,
+    paceAlertsEnabled:(()=>{ try{return localStorage.getItem('vo2-lw-pace-alerts')!=='0';}catch(e){return true;} })(),
+    paceOutOfZoneSince:null,paceOutOfZoneDir:null,lastPaceAlertAt:null,geoPermWatching:false,gpsDismissed:false,geoUnavailableSince:null,
+    touchLock:{active:false,lastActivityAt:Date.now(),lastTapAt:0},
+    allowOverwrite
+  };
+
+  lwBuildOverlay();
+  lwShowOverlay();
+  // Cria o AudioContext AGORA, dentro do clique da pessoa em "Iniciar
+  // Treino" — se deixar pra criar só na hora do primeiro bipe (disparado
+  // pelo timer, não por um clique), o navegador trava o áudio em modo mudo
+  // por política de autoplay e os bipes nunca tocam de verdade.
+  try{
+    LW.audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    if(LW.audioCtx.state==='suspended')LW.audioCtx.resume();
+  }catch(e){}
+  lwStartKeepAlive();
+  lwStartGPS();
+  lwStartTimer();
+  lwStartLockWatcher();
+  lwRequestWakeLock();
+  showToast('Mantenha a tela ligada e o app aberto durante o treino — travar a tela pode interromper o GPS.');
+  const myGen=LW.stepGen;
+  if(LW.steps.length>1){
+    const firstDetail=lwStepSpokenDetail(LW.steps[0]);
+    lwSpeak(`Treino iniciado. Primeira etapa: ${LW.steps[0].label}.${firstDetail?` ${firstDetail}.`:''}`,()=>lwActivateStep(myGen));
+  }else{
+    lwSpeak('Treino iniciado. Boa corrida!',()=>lwActivateStep(myGen));
+  }
+  lwUpdateUI();
+}
+function lwTogglePause(){
+  if(!LW)return;
+  if(LW.status==='running'){
+    LW.status='paused';
+    LW.pausedAt=Date.now();
+    lwStopGPS();
+    lwSpeak('Treino pausado.');
+  }else if(LW.status==='paused'){
+    LW.pausedAccumMs+=Date.now()-LW.pausedAt;
+    LW.pausedAt=null;
+    LW.status='running';
+    LW.lastGoodPoint=null; // evita contar o tempo parado como deslocamento
+    lwStartGPS();
+    if(LW.audioCtx&&LW.audioCtx.state==='suspended'){try{LW.audioCtx.resume();}catch(e){}}
+    lwSpeak('Treino retomado.');
+  }
+  lwUpdateUI();
+}
+function lwCancelWorkout(){
+  if(!LW)return;
+  if(!confirm('Descartar este treino? Os dados de GPS não serão salvos.'))return;
+  lwStopGPS();lwStopTimer();lwStopLockWatcher();lwReleaseWakeLock();lwStopKeepAlive();
+  if('speechSynthesis'in window)speechSynthesis.cancel();
+  lwHideOverlay();
+  LW=null;
+}
+function lwSkipStep(){
+  if(!LW)return;
+  if(LW.stepIdx>=LW.steps.length){ lwFinishWorkout(); return; } // já passou de todas — só finaliza
+  if(LW.stepPending)lwActivateStep(LW.stepGen); // ainda esperando a fala da etapa atual terminar — ativa na hora pra não contar a distância/tempo errado
+  const isLast=LW.stepIdx>=LW.steps.length-1;
+  lwCompleteCurrentStep();
+  if(isLast)lwFinishWorkout();
+}
+function lwFinishWorkout(){
+  if(!LW)return;
+  lwStopGPS();lwStopTimer();lwStopLockWatcher();lwReleaseWakeLock();lwStopKeepAlive();
+  const timeSec=lwElapsedMs()/1000;
+  const distKm=LW.totalDistM/1000;
+  const paceSec=distKm>0.05?timeSec/distKm:null;
+  const distTxt=distKm>0?`${distKm.toFixed(2)} quilômetros`:'nenhuma distância registrada';
+  const{planId,wIdx,dIdx}=LW;
+  const plan=savedPlans.find(p=>p.id===planId);
+  const key=`${wIdx}-${dIdx}`;
+  // Se esse dia já tiver sido marcado como concluído por outro caminho
+  // enquanto o treino ao vivo rodava (ex: sincronizou do relógio via
+  // intervals.icu nesse meio-tempo), mantém o registro que chegou primeiro
+  // e não sobrescreve com os dados do GPS — evita duplicar/perder o
+  // original, seja ele da integração ou manual. Exceção: se a pessoa já
+  // tinha visto esse aviso no início e escolheu "iniciar mesmo assim", o
+  // sobrescrever aqui é intencional (allowOverwrite).
+  const alreadyDone=plan&&!!plan.done[key]&&!LW.allowOverwrite;
+  if(alreadyDone){
+    lwSpeak('Treino finalizado! Esse dia já estava registrado como concluído — mantendo o registro original.');
+    showToast('Esse dia já estava concluído (integração ou manual) — mantendo o registro original, sem duplicar.');
+  }else{
+    lwSpeak(`Treino finalizado! Distância total: ${distTxt}. Tempo: ${lwFmtDurationSpoken(timeSec)}.`);
+    if(plan){
+      const durationStr=lwFmtDurationStorage(timeSec);
+      const paceStr=paceSec?lwFmtPaceSecPerKm(paceSec):null;
+      plan.done[key]={real:true,dist:distKm>0?`${distKm.toFixed(2)}km`:null,duration:durationStr||null,pace:paceStr||null,completedAt:Date.now()};
+      finishToggleDoneUI(planId,wIdx,dIdx);
+    }
+    showToast('Treino salvo com sucesso!');
+  }
+  lwHideOverlay();
+  LW=null;
+}
+
+// ── Tela (overlay) ──
+function lwBuildOverlay(){
+  const old=document.getElementById('live-workout-overlay'); if(old)old.remove();
+  const div=document.createElement('div');
+  div.id='live-workout-overlay';
+  div.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px);overflow-y:auto';
+  div.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--t3);text-transform:uppercase;display:flex;align-items:center;gap:6px">
+        <span id="lw-gps-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gr);display:inline-block"></span>
+        TREINO AO VIVO <span id="lw-total-time" style="color:var(--t3);font-weight:700;text-transform:none;letter-spacing:0">· 00:00 total</span>
+      </div>
+      <button onclick="lwCancelWorkout()" style="background:none;border:none;color:var(--t3);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:4px">Cancelar</button>
+    </div>
+
+    <div style="font-size:11px;color:var(--t3);text-align:center;margin-bottom:12px;line-height:1.4">
+      <svg class="gi" style="font-size:13px;vertical-align:-2px"><use href="#i-info"></use></svg>
+      Mantenha a tela ligada e o app aberto — travar a tela pode pausar o GPS
+    </div>
+
+    <div id="lw-gps-banner" style="display:none;flex-direction:column;gap:10px;border-radius:14px;padding:14px 16px;margin-bottom:16px;background:rgba(255,140,0,.13);border:1px solid #ff8c00">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <svg class="gi" style="font-size:20px;color:#ff8c00;flex-shrink:0;margin-top:1px"><use href="#i-warning"></use></svg>
+        <div id="lw-gps-banner-msg" style="font-size:13px;color:var(--t1);font-weight:700;line-height:1.4">GPS desativado.</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="lwGpsBannerActivate()" style="flex:1;height:40px;border-radius:9px;border:none;background:#ff8c00;color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">Tentar de novo</button>
+        <button onclick="lwGpsBannerDismiss()" style="flex:1;height:40px;border-radius:9px;border:1px solid var(--bdr2);background:none;color:var(--t2);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Continuar sem GPS</button>
+      </div>
+    </div>
+
+    <div style="border-radius:14px;padding:14px 16px;margin-bottom:16px;background:var(--acc3);border:1px solid var(--acc)">
+      <div id="lw-step-progress" style="font-size:11px;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px"></div>
+      <div id="lw-step-label" style="font-size:17px;font-weight:800;color:var(--t1)"></div>
+      <div id="lw-step-target" style="font-size:12.5px;color:var(--t2);margin-top:2px"></div>
+    </div>
+
+    <div style="text-align:center;margin:20px 0 26px">
+      <div id="lw-time" style="font-size:52px;font-weight:900;color:var(--t1);letter-spacing:-.02em;font-variant-numeric:tabular-nums">00:00</div>
+      <div id="lw-time-label" style="font-size:12px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Tempo da etapa</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+      <div class="stat-card" style="padding:14px 12px;text-align:center">
+        <div id="lw-dist" style="font-size:26px;font-weight:900;color:var(--t1)">0.00</div>
+        <div style="font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase">km percorridos</div>
+      </div>
+      <div class="stat-card" style="padding:14px 12px;text-align:center">
+        <div id="lw-pace" style="font-size:26px;font-weight:900;color:var(--t1)">--:--</div>
+        <div style="font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase">pace atual /km</div>
+        <div id="lw-pace-indicator" style="font-size:11px;font-weight:800;margin-top:3px;min-height:14px"></div>
+      </div>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <div style="display:flex;justify-content:center;margin-bottom:18px">
+      <button id="lw-pause-btn" onclick="lwTogglePause()" style="width:84px;height:84px;border-radius:50%;border:none;background:var(--acc);color:var(--on-acc);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18)"></button>
+    </div>
+
+    <button id="lw-skip-btn" onclick="lwSkipStep()" style="width:100%;height:48px;border-radius:10px;border:1px solid var(--bdr2);background:var(--s1);color:var(--t2);font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
+      <svg class="gi"><use href="#i-arrow_forward"></use></svg> Pular etapa
+    </button>
+
+    <button id="lw-pace-alert-btn" onclick="lwTogglePaceAlerts()" style="width:100%;background:none;border:none;color:var(--t3);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;padding:10px 4px;display:flex;align-items:center;justify-content:center;gap:5px"></button>
+
+    <div id="lw-touch-lock" onclick="lwHandleLockTap()" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff;cursor:pointer">
+      <svg class="gi" style="font-size:36px;margin-bottom:10px"><use href="#i-lock"></use></svg>
+      <div style="font-size:15px;font-weight:800;margin-bottom:4px">Tela travada</div>
+      <div style="font-size:13px;opacity:.85">Toque duas vezes para destravar</div>
+    </div>`;
+  div.addEventListener('pointerdown',lwRegisterActivity);
+  document.body.appendChild(div);
+}
+function lwShowOverlay(){
+  const o=document.getElementById('live-workout-overlay'); if(!o)return;
+  o.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function lwHideOverlay(){
+  const o=document.getElementById('live-workout-overlay'); if(o)o.remove();
+  document.body.style.overflow='';
+}
+function lwUpdateUI(){
+  if(!LW)return;
+  const timeSec=lwElapsedMs()/1000;
+  const distKm=LW.totalDistM/1000;
+  const curPace=lwCurrentPaceSecPerKm();
+  const el=id=>document.getElementById(id);
+
+  const distEl=el('lw-dist'); if(distEl)distEl.textContent=distKm.toFixed(2);
+  const paceEl=el('lw-pace'); if(paceEl)paceEl.textContent=curPace?lwFmtPaceSecPerKm(curPace):'--:--';
+  const dot=el('lw-gps-dot'); if(dot)dot.style.background=LW.status==='paused'?'var(--t3)':(LW.lastGoodPoint?'var(--gr)':'var(--rd)');
+  const totalTimeEl=el('lw-total-time'); if(totalTimeEl)totalTimeEl.textContent=`· ${lwFmtDurationDisplay(timeSec)} total`;
+
+  // Indicador visual de ritmo — atualiza na hora (sem esperar os 20s do
+  // áudio), igual a seta de ritmo que watches tipo Garmin mostram na tela.
+  const paceIndEl=el('lw-pace-indicator');
+  if(paceIndEl){
+    const curStep=LW.steps[LW.stepIdx];
+    const zone=curStep?lwGetPaceZone(curStep):null;
+    const effPace=lwEffectivePaceSecPerKm();
+    if(!zone||effPace==null||LW.stepPending){
+      paceIndEl.textContent='';
+    }else if(effPace===Infinity){
+      paceIndEl.textContent='■ parado';
+      paceIndEl.style.color='var(--rd)';
+    }else if(effPace>zone.slowSec+5){
+      paceIndEl.textContent='▲ lento';
+      paceIndEl.style.color='var(--rd)';
+    }else if(effPace<zone.fastSec-5){
+      paceIndEl.textContent='▼ rápido';
+      paceIndEl.style.color='var(--acc)';
+    }else{
+      paceIndEl.textContent='● no ritmo';
+      paceIndEl.style.color='var(--gr)';
+    }
+  }
+
+  const stepProgEl=el('lw-step-progress'), stepLblEl=el('lw-step-label'), stepTgtEl=el('lw-step-target');
+  const timeEl=el('lw-time'), timeLblEl=el('lw-time-label');
+  const step=LW.steps[LW.stepIdx];
+  if(LW.stepIdx>=LW.steps.length){
+    if(stepProgEl)stepProgEl.textContent='TREINO';
+    if(stepLblEl)stepLblEl.textContent='Todas as etapas concluídas 🎉';
+    if(stepTgtEl)stepTgtEl.textContent='Toque em "Finalizar treino" quando terminar.';
+    if(timeEl)timeEl.textContent=lwFmtDurationDisplay(timeSec);
+    if(timeLblEl)timeLblEl.textContent='Tempo total';
+  }else if(step){
+    if(stepProgEl)stepProgEl.textContent=`ETAPA ${LW.stepIdx+1} DE ${LW.steps.length}`+(step.repIdx?` · ${step.repIdx}/${step.repTotal}`:'');
+    if(stepLblEl)stepLblEl.textContent=step.label;
+    if(stepTgtEl){
+      let tgtTxt='';
+      if(step.paceMinMps&&step.paceMaxMps){
+        const fastSec=1000/step.paceMaxMps, slowSec=1000/step.paceMinMps;
+        tgtTxt=`Alvo: ${lwFmtPaceSecPerKm(fastSec)}–${lwFmtPaceSecPerKm(slowSec)} /km`;
+      }
+      if(step.endType==='distance')tgtTxt+=(tgtTxt?' · ':'')+`${(step.endValue/1000).toFixed(step.endValue<1000?0:2)}km`;
+      else if(step.endType==='time')tgtTxt+=(tgtTxt?' · ':'')+`${Math.round(step.endValue/60)} min`;
+      stepTgtEl.textContent=tgtTxt;
+    }
+    // Cronômetro grande = da ETAPA atual (zera a cada troca). Etapa por tempo
+    // conta regressivo (pra saber quando termina); por distância/livre conta
+    // progressivo, já que não tem uma duração fixa pra descontar. Enquanto
+    // ainda está falando o aviso da etapa (stepPending), o relógio fica
+    // parado mostrando o valor "cheio" — só corre depois do "Iniciando agora".
+    if(LW.stepPending){
+      if(timeLblEl)timeLblEl.textContent='Preparando etapa…';
+      if(timeEl)timeEl.textContent=(!step.freeMode&&step.endType==='time')?lwFmtDurationDisplay(step.endValue):'00:00';
+    }else{
+      const stepElapsedSec=Math.max(0,(lwElapsedMs()-LW.segStartElapsedMs)/1000);
+      if(step.freeMode){
+        if(timeEl)timeEl.textContent=lwFmtDurationDisplay(stepElapsedSec);
+        if(timeLblEl)timeLblEl.textContent='Tempo da etapa';
+      }else if(step.endType==='time'){
+        const remaining=Math.max(0,step.endValue-stepElapsedSec);
+        if(timeEl)timeEl.textContent=lwFmtDurationDisplay(remaining);
+        if(timeLblEl)timeLblEl.textContent='Restante nesta etapa';
+      }else{
+        if(timeEl)timeEl.textContent=lwFmtDurationDisplay(stepElapsedSec);
+        if(timeLblEl)timeLblEl.textContent='Tempo da etapa';
+      }
+    }
+  }
+
+  const pauseBtn=el('lw-pause-btn');
+  if(pauseBtn)pauseBtn.innerHTML=LW.status==='running'?LW_ICON_PAUSE:LW_ICON_PLAY;
+
+  const skipBtn=el('lw-skip-btn');
+  if(skipBtn){
+    const isLastOrDone=!LW.steps.length||LW.stepIdx>=LW.steps.length-1;
+    skipBtn.innerHTML=isLastOrDone
+      ?'<svg class="gi"><use href="#i-check"></use></svg> Finalizar treino'
+      :'<svg class="gi"><use href="#i-arrow_forward"></use></svg> Pular etapa';
+  }
+
+  const paceAlertBtn=el('lw-pace-alert-btn');
+  if(paceAlertBtn){
+    paceAlertBtn.innerHTML=LW.paceAlertsEnabled
+      ?'<svg class="gi" style="font-size:14px"><use href="#i-track_changes"></use></svg> Alerta de ritmo ligado — toque pra desligar'
+      :'<svg class="gi" style="font-size:14px"><use href="#i-visibility_off"></use></svg> Alerta de ritmo desligado — toque pra ligar';
+  }
+}
+
+window.startLiveWorkout=startLiveWorkout;
+window.lwTogglePause=lwTogglePause;
+window.lwCancelWorkout=lwCancelWorkout;
+window.lwFinishWorkout=lwFinishWorkout;
+window.lwSkipStep=lwSkipStep;
+window.lwTogglePaceAlerts=lwTogglePaceAlerts;
+window.lwHandleLockTap=lwHandleLockTap;
+window.lwGpsBannerActivate=lwGpsBannerActivate;
+window.lwGpsBannerDismiss=lwGpsBannerDismiss;
+
 </script>
 
 <script>
